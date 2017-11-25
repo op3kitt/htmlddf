@@ -6,8 +6,6 @@ $("#magicRangeDD4th_close, #magicRangeDD4th_close2").on('click', (e) => {
   $("#window_magicRangeDD4th").hide();
 });
 
-$("#magicRangeDD4th_feets").spinner({min: 1, max:100});
-$("#magicRangeDD4th_timeRange").spinner({min: 1, max:99});
 sp_param = require("../.option.spectrum.json");
 sp_param.change = (c) => {
   $("#magicRangeDD4th_color").val(c.toHex());

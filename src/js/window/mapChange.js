@@ -2,9 +2,6 @@ $("#btn_mapchange").on("click", (e) => {
   mapChange_show();
 });
 
-$("#mapChange_width, #mapChange_height").spinner({min: 1, max: 150, stop: mapChange_previewUpdate});
-$("#mapChange_gridInterval").spinner({min: 1,max: 100, stop: mapChange_previewUpdate});
-
 $("#window_mapChange input").on('change', mapChange_previewUpdate);
 sp_param = require("../.option.spectrum.json");
 sp_param.change = (c) => {
@@ -86,7 +83,7 @@ $("#mapChange_imageChange").on('click', (e) => {
 
     $("#mapChange_tagbox").empty();
     for(item of tagList){
-      $("#mapChange_tagbox").append($(`<option>${item}</option>`));
+      $("#mapChange_tagbox").append($(`<option>${encode(item)}</option>`));
     }
     mapChange_setTag(tagList[0]);
   });

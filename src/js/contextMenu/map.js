@@ -13,6 +13,7 @@ $.contextMenu({
     },
     addMagicRangeDD4: {name: "魔法範囲追加(DD4版)",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
+        magicRangeDD4th_show(0);
       },
     },
     addMagicRangeLH: {name: "ログホライズン用範囲",

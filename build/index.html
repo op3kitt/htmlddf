@@ -9,6 +9,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.14/js/jquery.tablesorter.min.js"></script>
     <script src="js/jquery.contextMenu.js"></script>
     <script src="js/spectrum.js"></script>
+    <script src="js/lib/htmlspecialchars.js"></script>
+    <script src="js/util.js"></script>
     <link rel="stylesheet" href="https://tools.cry-kit.com/ddf/public_html/loaders.css">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="js/jquery.contextMenu.css">
@@ -368,11 +370,11 @@
             <div class="r">
               <input type="checkbox" id="mapChange_blank">白地図にする　
               縦：
-              <input class="spinner" id="mapChange_height">　横：
-              <input class="spinner" id="mapChange_width">　マス目・座標文字の色：
+              <input type="number" min="1" max="150" required id="mapChange_height">　横：
+              <input type="number" min="1" max="150" required id="mapChange_width">　マス目・座標文字の色：
               <input class="colorpicker" type="hidden" id="mapChange_color">
               <input class="colorpicker" id="mapChange_color2">　マス目間隔：
-              <input class="spinner" id="mapChange_gridInterval">　
+              <input type="number" min="1" max="100" required id="mapChange_gridInterval">　
               <input type="checkbox" id="mapChange_isAlternately">マスを交互に
               <input class="hide" type="checkbox" id="mapChange_mirrored">
             </div>
@@ -459,11 +461,11 @@
             </div>
             <div class="r">
               <label>高さ：</label>
-              <input class="spinner" id="mapMask_height">
+              <input class="spinner" type="number" min="1" max="100" required id="mapMask_height">
             </div>
             <div class="r">
               <label>幅：</label>
-              <input class="spinner" id="mapMask_width">
+              <input class="spinner" type="number" min="1" max="100" required id="mapMask_width">
             </div>
             <div class="r">
               <label>透過度</label>
@@ -508,41 +510,20 @@
         </div>
         <div class="draggable" id="window_memo">
           <div class="bg"> 
-            <div>���L����
-              <div class="pull-right" id="memo_close2">�~</div>
+            <div> <span class="title">共有メモ</span>
+              <div class="pull-right" id="memo_close2">×</div>
             </div>
           </div>
           <div class="body dragprev">
+            <div class="r clearfix" id="memo_listTab">
+              <input type="hidden" id="memo_imgId">
+              <div id="memo_tab"></div>
+            </div>
+            <div class="r" id="memo_edit"></div>
             <div class="r">
-              <div id="memo_droparea"></div>
-              <div class="overwrap">
-                <input type="file" multiple accept="image/png,image/jpeg,image/gif"><a href="#">�t�@�C�����I��</a><br>�@�܂��́@<br>�t�@�C�����h���b�O�A���h�h���b�v
-              </div>
-            </div>
-            <div class="r">�Ή��摜:JPEG/GIF/PNG
-              <select id="memo_public">
-                <option value="">���p</option>
-                <option value="1">�S��</option>
-              </select>
-              <button id="memo_btnpassword">�p�X���[�h�Ȃ�</button>
-              <input id="memo_password">
-            </div>
-            <div class="r">�t�^�����^�O�i���p�E�S�p�X�y�[�X�ŋ��؂��j
-              <input id="memo_tag" value="�L�����N�^�[�摜�@">
-              <select id="memo_tagbox">
-                <option>�L�����N�^�[�摜</option>
-                <option>�t���A�^�C���摜</option>
-                <option>�}�b�v�摜</option>
-                <option>�����X�^�[</option>
-                <option>�����G</option>
-              </select>
-            </div>
-            <div class="r">
-              <button id="memo_send">�A�b�v���[�h</button>
-              <button id="memo_close">�L�����Z��</button>
-            </div>
-            <div class="r">����
-              <div id="memo_result"></div>
+              <button id="memo_send">追加</button>
+              <button id="memo_close">キャンセル</button>
+              <button class="pull-right" id="memo_addTab">タブ追加</button>
             </div>
           </div>
         </div>
@@ -557,6 +538,51 @@
               <div class="r">
                 <pre id="help_text"></pre>
               </div>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_magicRangeDD4th">
+          <div class="bg"> 
+            <div> <span class="title">魔法範囲作成（Ｄ＆Ｄ４版）</span>
+              <div class="pull-right" id="magicRangeDD4th_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <input type="hidden" id="magicRangeDD4th_imgId">
+              <label>名前：</label>
+              <input id="magicRangeDD4th_name">
+            </div>
+            <div class="r">
+              <label>範囲種別：</label>
+              <select id="magicRangeDD4th_rangeType">
+                <option value="closeBurstDD4th">爆発</option>
+                <option value="blastDD4th">噴射</option>
+              </select>
+            </div>
+            <div class="r">
+              <label>範囲（マス）：</label>
+              <input type="number" min="1" max="100" required id="magicRangeDD4th_feets">
+            </div>
+            <div class="r">
+              <label>色：</label>
+              <input type="hidden" id="magicRangeDD4th_color">
+              <input id="magicRangeDD4th_color2">
+            </div>
+            <div class="r">
+              <label>持続時間：</label>
+              <input type="number" min="1" max="99" required id="magicRangeDD4th_timeRange">
+            </div>
+            <div class="r">
+              <label>その他：</label>
+              <input id="magicRangeDD4th_info">
+            </div>
+            <div class="r">
+              <input type="checkbox" checked id="magicRangeDD4th_isHide">イニシアティブ表に表示する
+            </div>
+            <div class="r center">
+              <button id="magicRangeDD4th_send">変更</button>
+              <button id="magicRangeDD4th_close">キャンセル</button>
             </div>
           </div>
         </div>

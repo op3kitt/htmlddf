@@ -15,14 +15,14 @@
         option(value="blastDD4th") 噴射
     .r
       label 範囲（マス）：
-      input#magicRangeDD4th_feets.spinner
+      input(type="number",min=1,max=100,required)#magicRangeDD4th_feets
     .r
       label 色：
       input(type="hidden")#magicRangeDD4th_color
       input#magicRangeDD4th_color2
     .r
       label 持続時間：
-      input#magicRangeDD4th_timeRange.spinner
+      input(type="number",min=1,max=99,required)#magicRangeDD4th_timeRange
     .r
       label その他：
       input#magicRangeDD4th_info

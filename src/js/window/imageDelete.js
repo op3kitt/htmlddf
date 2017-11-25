@@ -16,7 +16,7 @@ $("#btn_imagedelete").on('click', (e) => {
 
     $("#imageDelete_tagbox").empty();
     for(item of tagList){
-      $("#imageDelete_tagbox").append($(`<option>${item}</option>`));
+      $("#imageDelete_tagbox").append($(`<option>${encode(item)}</option>`));
     }
     imageDelete_setTag(tagList[0]);
   });

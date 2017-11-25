@@ -133,7 +133,13 @@ $.contextMenu({
   items: {
     edit: {name: "魔法範囲の変更",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
-        //ddf.removeCharacter(opt.$trigger.attr("id"), true);
+        character = ddf.characters[opt.$trigger.attr("id")];
+        switch(character.data.rangeType){
+          case "closeBurstDD4th":
+          case "blastDD4th":
+            ddf.cmd.magicRangeDD4th_show(opt.$trigger.attr("id"));
+            break;
+        }
       },
     },
     delete: {name: "魔法範囲の削除",
@@ -161,46 +167,56 @@ $.contextMenu({
       },
     },
     addMagicRangeDD3: {name: "魔法範囲追加(DD3版)",
+      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
       },
     },
     addMagicRangeDD4: {name: "魔法範囲追加(DD4版)",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
+        magicRangeDD4th_show(0);
       },
     },
     addMagicRangeLH: {name: "ログホライズン用範囲",
+      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
       },
     },
     addMagicTimer: {name: "魔法タイマー追加",
+      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
       },
     },
     addMapMask: {name: "マップマスク追加",
+      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
         ddf.mapMask_show("");
       },
     },
     addMapMarker: {name: "マップマーカー追加",
+      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
       },
     },
     sep1: "---------",
     addDiceSymbol: {name: "ダイスシンボル追加",
+      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
       },
     },
     sep2: "---------",
     addCardHolder: {name: "手札置き場の作成",
+      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
       },
     },
     addMessageCard: {name: "メッセージカードの追加",
+      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
       },
     },
     sep3: "---------",
     resetWindow: {name: "ウィンドウ配置初期化",
+      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
       },
     }
@@ -265,7 +281,7 @@ $.contextMenu({
   items: {
     edit: {name: "共有メモの変更",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
-        //ddf.removeCharacter(opt.$trigger.attr("id"), true);
+        ddf.cmd.openMemo(opt.$trigger.attr("id"));
       },
     },
     delete: {name: "共有メモの削除",
@@ -317,7 +333,7 @@ function titleAnimation(){
 
 
 window.addEventListener('popstate', (e) =>  {
-  // e.state is equal to the data-attribute of the last image we clicked
+  console.log(e);
 });
 var click = {x:0,y:0};
 
@@ -561,14 +577,14 @@ ddf.cmd.getPlayRoomInfo = () => {
       roominfos[parseInt(room.index.trim())] = room;
       
       var row = "<tr>";
-      row += "<td>"+room.index+"</td>"
-      row += "<td>"+room.playRoomName+"</td>"
-      row += "<td>"+ddf.util.getDiceBotName(room.gameType)+"</td>"
-      row += "<td>"+room.loginUsers.length+"</td>"
-      row += "<td>"+(room.passwordLockState?"有り":"--")+"</td>"
-      row += "<td>"+(room.canVisit?"可":"--")+"</td>"
-      row += "<td>"+(room.lastUpdateTime?room.lastUpdateTime:"")+"</td>"
-      row += "<td></td></tr>"
+      row += `<td>${room.index}</td>`
+      row += `<td>${encode(room.playRoomName)}</td>`
+      row += `<td>${encode(ddf.util.getDiceBotName(room.gameType))}</td>`
+      row += `<td>${room.loginUsers.length}</td>`
+      row += `<td>${room.passwordLockState?"有り":"--"}</td>`;
+      row += `<td>${room.canVisit?"可":"--"}</td>`;
+      row += `<td>${room.lastUpdateTime?room.lastUpdateTime:""}</td>`;
+      row += "<td></td></tr>";
       tr = $(row);
       button = $("<button>削除</button>");
       if(room.lastUpdateTime){
@@ -697,7 +713,7 @@ function checkRoomStatus(roomNumber, password = null){
           ddf.roomState.playSound = true;
           for(tab of roominfo.chatChannelNames){
             ddf.roomState.unread.push(0);
-            var obj = $("<p>"+tab+"/<span class=\"tab_label\">0</span></p>");
+            var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
             obj.on("click", ((index) => {
               return (e) => {
                 if(!$(e.currentTarget).hasClass("active")){
@@ -710,7 +726,7 @@ function checkRoomStatus(roomNumber, password = null){
           }
           for(item of ddf.info.diceBotInfos){
             if(/^[^:]*$/.test(item.gameType) && item.gameType != "BaseDiceBot"){
-              $("#dicebot").append($("<option value='"+item.gameType+"'>"+item.name+"</option>"));
+              $("#dicebot").append($(`<option value="${encode(item.gameType)}">${encode(item.name)}</option>`));
             }
           }
           setChatTab("0");
@@ -727,7 +743,7 @@ function removePlayRoom(roomNumber, password = null){
     if(room.passwordLockState && password == null){
     
     }else{
-      body = "No."+room.index+"："+room.playRoomName+"\nを削除しますか？";
+      body = `No.${room.index}：${room.playRoomName}\nを削除しますか？`;
       if(password != null || confirm(body)){
         ddf.removePlayRoom(roomNumber, false, password);
         $("#playRoomInfos tbody").empty();
@@ -740,9 +756,9 @@ function removePlayRoom(roomNumber, password = null){
 function setChatTab(index){
   ddf.userState.channel = index;
   $("#tab p.active, #log div.active").removeClass('active');
-  $("#tab p:eq("+index+"), #log div:eq("+index+")").addClass('active');
+  $(`#tab p:eq(${index}), #log div:eq(${index})`).addClass('active');
   ddf.roomState.unread[index] = 0;
-  $("#tab p:eq("+index+") span").text(0);
+  $(`#tab p:eq(${index}) span`).text(0);
 }
 
 function refresh(){
@@ -754,10 +770,10 @@ function refresh(){
       ddf.roomState.viewStateInfo = refreshData.viewStateInfo;
     }
     if(refreshData.gameType){
-      if($("#dicebot").children("[value="+refreshData.gameType+"]").length==1){
+      if($("#dicebot").children(`[value=${refreshData.gameType}]`).length==1){
         $("#dicebot").val($(refreshData.gameType));
       }else{
-        $("#dicebot").append($("<option value='"+refreshData.gameType+"'>"+refreshData.gameType+"</option>"));
+        $("#dicebot").append($(`<option value="${encode(refreshData.gameType)}">${encode(refreshData.gameType)}</option>`));
         $("#dicebot").val(refreshData.gameType);
       }
     }
@@ -785,7 +801,7 @@ function refresh(){
       for(i = 0;i < refreshData.chatChannelNames.length;i++){
         if(ddf.roomState.chatChannelNames.length <= i){
           ddf.roomState.unread.push(0);
-          var obj = $("<p>"+tab+"/<span class=\"tab_label\">0</span></p>");
+          var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
           obj.on("click", ((index) => {
             return (e) => {
               if(!$(e.currentTarget).hasClass("active")){
@@ -796,7 +812,7 @@ function refresh(){
           $("#tab").append(obj);
           $("#log").append($("<div><p></p></div>"));
         }else{
-          $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${refreshData.chatChannelNames[i]}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
+          $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${encode(refreshData.chatChannelNames[i])}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
         }
       }
       if($("#tab .active").length == 0){
@@ -808,7 +824,7 @@ function refresh(){
       refresh_parseChatMessageDataLog(refreshData);
     }
     if(refreshData.record) {
-      refresh_parseRecordData(refreshData);
+      ddf.cmd.refresh_parseRecordData(refreshData);
     }
     if(refreshData.gameType){
       $("#dicebot").val(refreshData.gameType);
@@ -857,20 +873,20 @@ function refresh_parseChatMessageDataLog(refreshData){
           continue;
           break;
         case "rollVisualDice":
-          eval("param = " + matches[2]);
-          $("#log div:eq("+item[1].channel+")").append($("<p style='color: #"+item[1].color+"'>"+item[1].senderName+":"+param.chatMessage.replace(/\n/, "<br>")+"</p>"));
-          $("#log div:eq("+item[1].channel+")").hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+          param = JSON.parse(matches[2]);
+          $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(param.chatMessage.replace(/\n/, "<br>"))}</p>`));
+          $(`#log div:eq(${item[1].channel}))`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
           lastRandResult = [param.chatMessage, param.randResults];
           continue;
           break;
       }
     }else if(matches = /^###CutInMovie###(.+)$/.exec(item[1].message)){
-      eval("param = " + matches[1]);
-      $("#log div:eq("+item[1].channel+")").append($("<p style='color: #"+item[1].color+"'>"+item[1].senderName+":【"+param.message+"】</p>"));
-      $("#log div:eq("+item[1].channel+")").hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+      param = JSON/parse(matches[1]);
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:【${encode(param.message)}】</p>`));
+      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }else{
-      $("#log div:eq("+item[1].channel+")").append($("<p style='color: #"+item[1].color+"'>"+item[1].senderName+":"+item[1].message+"</p>"));
-      $("#log div:eq("+item[1].channel+")").hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(item[1].message)}</p>`));
+      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }
   }
   if(refreshData.isFirstChatRefresh){
@@ -921,7 +937,7 @@ function refresh_parseChatMessageDataLog(refreshData){
       }
     }
     total = /\s([^\s]+)$/.exec(lastRandResult[0])[1];
-    $("#diceResult").append($(`<div class="total">${total}</div>`));
+    $("#diceResult").append($(`<div class="total">${encode(total)}</div>`));
   }else if(sound){
     playSound(pageBuffer);
   }
@@ -1033,7 +1049,7 @@ function refresh_parseViewStateInfo(refreshData){
   }
 }
 
-function refresh_parseRecordData(refreshData){
+ddf.cmd.refresh_parseRecordData = (refreshData) => {
   ddf.safeDragDestoroy();
   for(record of refreshData.record){
     switch(record[1]){
@@ -1136,7 +1152,7 @@ function refresh_parseRecordData(refreshData){
         }else{
           body = data.message.replace("\r", "<br>");
         }
-        obj.html(`<span>${title}</span><img src="${ddf.base_url}image/memo2.png"><div>${body}</div>`);
+        obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div>`);
       }
       character.data = data;
       break;
@@ -1151,7 +1167,7 @@ function refresh_parseRecordData(refreshData){
     }
   }
   $(".draggableObj").draggable(ddf.dragOption);
-}
+};
 
 function refresh_parseCharacters(refreshData){
   for(character of refreshData.characters){
@@ -1199,7 +1215,7 @@ function refresh_parseCharacters(refreshData){
     case "mapMask":
       obj = $(`<div class="mapMaskFrame" id="${character.imgId}"></div>`);
       if(character.draggable){obj.addClass("draggableObj");}
-      obj.append($(`<div class="name">${character.name}</div>`));
+      obj.append($(`<div class="name">${encode(character.name)}</div>`));
       ddf.characters[character.imgId] = {
         obj: obj,
         data: character
@@ -1221,8 +1237,8 @@ function refresh_parseCharacters(refreshData){
       $("#mapSurface").append(obj);
       break;
     case "characterData":
-      obj = $("<div class='characterFrame draggableObj' id='"+character.imgId+"'></div>");
-      obj.append($("<div class='inner'></div><div class='dogtag'>"+character.dogTag+"</div><div class='name'>"+character.name+"</div>"));
+      obj = $(`<div class="characterFrame draggableObj" id="${character.imgId}"></div>`);
+      obj.append($(`<div class="inner"></div><div class="dogtag">${encode(character.dogTag)}</div><div class="name">${encode(character.name)}</div>`));
       ddf.characters[character.imgId] = {
         obj: obj,
         data: character
@@ -1253,7 +1269,7 @@ function refresh_parseCharacters(refreshData){
       }else{
         body = character.message.replace("\r", "<br>");
       }
-      obj = $(`<div class="draggableObj" id="${character.imgId}"><span>${title}</span><img src="${ddf.base_url}image/memo2.png"><div>${body}</div></div>`);
+      obj = $(`<div class="draggableObj" id="${character.imgId}"><span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div></div>`);
       $("#list_memo").append(obj);
       ddf.characters[character.imgId] = {
         obj: obj,
@@ -1314,7 +1330,7 @@ function refresh_parseMapData(refreshData){
       redraw.push([0, "changeCharacter", [ddf.characters[item].data], "dummy\t"]);
     }
   }
-  refresh_parseRecordData({record: redraw});
+  ddf.cmd.refresh_parseRecordData({record: redraw});
 }
 
 function refresh_parseRoundTimeData(refreshData){
@@ -1325,7 +1341,7 @@ function refresh_parseRoundTimeData(refreshData){
     $("#initiative table thead tr").append($("<th><p>修正値</p></th>"));
     $("#initiative table thead tr").append($("<th><p>名前</p></th>"));
     for(counter of refreshData.roundTimeData.counterNames){
-      $("#initiative table thead tr").append($("<th><p>"+counter.replace(/^\*/, "")+"</p></th>"));
+      $("#initiative table thead tr").append($(`<th><p>${encode(counter.replace(/^\*/, ""))}</p></th>`));
     }
     $("#initiative table thead tr").append($("<th><p>その他</p></th>"));
     
@@ -1334,21 +1350,21 @@ function refresh_parseRoundTimeData(refreshData){
     for(key in ddf.roomState.ini_characters){
       var character = ddf.roomState.ini_characters[key];
       var tmp = "<tr>";
-      tmp+= "<td>"+(character.data.initiative==refreshData.roundTimeData.initiative?"●":"")+"</td>";
-      tmp+= "<td>"+(character.data.initiative|0)+"</td>";
-      tmp+= "<td>"+(character.data.initiative*100 % 100)+"</td>";
-      tmp+= "<td>"+(character.data.name)+"</td>";
+      tmp+= `<td>${(character.data.initiative==refreshData.roundTimeData.initiative?"●":"")}</td>`;
+      tmp+= `<td>${(character.data.initiative|0)}</td>`;
+      tmp+= `<td>${(character.data.initiative*100 % 100)}</td>`;
+      tmp+= `<td>${encode(character.data.name)}</td>`;
       for(counter of refreshData.roundTimeData.counterNames){
         character.data.counters == null && (character.data.counters = {});
         character.data.statusAlias == null && (character.data.statusAlias = {});
         character.data.counters[counter]==undefined && (character.data.counters[counter] = 0);
         if(/^\*/.test(counter)){
-          tmp+= "<td>"+(character.data.counters[counter]!=0?"●":"")+"</td>";
+          tmp+= `<td>${(character.data.counters[counter]!=0?"●":"")}</td>`;
         }else{
-          tmp+= "<td>"+(character.data.counters[counter])+"</td>";        
+          tmp+= `<td>${(character.data.counters[counter])}</td>`;
         }
       }
-      tmp+= "<td>"+character.data.info+"</td>";
+      tmp+= `<td>${encode(character.data.info)}</td>`;
       tmp+= "</tr>";
       character.row = $(tmp);
       $("#initiative table tbody").append(
@@ -1503,8 +1519,8 @@ $(() => {
   });
   $("#btn_ragedd3").on("click", (e) => {
   });
-  $("#btn_rangedd4").on("click", (e) => {
-  });
+  /*$("#btn_rangedd4").on("click", (e) => {
+  });*/
   $("#btn_rangelh").on("click", (e) => {
   });
   $("#btn_rangemg").on("click", (e) => {
@@ -1679,8 +1695,10 @@ $(() => {
   require("./mapMask.js");
   require("./chat.js");
   require("./help.js");
+  require("./memo.js");
+  require("./magicRangeDD4th.js");
 });
-},{"./chat.js":14,"./graveyard.js":15,"./help.js":16,"./imageDelete.js":17,"./mapChange.js":18,"./mapMask.js":19,"./upload.js":20}],14:[function(require,module,exports){
+},{"./chat.js":14,"./graveyard.js":15,"./help.js":16,"./imageDelete.js":17,"./magicRangeDD4th.js":18,"./mapChange.js":19,"./mapMask.js":20,"./memo.js":21,"./upload.js":22}],14:[function(require,module,exports){
 
 $("#btn_private").on('click', (e) => {
 });
@@ -1790,17 +1808,18 @@ function getGraveyardCharacterData(){
           type = "魔法範囲D&D4版";
           break;
       }
-      $("#graveyard_characters").append($(`<option value="${item.imgId}">${name}[${type}]</option>`));
+      $("#graveyard_characters").append($(`<option value="${item.imgId}">${encode(name)}[${type}]</option>`));
     }
   });
 }
 },{}],16:[function(require,module,exports){
 
 $("#btn_help").on('click', (e) => {
-  $("#window_help").show();
   dicebot = ddf.info.diceBotInfos.find((item) => {return item.gameType == $("#dicebot").val()});
   baseDicebot = ddf.info.diceBotInfos.find((item) => {return item.gameType == "BaseDiceBot"});
   $("#help_text").text(`${baseDicebot.info}\n==【${dicebot.name}専用】=======================\n${dicebot.info}`);
+  $("#window_help").show().css("z-index", 61);
+  $(".draggable:not(#window_help)").css("z-index", 60);
 });
 
 $("#help_close").on('click', (e) => {
@@ -1825,7 +1844,7 @@ $("#btn_imagedelete").on('click', (e) => {
 
     $("#imageDelete_tagbox").empty();
     for(item of tagList){
-      $("#imageDelete_tagbox").append($(`<option>${item}</option>`));
+      $("#imageDelete_tagbox").append($(`<option>${encode(item)}</option>`));
     }
     imageDelete_setTag(tagList[0]);
   });
@@ -1881,12 +1900,130 @@ $("button#imageDelete_delete").on('click', (e) => {
   });
 });
 },{}],18:[function(require,module,exports){
+$("#btn_rangedd4").on("click", (e) => {
+  ddf.cmd.magicRangeDD4th_show("");
+});
+
+$("#magicRangeDD4th_close, #magicRangeDD4th_close2").on('click', (e) => {
+  $("#window_magicRangeDD4th").hide();
+});
+
+sp_param = require("../.option.spectrum.json");
+sp_param.change = (c) => {
+  $("#magicRangeDD4th_color").val(c.toHex());
+};
+$("#magicRangeDD4th_color2").spectrum(sp_param);
+
+ddf.cmd.magicRangeDD4th_show = (imgId, x = 0, y = 0) => {
+  if(character = ddf.characters[imgId]){
+    character = character.data;
+    $("#window_magicRangeDD4th .title").text("魔法範囲変更（Ｄ＆Ｄ４版）");
+    $("#magicRangeDD4th_send").text("変更");
+  }else{
+    index = 0;
+    reg = /^(\d+)$/;
+    for(item in ddf.characters){
+      if(v = reg.exec(ddf.characters[item].data.name)){
+        index = Math.max(index, parseInt(v[1]))
+      }
+    }
+    character = {
+      type: "magicRangeMarkerDD4th",
+      name: index + 1,
+      rangeType: "closeBurstDD4th",
+      feets: 15,
+      color: 0,
+      timeRange: 1,
+      info: "",
+      isHide: false,
+      size: 0,
+      x: x,
+      y: y,
+      counters: {},
+      statusAlias: {},
+      createRound: 1,
+      draggable: true,
+      imageName: "",
+      imgId: "0",
+      initiative: 1,
+      rotation: 0,
+      size: 0
+    };
+    $("#window_magicRangeDD4th .title").text("魔法範囲作成（Ｄ＆Ｄ４版）");
+    $("#magicRangeDD4th_send").text("追加");
+  }
+  $("#magicRangeDD4th_imgId").val(character.imgId);
+  $("#magicRangeDD4th_name").val(character.name);
+  $("#magicRangeDD4th_rangeType").val(character.rangeType);
+  $("#magicRangeDD4th_feets").val(character.feets / 5);
+  color = new tinycolor("rgb("+[character.color / 65536 & 0xFF,character.color / 256 & 0xFF,character.color & 0xFF]+")").toHex();
+  $("#magicRangeDD4th_color").val(color);
+  $("#magicRangeDD4th_color2").spectrum("set", "#"+color);
+  $("#magicRangeDD4th_timeRange").val(character.timeRange);
+  $("#magicRangeDD4th_info").val(character.info);
+  $("#magicRangeDD4th_isHide").prop("checked", !character.isHide);
+
+  $("#window_magicRangeDD4th").show().css("zIndex", 61);
+  $(".draggable:not(#window_magicRangeDD4th)").css("zIndex", 60);
+};
+
+$("#magicRangeDD4th_send").on('click', (e) => {
+  if(character = ddf.characters[$("#magicRangeDD4th_imgId").val()]){
+
+    character.data.name = $("#magicRangeDD4th_name").val();
+    character.data.rangeType = $("#magicRangeDD4th_rangeType").val();
+    character.data.feets = $("#magicRangeDD4th_feets").val() * 5;
+    character.data.color = parseInt("0x"+$("#magicRangeDD4th_color").val());
+    character.data.timeRange = $("#magicRangeDD4th_timeRange").val();
+    character.data.info = $("#magicRangeDD4th_info").val();
+    character.data.isHide = !$("#magicRangeDD4th_isHide").prop("checked");
+
+    ddf.changeCharacter(character.data).then((r) => {
+      ddf.cmd.refresh_parseRecordData({record: [[0, "changeCharacter", [character.data], "dummy\t"]]});
+      $("#window_magicRangeDD4th").hide();
+    });
+  }else{
+
+    character = {
+      type: "magicRangeMarkerDD4th",
+      /*name: index + 1,
+      rangeType: "closeBurstDD4th",
+      feets: 15,
+      color: 0,
+      timeRange: 1,
+      info: "",
+      isHide: false,*/
+      size: 0,
+      x: 1,
+      y: 1,
+      counters: {},
+      statusAlias: {},
+      createRound: 1,
+      draggable: true,
+      imageName: "",
+      imgId: "0",
+      initiative: 1,
+      rotation: 0,
+      size: 0
+    };
+    character.name = $("#magicRangeDD4th_name").val();
+    character.rangeType = $("#magicRangeDD4th_rangeType").val();
+    character.feets = $("#magicRangeDD4th_feets").val() * 5;
+    character.color = parseInt("0x"+$("#magicRangeDD4th_color").val());
+    character.timeRange = $("#magicRangeDD4th_timeRange").val();
+    character.info = $("#magicRangeDD4th_info").val();
+    character.isHide = !$("#magicRangeDD4th_isHide").prop("checked");
+
+    ddf.addCharacter(character).then((r) => {
+      $("#window_magicRangeDD4th").hide();
+    });
+  }
+});
+
+},{"../.option.spectrum.json":3}],19:[function(require,module,exports){
 $("#btn_mapchange").on("click", (e) => {
   mapChange_show();
 });
-
-$("#mapChange_width, #mapChange_height").spinner({min: 1, max: 150, stop: mapChange_previewUpdate});
-$("#mapChange_gridInterval").spinner({min: 1,max: 100, stop: mapChange_previewUpdate});
 
 $("#window_mapChange input").on('change', mapChange_previewUpdate);
 sp_param = require("../.option.spectrum.json");
@@ -1969,7 +2106,7 @@ $("#mapChange_imageChange").on('click', (e) => {
 
     $("#mapChange_tagbox").empty();
     for(item of tagList){
-      $("#mapChange_tagbox").append($(`<option>${item}</option>`));
+      $("#mapChange_tagbox").append($(`<option>${encode(item)}</option>`));
     }
     mapChange_setTag(tagList[0]);
   });
@@ -2033,12 +2170,11 @@ $("#mapChange_send").on('click', (e) => {
     $("#window_mapChange").hide();
   });
 });
-},{"../.option.spectrum.json":3}],19:[function(require,module,exports){
+},{"../.option.spectrum.json":3}],20:[function(require,module,exports){
 $("#btn_mapmask").on("click", (e) => {
   ddf.mapMask_show("");
 });
 
-$("#mapMask_width, #mapMask_height").spinner({min: 1, max: 100, stop: mapMask_previewUpdate});
 $("#window_mapMask .slider").slider({min: 0,max: 1, step:0.05, stop: (e, ui) => {
     $("#mapMask_alpha").val(ui.value);
     mapMask_previewUpdate();
@@ -2185,7 +2321,7 @@ $("#mapMask_preview").draggable({
       };
       ddf.addCharacter(character);
       if($("#mapMask_multiple").prop("checked")){
-        $("#mapMask_name").val($("#mapMask_name").val() + 1)
+        $("#mapMask_name").val(parseInt($("#mapMask_name").val()) + 1)
       }else{
         $("#window_mapMask").hide();
       }
@@ -2206,22 +2342,131 @@ $("#mapMask_send").on('click', (e) => {
 
   ddf.changeCharacter(character).then((r) => {
     ddf.characters[imageId].data = character;
-    ddf.characters[imageId].obj.css({
-      width: character.width * 50,
-      height: character.height * 50,
-      backgroundColor: "#" + $("#mapMask_color").val(),
-      opacity: character.alpha,
-    });
-    color = parseInt("0x"+$("#mapMask_color").val());
-    refColor = [255 - (color / 65536 & 0xFF),255 - (color / 256 & 0xFF),255 - (color & 0xFF)];
-    ddf.characters[imageId].obj.children(".name").css({
-      color: `rgb(${refColor})`
-    });
-    ddf.characters[imageId].obj.children(".name").text(character.name);
+    ddf.cmd.refresh_parseRecordData({record: [[0, "changeCharacter", [character], "dummy\t"]]});
     $("#window_mapMask").hide();
   });
 });
-},{"../.option.spectrum.json":3}],20:[function(require,module,exports){
+},{"../.option.spectrum.json":3}],21:[function(require,module,exports){
+
+$("#btn_memo").on('click', (e) => {
+  ddf.cmd.openMemo("");
+});
+
+$("#memo_close, #memo_close2").on('click', (e) => {
+  $("#window_memo").hide();
+});
+
+ddf.cmd.openMemo = (imgId) => {
+  $("#memo_imgId").val(imgId);
+  if(!(character = ddf.characters[$("#memo_imgId").val()])){
+    character = {
+      color: 0xFFFFFF,
+      draggable: true,
+      height: 1,
+      width: 1,
+      rotation: 0,
+      x: 0,
+      y: 0,
+      type: "Memo",
+      isPaint: true,
+      imgId: "",
+      message: ""
+    };
+    $("#window_memo .title").text("共有メモ");
+    $("#memo_send").text("追加");
+  }else{
+    character = character.data;
+    $("#window_memo .title").text("共有メモ変更");
+    $("#memo_send").text("変更");
+  }
+
+  $("#memo_tab, #memo_edit").empty();
+  count = 0;
+  for(item of character.message.split("\t|\t")){
+    tab = $(`<div class="tab">${encode(item.split("\r")[0])}</div>`);
+    obj = $(`<textarea>${encode(item)}</textarea>`);
+    del = $(`<img src="image/icons/cancel.png">`);
+    del.on('click', ((tab, obj)=>{return (e)=>{
+      tab.remove();
+      obj.remove();
+    }})(tab, obj));
+    tab.append(del);
+    tab.on('click', ((obj) => {return (e) => {
+      if(!$(this).hasClass("active")){
+        $("#memo_tab .active, #memo_edit .active").removeClass("active");
+        $(obj).addClass("active");
+        $(this).addClass("active");
+      }
+    }})(obj));
+    $("#memo_tab").append(tab);
+    $("#memo_edit").append(obj);
+    count++;
+  }
+  $("#memo_tab .tab:eq(0), #memo_edit textarea:eq(0)").addClass("active");
+  $("#window_memo").show().css("z-index", 61);
+  $(".draggable:not(#window_memo)").css("z-index", 60);
+};
+
+$("#memo_send").on('click', (e) => {
+  arr = $.map($("#memo_edit textarea"),(v)=>{return $(v).val().replace("\n","\r");});
+  message = arr.join("\t|\t")
+  if(character = ddf.characters[$("#memo_imgId").val()]){
+    character.data.message = message;
+    ddf.changeCharacter(character.data).then((r) => {
+        title = character.data.message.split("\r")[0];
+        ar = character.data.message.split(/\t\|\t/);
+        if(ar.length > 1){
+          body = ar.map((v)=>{return `[${v.split("\r")[0]}]`}).join("<br>")
+        }else{
+          body = character.data.message.replace("\r", "<br>");
+        }
+        character.obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div>`);
+    });
+  }else{
+    character = {
+      color: 0xFFFFFF,
+      draggable: true,
+      height: 1,
+      width: 1,
+      rotation: 0,
+      x: 0,
+      y: 0,
+      type: "Memo",
+      isPaint: true,
+      imgId: "0",
+      message: message
+    }
+    ddf.addCharacter(character);
+  }
+  $("#window_memo").hide();
+});
+
+$("#memo_addTab").on('click', (e) => {
+  count = $("#memo_tab .tab").length;
+  tab = $(`<div class="tab active">${count + 1}</div>`);
+  obj = $(`<textarea class="active"></textarea>`);
+  del = $(`<img src="image/icons/cancel.png">`);
+  del.on('click', ((tab, obj)=>{return (e)=>{
+    tab.remove();
+    obj.remove();
+  }})(tab, obj));
+  tab.append(del);
+  tab.on('click', ((obj) => {return (e) => {
+    if(!$(this).hasClass("active")){
+      $("#memo_tab .active, #memo_edit .active").removeClass("active");
+        $(obj).addClass("active");
+        $(this).addClass("active");
+    }
+  }})(obj));
+  $("#memo_tab .active, #memo_edit .active").removeClass("active");
+  $("#memo_tab").append(tab);
+  $("#memo_edit").append(obj);
+});
+
+$(document).on('keyup', "#memo_edit textarea", (e) => {
+  $("#memo_tab .active").text(encode($("#memo_edit .active").val().split("\n")[0]));
+});
+},{}],22:[function(require,module,exports){
 
 $("#btn_imageupload").on("click", (e) => {
   $("#window_upload").show().css("z-index", 61);

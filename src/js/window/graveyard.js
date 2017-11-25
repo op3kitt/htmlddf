@@ -63,7 +63,7 @@ function getGraveyardCharacterData(){
           type = "魔法範囲D&D4版";
           break;
       }
-      $("#graveyard_characters").append($(`<option value="${item.imgId}">${name}[${type}]</option>`));
+      $("#graveyard_characters").append($(`<option value="${item.imgId}">${encode(name)}[${type}]</option>`));
     }
   });
 }

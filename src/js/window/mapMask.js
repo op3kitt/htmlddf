@@ -2,7 +2,6 @@ $("#btn_mapmask").on("click", (e) => {
   ddf.mapMask_show("");
 });
 
-$("#mapMask_width, #mapMask_height").spinner({min: 1, max: 100, stop: mapMask_previewUpdate});
 $("#window_mapMask .slider").slider({min: 0,max: 1, step:0.05, stop: (e, ui) => {
     $("#mapMask_alpha").val(ui.value);
     mapMask_previewUpdate();

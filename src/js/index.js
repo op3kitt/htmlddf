@@ -31,7 +31,7 @@ function titleAnimation(){
 
 
 window.addEventListener('popstate', (e) =>  {
-  // e.state is equal to the data-attribute of the last image we clicked
+  console.log(e);
 });
 var click = {x:0,y:0};
 
@@ -275,14 +275,14 @@ ddf.cmd.getPlayRoomInfo = () => {
       roominfos[parseInt(room.index.trim())] = room;
       
       var row = "<tr>";
-      row += "<td>"+room.index+"</td>"
-      row += "<td>"+room.playRoomName+"</td>"
-      row += "<td>"+ddf.util.getDiceBotName(room.gameType)+"</td>"
-      row += "<td>"+room.loginUsers.length+"</td>"
-      row += "<td>"+(room.passwordLockState?"有り":"--")+"</td>"
-      row += "<td>"+(room.canVisit?"可":"--")+"</td>"
-      row += "<td>"+(room.lastUpdateTime?room.lastUpdateTime:"")+"</td>"
-      row += "<td></td></tr>"
+      row += `<td>${room.index}</td>`
+      row += `<td>${encode(room.playRoomName)}</td>`
+      row += `<td>${encode(ddf.util.getDiceBotName(room.gameType))}</td>`
+      row += `<td>${room.loginUsers.length}</td>`
+      row += `<td>${room.passwordLockState?"有り":"--"}</td>`;
+      row += `<td>${room.canVisit?"可":"--"}</td>`;
+      row += `<td>${room.lastUpdateTime?room.lastUpdateTime:""}</td>`;
+      row += "<td></td></tr>";
       tr = $(row);
       button = $("<button>削除</button>");
       if(room.lastUpdateTime){
@@ -411,7 +411,7 @@ function checkRoomStatus(roomNumber, password = null){
           ddf.roomState.playSound = true;
           for(tab of roominfo.chatChannelNames){
             ddf.roomState.unread.push(0);
-            var obj = $("<p>"+tab+"/<span class=\"tab_label\">0</span></p>");
+            var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
             obj.on("click", ((index) => {
               return (e) => {
                 if(!$(e.currentTarget).hasClass("active")){
@@ -424,7 +424,7 @@ function checkRoomStatus(roomNumber, password = null){
           }
           for(item of ddf.info.diceBotInfos){
             if(/^[^:]*$/.test(item.gameType) && item.gameType != "BaseDiceBot"){
-              $("#dicebot").append($("<option value='"+item.gameType+"'>"+item.name+"</option>"));
+              $("#dicebot").append($(`<option value="${encode(item.gameType)}">${encode(item.name)}</option>`));
             }
           }
           setChatTab("0");
@@ -441,7 +441,7 @@ function removePlayRoom(roomNumber, password = null){
     if(room.passwordLockState && password == null){
     
     }else{
-      body = "No."+room.index+"："+room.playRoomName+"\nを削除しますか？";
+      body = `No.${room.index}：${room.playRoomName}\nを削除しますか？`;
       if(password != null || confirm(body)){
         ddf.removePlayRoom(roomNumber, false, password);
         $("#playRoomInfos tbody").empty();
@@ -454,9 +454,9 @@ function removePlayRoom(roomNumber, password = null){
 function setChatTab(index){
   ddf.userState.channel = index;
   $("#tab p.active, #log div.active").removeClass('active');
-  $("#tab p:eq("+index+"), #log div:eq("+index+")").addClass('active');
+  $(`#tab p:eq(${index}), #log div:eq(${index})`).addClass('active');
   ddf.roomState.unread[index] = 0;
-  $("#tab p:eq("+index+") span").text(0);
+  $(`#tab p:eq(${index}) span`).text(0);
 }
 
 function refresh(){
@@ -468,10 +468,10 @@ function refresh(){
       ddf.roomState.viewStateInfo = refreshData.viewStateInfo;
     }
     if(refreshData.gameType){
-      if($("#dicebot").children("[value="+refreshData.gameType+"]").length==1){
+      if($("#dicebot").children(`[value=${refreshData.gameType}]`).length==1){
         $("#dicebot").val($(refreshData.gameType));
       }else{
-        $("#dicebot").append($("<option value='"+refreshData.gameType+"'>"+refreshData.gameType+"</option>"));
+        $("#dicebot").append($(`<option value="${encode(refreshData.gameType)}">${encode(refreshData.gameType)}</option>`));
         $("#dicebot").val(refreshData.gameType);
       }
     }
@@ -499,7 +499,7 @@ function refresh(){
       for(i = 0;i < refreshData.chatChannelNames.length;i++){
         if(ddf.roomState.chatChannelNames.length <= i){
           ddf.roomState.unread.push(0);
-          var obj = $("<p>"+tab+"/<span class=\"tab_label\">0</span></p>");
+          var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
           obj.on("click", ((index) => {
             return (e) => {
               if(!$(e.currentTarget).hasClass("active")){
@@ -510,7 +510,7 @@ function refresh(){
           $("#tab").append(obj);
           $("#log").append($("<div><p></p></div>"));
         }else{
-          $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${refreshData.chatChannelNames[i]}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
+          $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${encode(refreshData.chatChannelNames[i])}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
         }
       }
       if($("#tab .active").length == 0){
@@ -571,20 +571,20 @@ function refresh_parseChatMessageDataLog(refreshData){
           continue;
           break;
         case "rollVisualDice":
-          eval("param = " + matches[2]);
-          $("#log div:eq("+item[1].channel+")").append($("<p style='color: #"+item[1].color+"'>"+item[1].senderName+":"+param.chatMessage.replace(/\n/, "<br>")+"</p>"));
-          $("#log div:eq("+item[1].channel+")").hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+          param = JSON.parse(matches[2]);
+          $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(param.chatMessage.replace(/\n/, "<br>"))}</p>`));
+          $(`#log div:eq(${item[1].channel}))`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
           lastRandResult = [param.chatMessage, param.randResults];
           continue;
           break;
       }
     }else if(matches = /^###CutInMovie###(.+)$/.exec(item[1].message)){
-      eval("param = " + matches[1]);
-      $("#log div:eq("+item[1].channel+")").append($("<p style='color: #"+item[1].color+"'>"+item[1].senderName+":【"+param.message+"】</p>"));
-      $("#log div:eq("+item[1].channel+")").hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+      param = JSON/parse(matches[1]);
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:【${encode(param.message)}】</p>`));
+      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }else{
-      $("#log div:eq("+item[1].channel+")").append($("<p style='color: #"+item[1].color+"'>"+item[1].senderName+":"+item[1].message+"</p>"));
-      $("#log div:eq("+item[1].channel+")").hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(item[1].message)}</p>`));
+      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }
   }
   if(refreshData.isFirstChatRefresh){
@@ -635,7 +635,7 @@ function refresh_parseChatMessageDataLog(refreshData){
       }
     }
     total = /\s([^\s]+)$/.exec(lastRandResult[0])[1];
-    $("#diceResult").append($(`<div class="total">${total}</div>`));
+    $("#diceResult").append($(`<div class="total">${encode(total)}</div>`));
   }else if(sound){
     playSound(pageBuffer);
   }
@@ -850,7 +850,7 @@ ddf.cmd.refresh_parseRecordData = (refreshData) => {
         }else{
           body = data.message.replace("\r", "<br>");
         }
-        obj.html(`<span>${title}</span><img src="${ddf.base_url}image/memo2.png"><div>${body}</div>`);
+        obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div>`);
       }
       character.data = data;
       break;
@@ -913,7 +913,7 @@ function refresh_parseCharacters(refreshData){
     case "mapMask":
       obj = $(`<div class="mapMaskFrame" id="${character.imgId}"></div>`);
       if(character.draggable){obj.addClass("draggableObj");}
-      obj.append($(`<div class="name">${character.name}</div>`));
+      obj.append($(`<div class="name">${encode(character.name)}</div>`));
       ddf.characters[character.imgId] = {
         obj: obj,
         data: character
@@ -935,8 +935,8 @@ function refresh_parseCharacters(refreshData){
       $("#mapSurface").append(obj);
       break;
     case "characterData":
-      obj = $("<div class='characterFrame draggableObj' id='"+character.imgId+"'></div>");
-      obj.append($("<div class='inner'></div><div class='dogtag'>"+character.dogTag+"</div><div class='name'>"+character.name+"</div>"));
+      obj = $(`<div class="characterFrame draggableObj" id="${character.imgId}"></div>`);
+      obj.append($(`<div class="inner"></div><div class="dogtag">${encode(character.dogTag)}</div><div class="name">${encode(character.name)}</div>`));
       ddf.characters[character.imgId] = {
         obj: obj,
         data: character
@@ -967,7 +967,7 @@ function refresh_parseCharacters(refreshData){
       }else{
         body = character.message.replace("\r", "<br>");
       }
-      obj = $(`<div class="draggableObj" id="${character.imgId}"><span>${title}</span><img src="${ddf.base_url}image/memo2.png"><div>${body}</div></div>`);
+      obj = $(`<div class="draggableObj" id="${character.imgId}"><span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div></div>`);
       $("#list_memo").append(obj);
       ddf.characters[character.imgId] = {
         obj: obj,
@@ -1039,7 +1039,7 @@ function refresh_parseRoundTimeData(refreshData){
     $("#initiative table thead tr").append($("<th><p>修正値</p></th>"));
     $("#initiative table thead tr").append($("<th><p>名前</p></th>"));
     for(counter of refreshData.roundTimeData.counterNames){
-      $("#initiative table thead tr").append($("<th><p>"+counter.replace(/^\*/, "")+"</p></th>"));
+      $("#initiative table thead tr").append($(`<th><p>${encode(counter.replace(/^\*/, ""))}</p></th>`));
     }
     $("#initiative table thead tr").append($("<th><p>その他</p></th>"));
     
@@ -1048,21 +1048,21 @@ function refresh_parseRoundTimeData(refreshData){
     for(key in ddf.roomState.ini_characters){
       var character = ddf.roomState.ini_characters[key];
       var tmp = "<tr>";
-      tmp+= "<td>"+(character.data.initiative==refreshData.roundTimeData.initiative?"●":"")+"</td>";
-      tmp+= "<td>"+(character.data.initiative|0)+"</td>";
-      tmp+= "<td>"+(character.data.initiative*100 % 100)+"</td>";
-      tmp+= "<td>"+(character.data.name)+"</td>";
+      tmp+= `<td>${(character.data.initiative==refreshData.roundTimeData.initiative?"●":"")}</td>`;
+      tmp+= `<td>${(character.data.initiative|0)}</td>`;
+      tmp+= `<td>${(character.data.initiative*100 % 100)}</td>`;
+      tmp+= `<td>${encode(character.data.name)}</td>`;
       for(counter of refreshData.roundTimeData.counterNames){
         character.data.counters == null && (character.data.counters = {});
         character.data.statusAlias == null && (character.data.statusAlias = {});
         character.data.counters[counter]==undefined && (character.data.counters[counter] = 0);
         if(/^\*/.test(counter)){
-          tmp+= "<td>"+(character.data.counters[counter]!=0?"●":"")+"</td>";
+          tmp+= `<td>${(character.data.counters[counter]!=0?"●":"")}</td>`;
         }else{
-          tmp+= "<td>"+(character.data.counters[counter])+"</td>";        
+          tmp+= `<td>${(character.data.counters[counter])}</td>`;
         }
       }
-      tmp+= "<td>"+character.data.info+"</td>";
+      tmp+= `<td>${encode(character.data.info)}</td>`;
       tmp+= "</tr>";
       character.row = $(tmp);
       $("#initiative table tbody").append(

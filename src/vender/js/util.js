@@ -1,0 +1,1 @@
+var encode = require('htmlspecialchars');
