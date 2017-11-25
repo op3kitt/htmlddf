@@ -1,0 +1,42 @@
+#window_mapChange.draggable
+  .bg 
+    div マップ変更
+      .pull-right#mapChange_close2 ×
+  .body.dragprev
+    .r.clearfix
+      #mapChange_preview
+        input(type="hidden")#mapChange_imageSource
+        img#mapChange_map
+        object(type="image/svg+xml",data="img/grid.svg")#mapChange_grid
+      #mapChange_image
+        .r
+          button#mapChange_imageChange 画像変更
+      #mapChange_imageSelect
+        .r
+          #mapChange_imagearea
+        .r
+          | 検索タグ
+          select#mapChange_tagbox
+          button#mapChange_btnpassword 隠し画像
+          input#mapChange_password
+          input(type="checkbox")#mapChange_mirrored2
+          |左右反転
+    .r
+      input(type="checkbox")#mapChange_blank
+      |白地図にする　
+      |縦：
+      input#mapChange_height.spinner
+      |　横：
+      input#mapChange_width.spinner
+      |　マス目・座標文字の色：
+      input(type="hidden")#mapChange_color.colorpicker
+      input#mapChange_color2.colorpicker
+      |　マス目間隔：
+      input#mapChange_gridInterval.spinner
+      |　
+      input(type="checkbox")#mapChange_isAlternately
+      |マスを交互に
+      input(type="checkbox",class="hide")#mapChange_mirrored
+    .r.center
+      button#mapChange_send 設定
+      button#mapChange_close キャンセル

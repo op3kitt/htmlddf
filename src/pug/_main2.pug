@@ -1,0 +1,136 @@
+#main2
+  #menu
+    .menuarea
+      .dropdown ファイル
+        .dropdown-content
+          button#btn_save(disabled) セーブ
+          button#btn_load(disabled) ロード
+          hr
+          button#btn_saveall(disabled) 全データセーブ
+          button#btn_loadall(disabled) 全データロード（旧：シナリオデータ読み込み）
+          hr
+          button#btn_savechatlog チャットログ保存
+          hr
+          button#btn_startrecord(disabled) 録画開始
+          button#btn_endrecord(disabled) 録画終了
+          button#btn_cancelrecord(disabled) 録画キャンセル
+          hr
+          button#btn_logout ログアウト
+      .dropdown 表示
+        .dropdown-content
+          .dropdown2 ウィンドウ
+            .dropdown-content2
+              button#btn_displaychat チャット表示
+              button#btn_displaydice ダイス表示
+              button#btn_displayinitiative イニシアティブ表示
+              button#btn_displayresource(disabled) リソース表示
+              hr
+              button#btn_displaychatpalette チャットパレット表示
+              button#btn_displaycounter(disabled) カウンターリモコン表示
+          hr
+          button#btn_displaycharacter 立絵表示
+          button#btn_displaycutin(disabled) カットイン表示
+          hr
+          button#btn_displaygridnum 座標表示
+          button#btn_displaygridline マス目表示
+          hr
+          button#btn_gridguide マス目にキャラクターを合わせる
+          button#btn_adjustcharacter 立絵のサイズを自動調整する
+          hr
+          button#btn_changefont(disabled) フォントサイズ変更
+          hr
+          button#btn_resetwindow(disabled) ウィンドウ配置初期化
+          button#btn_resetdisplay(disabled) 表示状態初期化
+      .dropdown コマ
+        .dropdown-content
+          button#btn_createcharacter キャラクター追加
+          .dropdown2 範囲追加
+            .dropdown-content2
+              button#btn_rangedd3(disabled) 魔法範囲追加(D&D3版)
+              button#btn_rangedd4 魔法範囲追加(D&D4版)
+              button#btn_rangelh(disabled) ログホライズン用範囲
+              button#btn_rangemg(disabled) 攻撃範囲(メタリックガーディアン)
+          button#btn_magictimer(disabled) 魔法タイマー追加
+          hr
+          button#btn_createchit(disabled) チット作成
+          hr
+          button#btn_graveyard 墓場
+          button#btn_waitroom(disabled) キャラクター待合室
+          hr
+          button#btn_rotate(disabled) 回転マーカーを表示する
+      .dropdown カード
+        .dropdown-content
+          button#btn_cardpickup(disabled) カードピックアップウィンドウ表示
+          button#btn_cardlog(disabled) カード操作ログ表示
+          hr
+          button#btn_cardchange(disabled) カード配置の初期化
+          hr
+          button#btn_cardreset(disabled) カードの全削除
+      .dropdown マップ
+        .dropdown-content
+          button#btn_mapchange マップ変更
+          button#btn_maptile(disabled) フロアタイル変更モード
+          button#btn_mapmask マップマスク追加
+          button#btn_mapmodify(disabled) 簡易マップ作成
+          hr
+          button#btn_mapsave マップ状態保存
+          button#btn_mapchange(disabled) マップ切り替え
+      .dropdown 画像
+        .dropdown-content
+          button#btn_imageupload ファイルアップローダー
+          button#btn_camera(disabled) WEBカメラ撮影
+          hr
+          button#btn_imagetagedit(disabled) タグ編集
+          button#btn_imagedelete 画像削除
+      .dropdown ヘルプ
+        .dropdown-content
+          button#btn_version2 バージョン
+          button#btn_manual2 マニュアル
+          button#btn_tutorial2(disabled) チュートリアル動画
+          button#btn_site2 オフィシャルサイトへ
+    img#btn_zoomin(src="image/icons/zoom_in.png")
+    img#btn_zoomout(src="image/icons/zoom_out.png")
+    button#btn_member ルームNo.X：0名
+    button#btn_memo 共有メモ
+    button#btn_draw 
+      img(src="image/icons/pencil.gif").disabled
+      | 手書き
+    button#btn_graveyard2 墓場
+    button#btn_screenshot
+      img(src="image/icons/camera.png")
+    button#btn_logout2 
+      img(src="image/icons/door_out.png")
+      | ログアウト
+  #map.draggabletail
+    object#mapGrid(type="image/svg+xml",data="img/grid.svg")
+    img#mapDraw
+    object#drawsPanel(type="image/svg+xml",data="img/draw.svg")
+    #mapSurface
+    img#mapimg
+  #list_memo
+  include window/_chat.pug
+  #initiative.draggable.resizable
+    #initiative_bg
+      .row
+        .i ラウンド:
+        .i#round 0
+        .i ／イニシアティブ:
+        .i#now_ini 0
+      .row
+        .btn(onclick="ddf.initiative.prev()") 戻る
+        .btn(onclick="ddf.initiative.next()") 次へ
+        .btn(onclick="ddf.initiative.reset()") 戦闘開始
+        .btn 設定
+    div#wrap
+      table.dragprev
+        thead
+          tr
+        tbody
+  include window/_mapChange.pug
+  include window/_graveyard.pug
+  include window/_upload.pug
+  include window/_mapMask.pug
+  include window/_imageDelete.pug
+  include window/_memo.pug
+  include window/_help.pug
+  include window/_magicRangeDD4th.pug

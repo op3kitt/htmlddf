@@ -1,0 +1,22 @@
+#window_createPlayRoom.draggable
+  .bg 新規プレイルーム作成
+  .body
+    .r
+      .i4 プレイルーム名：
+      .i6
+        input#playRoomName(value="仮プレイルーム（削除可能）").dragprev
+    .r 
+      .i4 パスワード(空ならパスワード無し)：
+      .i6
+        input#playRoomPassword(type="password").dragprev
+    .r
+      .i4 ゲームシステム：
+      .i6
+        select#playRoomGameType.dragprev
+    .r
+      button#createPlayRoom_extend(disabled).dragprev ＞＞拡張機能
+    .c
+      .i
+        #createPlayRoom_create.btn.dragprev 作成
+      .i
+        #createPlayRoom_close.btn.dragprev 閉じる

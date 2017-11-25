@@ -1,0 +1,32 @@
+#window_mapMask.draggable
+  .bg 
+    div
+      span#mapMask_title マスク作成
+      .pull-right#mapMask_close2 ×
+  .body.dragprev
+    .r
+      input(type="hidden")#mapMask_imageId
+      label 名前:
+      input#mapMask_name
+    .r
+      label 色：
+      input(type="hidden")#mapMask_color
+      input#mapMask_color2.colorpalette
+    .r
+      label 高さ：
+      input#mapMask_height.spinner
+    .r
+      label 幅：
+      input#mapMask_width.spinner
+    .r
+      label 透過度
+      input(type="hidden")#mapMask_alpha
+      .slider
+    .r#mapMask_create
+      input(type="checkbox")#mapMask_multiple
+      |複数作成
+    .r#mapMask_change
+      button#mapMask_send 変更
+      button#mapMask_close キャンセル
+  .body2.dragprev
+    #mapMask_preview

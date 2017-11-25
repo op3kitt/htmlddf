@@ -1,0 +1,1326 @@
+@import url(//fonts.googleapis.com/earlyaccess/notosansjapanese.css);
+
+$cborder : #ccc;
+$cbg     : #eee;
+$title_bg: linear-gradient(to bottom, #eee, #99ebc2);
+
+@mixin bg($opacity: 0.7){
+  border-radius: 4px;
+  border: solid $cborder 2px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $cbg;
+  opacity: $opacity;
+}
+
+.disabled {
+  filter: grayscale(100%);
+  
+  -webkit-touch-callout: none;
+  -webkit-user-select:none;
+  -khtml-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  -o-user-select:none;
+  user-select:none;
+
+  .helptext {
+    filter: grayscale(100%);
+    z-index: 120;
+  }
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: block;
+  width: 100%;
+}
+
+@mixin window($width: 200px, $height: 100px, $top: 0, $left: 0) {
+  display: none;
+  position: absolute;
+  top: $top;
+  left: $left;
+  width: $width;
+  height: $height;
+  z-index: 60;
+  
+  &::after {
+    content: "";
+    clear: both;
+    display: block;
+    width: 100%;
+  }
+}
+
+@mixin full() {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+body {
+  font-family: 'Noto Sans Japanese', sans-serif;
+}
+
+#loginMessage {
+  font {
+    font-size: 14pt !important;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+.i {
+  display: inline-block;
+}
+.center {
+  text-align: center;
+}
+.mirrored{
+  transform: rotateY(180deg);
+}
+.hide {
+  display: none;
+}
+
+.row {
+  margin: 0;
+  padding: 0;
+  padding-left: 10px;
+}
+
+.btn {
+  float: left;
+  border: solid #999 1px;
+  background: #ccc;
+  border-radius: 4px;
+  font-weight: bold;
+  padding: 0 8px;
+  margin: 0 4px;
+}
+.btn:hover {
+  background: #eee;
+  box-shadow: 0 0 1px 2px #ccf;
+}
+.dropdown {
+  position: relative;
+  display: inline-block;
+  padding: 3px;
+  background: $cbg;
+  border: solid 1px $cborder;
+  border-radius: 4px;
+  width: 6em;
+  text-align: center;
+  
+  &:hover .dropdown-content {
+    display: block;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;
+    
+    button {
+      border: 0;
+      background: transparent;
+      display: block;
+      width: 100%;
+      text-indent: 1em;
+      text-align: left;
+      
+      &:hover {
+        background: #cff;
+      }
+    }
+  }
+}
+
+#characterCutIn {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+
+  img {
+    position: absolute;
+    bottom: 0;
+
+    &.pos1{left: 0;}
+    &.pos2{left: 7%;}
+    &.pos3{left: 14%;}
+    &.pos4{left: 21%;}
+    &.pos5{left: 28%;}
+    &.pos6{left: 35%;}
+    &.pos7{left: 42%;}
+    &.pos8{left: 49%;}
+    &.pos9{left: 56%;}
+    &.pos10{left: 63%;}
+    &.pos11{left: 70%;}
+    &.pos12{left: 77%;}
+
+    &.mirrored {
+      transform: rotateY(180deg);
+    }
+
+    &:hover {
+      opacity: 0.3;
+    }
+  }
+
+  &.adjust img{
+    min-width: 14%;
+    max-height: 400px;
+    max-width: 35%;
+  }
+}
+
+#list_memo {
+  position: absolute;
+  left: 0;
+  top: 40px;
+  bottom: 0;
+  padding-left: 5px;
+    width: 60px;
+  
+  & > div {
+    position: relative;
+    float: left;
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border: solid 2px #61dbdb;
+    border-radius: 4px;
+    text-align: center;
+    z-index: 54;
+    margin-top: 5px;
+    overflow: hidden;
+
+    img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 46px;
+      height: 46px;
+      z-index: 55;
+    }
+
+    span {
+      font-weight: bold;
+      position: absolute;
+      z-index: 80;
+      left: 0;
+      width: 100%;
+    }
+
+    &:hover {
+      overflow: visible;
+      z-index: 120;
+
+      div {
+        position: absolute;
+        left: 40px;
+        top: 20px;
+        display: block;
+        border: solid black 1px;
+        background: #ffc;
+        max-width: 800px;
+        max-height: 600px;
+        overflow: scroll;
+        text-align: left;
+        padding: 0 5px;
+      }
+    }
+
+    div {
+      display: none;
+    }
+  }
+}
+
+#diceResult {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  height: 105px;
+
+  .total {
+    position: absolute;
+    left: 10px;
+    bottom: 70px;
+    background: #61dbdb;
+    font-weight: bold;
+    min-width: 120px;
+    text-align:center;
+    border: solid black 1px;
+    border-radius: 8px;
+    font-size: 16pt;
+    inline-size: max-content;
+    max-inline-size: 600px;
+
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+
+  img {
+    display: block;
+    margin-top: 35px;
+    height: 70px;
+    float: left;
+    z-index: 55;
+
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+}
+
+.dropdown2 {
+  position: relative;
+  display: inline-block;
+  padding: 1px 6px;
+  width: 100%;
+  text-align: left;
+  text-indent: 1em;
+  &:hover .dropdown-content2 {
+    display: block;
+    transition-delay:1s;
+  }
+
+  .dropdown-content2 {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    top: 0;
+    left: 100%;
+    
+    button {
+      border: 0;
+      background: transparent;
+      display: block;
+      width: 100%;
+      text-indent: 1em;
+      text-align: left;
+      
+      &:hover {
+        background: #cff;
+      }
+    }
+  }
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  background: #eee;
+  font-size: 12px;
+}
+
+#container {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #94aab5;
+}
+
+#main {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $cbg;
+  padding-top: 22px;
+}
+
+#main2 {
+  display: none;
+}
+
+#loginMessage {
+  border: 0;
+  overflow: scroll;
+  height: 150px;
+  font-size: 12px;
+  padding: 0.5em;
+
+  h2{
+    font-size: 18px;
+    text-align: center;
+  }
+}
+
+.magicRangeFrame {
+  z-index: 36;
+
+  position: absolute;
+  text-align: center;
+
+  &.rangeCenterMarker::after {
+    content: url(../image/centerMarker.png);
+    position: absolute;
+    top: 50%;
+    margin-left: -25px;
+    margin-top: -25px;
+  }
+}
+
+.mapMaskFrame {
+  z-index: 35;
+
+  position: absolute;
+  text-align: center;
+  display: table;
+  border: solid #ff9999 4px;
+
+  &.draggableObj {
+    z-index: 40;
+    border: solid #ffff99 4px;
+  }
+
+  .name {
+    color: white;
+    vertical-align: middle;
+    display: table-cell;
+    height: 100%;
+    font-size: 18pt;
+  }
+
+}
+
+.characterFrame {
+  z-index: 42;
+  position: absolute;
+  text-align: center;
+
+  &.isHide{
+    z-index: 32;
+  }
+
+  .dogtag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: white;
+    opacity: 0.7;
+    font-size: 14pt;
+  }
+
+  .name {
+    position: relative;
+    top: -1.6em;
+    background: white;
+    opacity: 0.7;
+    inline-size: max-content;
+    display: inline;
+  }
+
+  .inner {
+    @include full;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: solid #bbbb00 4px;
+    box-shadow: black 0 0px 0px 2px;
+  }
+}
+
+button {
+  position: relative;
+  border-radius: 4px;
+  border: solid 2px $cborder;
+  background: $cbg;
+
+  & .helptext {
+    display: none;
+  }
+
+  &:hover .helptext{
+    z-index: 120;
+    display: block;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #ffff99;
+    opacity: 0.8;
+    border: solid #666633 1px;
+    inline-size: max-content;
+  }
+}
+
+button.img {
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin-left: 8px;
+  margin-right: 8px;
+
+  & + & {
+    margin-left: 0;
+  }
+}
+
+input {
+  border-radius: 4px;
+}
+
+#loginMessage_wrap {
+  height: 133px;
+  background: white;
+  border: solid $cborder 1px;
+  margin: 10px;
+  overflow: hidden;
+}
+
+#playRoomInfos {
+    margin: 0.5em;
+    height: 60%;
+    overflow:scroll;
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    cell-spacing:0;
+    border-left: solid 1px $cborder;
+    border-top: solid 1px $cborder;
+  }
+
+  thead {
+    background: linear-gradient(to bottom, #fff, #ccc);
+    font-size: 12px;
+  }
+
+  td, th {
+    border-right: solid 1px $cborder;
+    border-bottom: solid 1px $cborder;
+  }
+  
+  td {
+    text-align: center;
+    background: white; 
+  }
+
+  tr:nth-child(odd) td {
+    background: #f9f9f9; 
+  }
+
+  tr:hover td {
+    background: #eef; 
+  }
+}
+
+#initiative::after {
+  content: "";
+  clear:both;
+  display: block;
+  width: 100%;
+}
+
+#initiative_bg {
+  @include bg(0.7);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+#initiative {
+
+  z-index: 60;
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 400px;
+  height: 400px;
+  display: none;
+
+  #wrap {
+    position: absolute;
+    left: 6px;
+    right: 6px;
+  }
+
+  table {
+    background: white;
+    position: absolute;
+    top: 50px;
+    bottom: 0px;
+    border-collapse: collapse;
+    font-size: 12px;
+    width: 100%;
+    
+    border-top: solid #ccc 1px;
+    border-left: solid #ccc 1px;
+  }
+
+  table th, 
+  table td {
+    border-right: solid #ccc 1px;
+    border-bottom: solid #ccc 1px;
+  }
+
+  table th p {
+    overflow: hidden;
+    margin: 0;
+    height: 1.5em;
+  }
+}
+
+#window_memo {
+  @include window(600px, 400px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    #memo_listTab{
+      overflow: hidden;
+      height: 18px;
+    }
+
+    .tab{
+      position: relative;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      min-width: 4em;
+      border: solid #ccc 1px;
+      border-radius: 4px;
+      text-align: center;
+      float: left;
+      height: 1.4em;
+      padding-right: 16px;
+
+      img {
+        display: none;
+      }
+
+      &:hover{
+        img {
+          display: inline-block;
+          position: absolute;
+          width: 12px;
+          top: 2px;
+          right: 2px;
+        }
+      }
+
+      &.active{
+        background: white;
+      }
+    }
+
+    textarea {
+      display: none;
+      min-width: 100%;
+      max-width: 100%;
+      height: 310px;
+
+      &.active{
+        display: inline-block;
+      }
+    }
+  }
+}
+
+#window_help {
+  @include window(600px, 400px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+  
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+    overflow: scroll;
+    
+    pre {
+      margin: 0;
+      background: #fff;
+    }
+  }
+}
+
+#window_mapMask {
+  @include window(400px, 300px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    right: 40%;
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    label {
+      width: 3em;
+      text-align: right;
+      display: inline-block;
+    }
+
+    .slider {
+      width: 120px;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+
+  .body2 {
+    @include full();
+    left: 40%;
+    top: 26px;
+    padding: 0.3em;
+
+    #mapMask_preview {
+      transform-origin: top left;
+    }
+  }
+
+  
+  #mapMask_name {
+    width: 7em;
+  }
+  #mapMask_width, #mapMask_height {
+    width: 3em;
+  }
+}
+
+#window_magicRangeDD4th {
+  @include window(400px, 350px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    label {
+      width: 8em;
+      display: inline-block;
+      text-align: right;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+
+    #magicRangeDD4th_name, #magicRangeDD4th_info {
+      width: 10em;
+    }
+
+    #magicRangeDD4th_timeRange, #magicRangeDD4th_feets {
+      width: 3em;
+    }
+  }
+}
+
+#window_mapChange {
+  @include window(800px, 530px, 10%, 10%)
+
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+
+  #mapChange_imagearea {
+    width: 100%;
+    height: 200px;
+    border: solid #666 1px;
+    overflow: scroll;
+
+    div {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+
+      img {
+        max-width: 50px;
+        max-height: 50px;
+      }
+
+      input {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+    }
+  }
+
+
+  #mapChange_width, #mapChange_height, #mapChange_gridInterval {
+    width: 2em;
+  }
+
+  #mapChange_password {
+    display: none;
+  }
+
+  #mapChange_preview {
+    width: 50%;
+    height: 400px;
+    transform-origin: left top;
+    position: relative;
+    float: left;
+
+    object {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    img {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+
+  #mapChange_image {
+    float: left;
+    width: 50%;
+    text-align: center;
+    margin-top: 150px;
+  }
+
+  #mapChange_imageSelect {
+    float: left;
+    width: 50%;
+    display: none;
+  }
+}
+
+#window_imageDelete {
+  @include window(600px, 450px, 30%, 30%)
+  
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+  
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+
+  #imageDelete_imagearea {
+    width: 100%;
+    height: 200px;
+    border: solid #666 1px;
+    overflow: scroll;
+
+    div {
+      display: inline-block;
+      width: 50px;
+      height: 76px;
+      text-align: center;
+
+      img {
+        max-width: 50px;
+        max-height: 50px;
+      }
+
+      input {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+    }
+  }
+
+  #imageDelete_password {
+    display: none;
+  }
+  
+}
+
+#window_upload {
+  @include window(600px, 450px, 30%, 30%)
+  
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+  
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+
+  #upload_droparea {
+    width: 100%;
+    height: 200px;
+    border: solid #666 1px;
+    overflow: scroll;
+    z-index: 55;
+
+    &.is-dragover{
+      background: white;
+
+      & ~ .overwrap, img {
+        display: none;
+      }
+      
+      &::before {
+        content: "ここにドロップ";
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    div {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+
+      img {
+        max-width: 50px;
+        max-height: 50px;
+      }
+    }
+
+    & ~ .overwrap {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      top: 8px;
+      left: 0;
+      
+      input {
+        overflow: hidden;
+        width: 0;
+      }
+      z-index: 54;
+    }
+    
+    
+  }
+  
+  #upload_password {
+    display: none;
+  }
+  
+  #upload_result {
+    overflow: scorll;
+    width: 100%;
+    height: 50px;
+  }
+}
+
+.pull-right {
+  float: right;
+}
+
+#window_graveyard {
+  @include window(380px, 125px, 30%, 30%);
+
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    .row {
+      padding: 8px;
+      height: 50px;
+      width: 100%;
+    }
+  }
+
+  #graveyard_reload {
+    float: right;
+  }
+}
+#window_chat {
+  @include window(80%, 30%, 70%, 0);
+  display: block;
+
+  .bg {
+    @include bg(0.8);
+  }
+
+  .body {
+      @include full();
+    top: 22px;
+    padding: 0.3em;
+    bottom: 125px;
+
+    #tab {
+      padding-left: 10px;
+
+      & > p {
+        background: linear-gradient(to bottom, #ccc, transparent 120%);
+        float: left;
+        margin: 0;
+        padding: 0.2em 1em;
+        margin-right: 4px;
+      }
+
+      & > p.active {
+        background: #fff;
+      }
+    }
+
+    #log{
+      @include full();
+      top: 2.2em;
+      left: 10px;
+      right: 10px;
+      background: #fff;
+      overflow: hidden;
+
+
+      div {
+        display: none;
+        @include full();
+        bottom: -18px;
+        overflow: scroll;
+      }
+
+      div.active {
+        display: block;
+      }
+    }
+  }
+
+  .body2 {
+    position: absolute;
+    height: 125px;
+    padding: 0.3em;
+    bottom: 0;
+
+    textarea {
+      vertical-align: top;
+      width: 750px;
+      height: 70px;
+    }
+
+    button.fix {
+      float: right;
+      width: 100px;
+    }
+
+    .btn_area{
+      width: 120px;
+      float: right;
+    }
+  }
+
+  .wrap {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  .r {
+    padding: 6px;
+  }
+
+  #log p {
+    margin: 0;
+  }
+}
+#window_version {
+  @include window(300px, 110px, 40%, 40%);
+
+  .bg {
+    @include bg(0.8);
+  }
+
+  .wrap {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+  
+  .body {
+    position: absolute;
+    background: #fff;
+    top: 22px;
+    padding: 0.3em;
+  }
+  
+  #version_close {
+    position: absolute;
+    bottom: 4px;
+    right: 10px;
+  }
+}
+
+#window_loginNumber {
+  @include window(200px,150px, 400px, 200px);
+  z-index: 9999;
+  
+  .bg {
+    @include bg(0.8);
+  }
+  
+  .body {
+    position: absolute;
+    top: 22px;
+    padding: 0.3em;
+    text-align: center;
+    left: 0;
+    right: 0;
+    bottm: 0;
+  }
+  
+  .btn {
+    position: absolute;
+    bottom: 4px;
+    left: 40%;
+    width: 20%;
+  }
+}
+
+#window_createPlayRoom {
+  @include window(500px, 140px, 200px, 200px);
+
+  .bg {
+    @include bg(0.8);
+  }
+
+  .body {
+    position: absolute;
+    top: 22px;
+    padding: 0.3em;
+    text-align: center;
+    left: 0;
+    right: 0;
+    bottm: 0;
+  }
+
+  .i4 {
+    display: inline-block;
+    width: 45%;
+  }
+
+  .i6 {
+    display: inline-block;
+    width: 50%;
+  }
+
+  .r {
+    text-align: left;
+  }
+
+  select {
+    height: 1.8em;
+  }
+}
+
+#main2 {
+  #menu {
+    z-index: 9999;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 36px;
+    background: linear-gradient(to bottom, #efefef, transparent);
+    box-shadow: #333 0 2px 4px;
+
+    .menuarea{
+      display: inline-block;
+      background: linear-gradient(to bottom, $cbg, transparent 120%);
+      margin: 4px;
+      border: #aaa solid 1px;
+      .dropdown{
+        width: 5em;
+        border: 0;
+        background: transparent;
+        border-radius: 0;
+
+        .dropdown-content{
+          left: 0;
+        }
+      }
+
+
+      .dropdown:hover {
+        background: linear-gradient(to top, $cbg, #fff 120%);
+      }
+    }
+
+    .dropdown-content {
+      inline-size: max-content;
+    }
+
+    .dropdown-content button {
+      font-size: 9pt;
+      
+      &.checked {
+        padding-left: 0;
+        
+        &::before {
+          content: url(../image/icons/tick.png);
+          position: relative;
+          top: 2px;
+        }
+      }
+    }
+    
+  }
+}
+
+#map {
+  top: 36px;
+  z-index: 10;
+}
+
+#mapGrid {
+  @include full();
+  z-index: 20;
+}
+
+#mapDraw {
+  @include full();
+  display: none;
+  z-index: 22;
+}
+
+#drawPanel {
+  @include full();
+  z-index: 23;
+}
+
+
+#mapSurface {
+  @include full();
+  z-index: 30;
+}
+
+#drawsPanel {
+  @include full();
+  z-index: 25;
+}

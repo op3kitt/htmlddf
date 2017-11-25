@@ -1,0 +1,36 @@
+#window_upload.draggable
+  .bg 
+    div 画像アップローダ
+      .pull-right#upload_close2 ×
+  .body.dragprev
+    .r
+      #upload_droparea
+      .overwrap
+        input(type="file",multiple,accept="image/png,image/jpeg,image/gif")
+        a(href="#") ファイルを選択
+        br
+        | 　または　
+        br
+        | ファイルをドラッグアンドドロップ
+    .r
+      | 対応画像:JPEG/GIF/PNG
+      select#upload_public
+        option(value="") 専用
+        option(value="1") 全体
+      button#upload_btnpassword パスワードなし
+      input#upload_password
+    .r
+      | 付与するタグ（半角・全角スペースで区切り）
+      input#upload_tag(value="キャラクター画像　")
+      select#upload_tagbox
+        option キャラクター画像
+        option フロアタイル画像
+        option マップ画像
+        option モンスター
+        option 立ち絵
+    .r
+      button#upload_send アップロード
+      button#upload_close キャンセル
+    .r
+      |結果
+      #upload_result

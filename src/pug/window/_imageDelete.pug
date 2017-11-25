@@ -1,0 +1,18 @@
+#window_imageDelete.draggable
+  .bg 
+    div 画像削除
+      .pull-right#imageDelete_close2 ×
+  .body.dragprev
+    .r
+      #imageDelete_imagearea
+    .r
+      | 検索タグ
+      select#imageDelete_tagbox
+      button#imageDelete_btnpassword 隠し画像
+      input#imageDelete_password
+    .r
+      button#imageDelete_delete 選択した画像を削除
+      button#imageDelete_close キャンセル
+    .r
+      |結果
+      #imageDelete_result

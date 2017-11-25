@@ -1,0 +1,34 @@
+#window_magicRangeDD4th.draggable
+  .bg 
+    div 
+      span.title 魔法範囲作成（Ｄ＆Ｄ４版）
+      .pull-right#magicRangeDD4th_close2 ×
+  .body.dragprev
+    .r
+      input(type="hidden")#magicRangeDD4th_imgId
+      label 名前：
+      input#magicRangeDD4th_name
+    .r
+      label 範囲種別：
+      select#magicRangeDD4th_rangeType
+        option(value="closeBurstDD4th") 爆発
+        option(value="blastDD4th") 噴射
+    .r
+      label 範囲（マス）：
+      input#magicRangeDD4th_feets.spinner
+    .r
+      label 色：
+      input(type="hidden")#magicRangeDD4th_color
+      input#magicRangeDD4th_color2
+    .r
+      label 持続時間：
+      input#magicRangeDD4th_timeRange.spinner
+    .r
+      label その他：
+      input#magicRangeDD4th_info
+    .r
+      input(type="checkbox",checked)#magicRangeDD4th_isHide
+      |イニシアティブ表に表示する
+    .r.center
+      button#magicRangeDD4th_send 変更
+      button#magicRangeDD4th_close キャンセル

@@ -1,0 +1,33 @@
+{
+  "name": "DodontoF_html5cli",
+  "version": "1.0.0",
+  "description": "DodontoF.rb client build package",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "browserify": "^14.4.0",
+    "ddf": "^1.0.0",
+    "gulp": "^3.9.1",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-pug": "^3.3.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-sourcemaps": "^2.6.1",
+    "gulp-watchify": "^0.7.0",
+    "uglifyify": "^4.0.5",
+    "minami": "^1.2.3",
+    "msgpack-lite": "^0.1.26",
+    "store": "^2.0.12",
+    "vinyl-buffer": "^1.0.0",
+    "watchify": "^3.9.0",
+    "del": "^3.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "kitt @ttikitt <yosshi1123@gmail.com>",
+  "license": "MIT",
+  "directories": {
+    "doc": "doc"
+  }
+}
