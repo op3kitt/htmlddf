@@ -54,8 +54,8 @@ ddf.cmd.openMemo = (imgId) => {
     count++;
   }
   $("#memo_tab .tab:eq(0), #memo_edit textarea:eq(0)").addClass("active");
-  $("#window_memo").show().css("z-index", 61);
-  $(".draggable:not(#window_memo)").css("z-index", 60);
+  $("#window_memo").show().css("zIndex", 151);
+  $(".draggable:not(#window_memo)").css("zIndex", 150);
 };
 
 $("#memo_send").on('click', (e) => {

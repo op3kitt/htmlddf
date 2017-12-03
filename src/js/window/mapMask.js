@@ -17,8 +17,8 @@ sp_param.change = (c) => {
 $("#mapMask_color2").spectrum(sp_param);
 
 ddf.mapMask_show = (imageId) => {
-  $("#window_mapMask").show().css("z-index", 61);
-  $(".draggable:not(#window_mapMask)").css("z-index", 60);
+  $("#window_mapMask").show().css("zIndex", 151);
+  $(".draggable:not(#window_mapMask)").css("zIndex", 150);
 
   var character;
   if(ddf.characters[imageId] != null){

@@ -40,7 +40,7 @@ ddf.sendMsg = function (msg, type = 'json'){
   }).catch(function(r){
     console.log("ddf.sendMsg rejected ("+r+")");
   })
-  .then(function(r){console.log(r);return r;});
+  .then(function(r){console.log({caller: msg.cmd, result: r});return r;});
 }
 
 ddf.util = {};

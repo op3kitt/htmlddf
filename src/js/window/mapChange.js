@@ -11,8 +11,8 @@ sp_param.change = (c) => {
 $("#mapChange_color2").spectrum(sp_param);
 
 function mapChange_show(){
-  $("#window_mapChange").show().css("z-index", 61);
-  $(".draggable:not(#window_mapChange)").css("z-index", 60);
+  $("#window_mapChange").show().css("zIndex", 151);
+  $(".draggable:not(#window_mapChange)").css("zIndex", 150);
 
   color = new tinycolor("rgb("+[ddf.roomState.mapData.gridColor / 65536 & 0xFF,ddf.roomState.mapData.gridColor / 256 & 0xFF,ddf.roomState.mapData.gridColor & 0xFF]+")").toHex();
   $("#mapChange_width").val(ddf.roomState.mapData.xMax);
@@ -46,7 +46,7 @@ function mapChange_previewUpdate(){
       size: $("#mapChange_gridInterval").val(),
       color: "#"+$("#mapChange_color").val()
   };
-  zoom = Math.min(1, 7.76 / param.y,8 / param.x);
+  zoom = Math.min(1, 7.26 / param.y,8 / param.x);
   $("#mapChange_preview").css("transform", `scale(${zoom})`);
   $("#mapChange_grid, #mapChange_map").css({width: param.x * 50, height: param.y * 50});
   $("#mapChange_grid").attr("data", "img/grid.svg?"+$.map(param, (v,k) => {return k+"="+v;}).join("&"));
@@ -91,7 +91,6 @@ $("#mapChange_imageChange").on('click', (e) => {
 
 $("#mapChange_tagbox").on('change', (e) => {
   mapChange_setTag($("#mapChange_tagbox").val());
-  mapChange_previewUpdate();
 });
 
 function mapChange_setTag(tag){

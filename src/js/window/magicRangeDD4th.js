@@ -61,8 +61,8 @@ ddf.cmd.magicRangeDD4th_show = (imgId, x = 0, y = 0) => {
   $("#magicRangeDD4th_info").val(character.info);
   $("#magicRangeDD4th_isHide").prop("checked", !character.isHide);
 
-  $("#window_magicRangeDD4th").show().css("zIndex", 61);
-  $(".draggable:not(#window_magicRangeDD4th)").css("zIndex", 60);
+  $("#window_magicRangeDD4th").show().css("zIndex", 151);
+  $(".draggable:not(#window_magicRangeDD4th)").css("zIndex", 150);
 };
 
 $("#magicRangeDD4th_send").on('click', (e) => {

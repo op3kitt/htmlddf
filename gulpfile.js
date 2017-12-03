@@ -42,7 +42,7 @@ gulp.task('build:scss', function(){
     .pipe(plumber({errorHandler: notify.onError('<%= error.message %>')}))
     .pipe(sass())
     .pipe(sourcemaps.init())
-    .pipe(cssnano())
+    .pipe(cssnano({zindex: false}))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('build/css/'));
 });

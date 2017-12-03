@@ -1,0 +1,68 @@
+#window_addCharacter.draggable
+  .bg 
+    div
+      span.title キャラクター変更
+      .pull-right#addCharacter_close2 ×
+  .body.dragprev
+    .r.clearfix
+      input(type="hidden")#addCharacter_imgId
+      #addCharacter_preview
+        input(type="hidden")#addCharacter_imageName
+        #addCharacter_image
+      #addCharacter_imageSelect
+        .r
+          #addCharacter_imagearea
+        .r
+          | 検索タグ
+          select#addCharacter_tagbox
+          button#addCharacter_btnpassword 隠し画像
+          input#addCharacter_password
+          input(type="checkbox")#addCharacter_mirrored
+          |左右反転
+    .r
+      button(disabled) 画像切替設定
+    .r
+      table#addCharacter_counters
+    .r
+      .left-block
+        .r
+          label 名前：
+          input#addCharacter_name
+        .r
+          label ドッグタグ：
+          input#addCharacter_dogTag
+        .r
+          label サイズ：
+          input(type="number",min=1,max=10,required)#addCharacter_size
+          | 　
+          input(type="checkbox")#addCharacter_isHide
+          | マップマスクの下へ隠す
+        .r
+          label(style="position:relative") 参照URL：
+            .helptext 設定するとコマの右クリックからURLを開けるようになります。
+          input#addCharacter_url
+      .right-block
+        .r
+          label その他：
+          .pull-right(style="position:relative")
+            button#addCharacter_alias ■
+              .helptext カウンターのチェック欄に名前を付ける
+        .r
+          textarea#addCharacter_info
+    .r.center
+      button#addCharacter_send 追加
+      button#addCharacter_close キャンセル
+#window_addCharacter_sub.draggable
+  .bg 
+    div
+      span.title キャラクター置き場
+      .pull-right#addCharacter_sub_close ×
+  .body.center
+    .r
+      #addCharacter_sub_name
+    .r(style="position: relative")
+      .characterFrame(style="position: relative;height: 50px;")
+        .inner#addCharacter_sub_character
+    .r
+      input(type="checkbox")#addCharacter_sub_multiple
+      | 連続作成

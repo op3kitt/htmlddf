@@ -4,7 +4,7 @@ $cborder : #ccc;
 $cbg     : #eee;
 $title_bg: linear-gradient(to bottom, #eee, #99ebc2);
 
-@mixin bg($opacity: 0.7){
+@mixin bg($opacity: 0.85){
   border-radius: 4px;
   border: solid $cborder 2px;
   position: absolute;
@@ -29,7 +29,7 @@ $title_bg: linear-gradient(to bottom, #eee, #99ebc2);
 
   .helptext {
     filter: grayscale(100%);
-    z-index: 120;
+    z-index: 200;
   }
 }
 
@@ -47,7 +47,7 @@ $title_bg: linear-gradient(to bottom, #eee, #99ebc2);
   left: $left;
   width: $width;
   height: $height;
-  z-index: 60;
+  z-index: 150;
   
   &::after {
     content: "";
@@ -157,6 +157,7 @@ body {
   img {
     position: absolute;
     bottom: 0;
+    z-index: 100;
 
     &.pos1{left: 0;}
     &.pos2{left: 7%;}
@@ -204,7 +205,7 @@ body {
     border: solid 2px #61dbdb;
     border-radius: 4px;
     text-align: center;
-    z-index: 54;
+    z-index: 120;
     margin-top: 5px;
     overflow: hidden;
 
@@ -214,20 +215,20 @@ body {
       top: 0;
       width: 46px;
       height: 46px;
-      z-index: 55;
+      z-index: 125;
     }
 
     span {
       font-weight: bold;
       position: absolute;
-      z-index: 80;
+      z-index: 126;
       left: 0;
       width: 100%;
     }
 
     &:hover {
       overflow: visible;
-      z-index: 120;
+      z-index: 200;
 
       div {
         position: absolute;
@@ -280,7 +281,7 @@ body {
     margin-top: 35px;
     height: 70px;
     float: left;
-    z-index: 55;
+    z-index: 110;
 
     &:hover {
       opacity: 0.5;
@@ -370,22 +371,99 @@ body {
 }
 
 .magicRangeFrame {
-  z-index: 36;
+  z-index: 40;
 
   position: absolute;
   text-align: center;
+
+  object {
+    pointer-events: none;
+  }
 
   &.rangeCenterMarker::after {
     content: url(../image/centerMarker.png);
     position: absolute;
     top: 50%;
+    left: 50%;
     margin-left: -25px;
     margin-top: -25px;
+  }
+
+  &.rangeLeftMarker::after {
+    content: url(../image/centerMarker.png);
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-left: -25px;
+    margin-top: -25px;
+  }
+
+  &.rangeRightMarker::after {
+    content: url(../image/centerMarker.png);
+    position: absolute;
+    top: 50%;
+    right: 0;
+    margin-left: 25px;
+    margin-top: -25px;
+  }
+
+  &.rangeTopMarker::after {
+    content: url(../image/centerMarker.png);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -25px;
+    margin-top: -25px;
+  }
+
+  &.rangeBottomMarker::after {
+    content: url(../image/centerMarker.png);
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    margin-left: -25px;
+    margin-top: 25px;
+  }
+
+  &.rangeTopLeftMarker::after {
+    content: url(../image/centerMarker.png);
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-left: -25px;
+    margin-top: -25px;
+  }
+
+  &.rangeTopRightMarker::after {
+    content: url(../image/centerMarker.png);
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-left: 25px;
+    margin-top: -25px;
+  }
+
+  &.rangeBottomLeftMarker::after {
+    content: url(../image/centerMarker.png);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-left: -25px;
+    margin-top: 25px;
+  }
+
+  &.rangeBottomRightMarker::after {
+    content: url(../image/centerMarker.png);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin-left: 25px;
+    margin-top: 25px;
   }
 }
 
 .mapMaskFrame {
-  z-index: 35;
+  z-index: 30;
 
   position: absolute;
   text-align: center;
@@ -393,7 +471,7 @@ body {
   border: solid #ff9999 4px;
 
   &.draggableObj {
-    z-index: 40;
+    z-index: 35;
     border: solid #ffff99 4px;
   }
 
@@ -408,12 +486,12 @@ body {
 }
 
 .characterFrame {
-  z-index: 42;
+  z-index: 55;
   position: absolute;
   text-align: center;
 
   &.isHide{
-    z-index: 32;
+    z-index: 25;
   }
 
   .dogtag {
@@ -455,7 +533,7 @@ button {
   }
 
   &:hover .helptext{
-    z-index: 120;
+    z-index: 200;
     display: block;
     position: absolute;
     top: 20px;
@@ -542,8 +620,7 @@ input {
 }
 
 #initiative {
-
-  z-index: 60;
+  z-index: 150;
   position: absolute;
   top: 40px;
   right: 0;
@@ -583,8 +660,34 @@ input {
   }
 }
 
+#window_saveChatLog {
+  @include window(340px, 220px, 40%, 40%);
+
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button {
+      margin: 0.3em 0.5em;
+    }
+  }
+}
+
 #window_memo {
   @include window(600px, 400px, 40%, 40%);
+
   .bg {
     @include bg(0.8);
 
@@ -774,6 +877,183 @@ input {
 
     #magicRangeDD4th_timeRange, #magicRangeDD4th_feets {
       width: 3em;
+    }
+  }
+}
+
+#window_addCharacter {
+  @include window(800px, 620px, 10%, 10%)
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+
+  #addCharacter_password {
+    display: none;
+  }
+
+  #addCharacter_preview {
+    width: 25%;
+    height: 250px;
+    position: relative;
+    float: left;
+
+    #addCharacter_image {
+      @include full();
+
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      
+      &.mirrored {
+        transform: rotateY(180deg);
+      }
+    }
+  
+  }
+
+  #addCharacter_imageSelect {
+    width: 75%;
+    height: 250px;
+    float: left;
+  }
+
+  #addCharacter_imagearea {
+    width: 100%;
+    height: 200px;
+    border: solid #666 1px;
+    overflow: scroll;
+
+    div {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+
+      img {
+        max-width: 50px;
+        max-height: 50px;
+      }
+
+      input {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+    }
+  }
+
+  #addCharacter_counters {
+    width: 100%;
+    border-top: solid $cborder 1px;
+    border-left: solid $cborder 1px;
+    border-collapse: collapse;
+
+    th{
+      background: linear-gradient(to bottom, #fff, transparent);
+      border-bottom: solid $cborder 1px;
+      border-right: solid black 1px;
+      min-width: 5em;
+    }
+
+    td{
+      background: #fff;
+      border-bottom: solid $cborder 1px;
+      border-right: solid $cborder 1px;
+
+      input {
+        border: 0;
+        width: 100%;
+      }
+    }
+  }
+
+  .left-block, .right-block {
+    width: 50%;
+    float: left;
+  }
+
+  label {
+    width: 5em;
+  }
+
+  #addCharacter_info {
+    width: 100%;
+    height: 120px;
+  }
+
+  label, button {
+    & .helptext {
+      display: none;
+    }
+
+    &:hover .helptext{
+      z-index: 200;
+      display: block;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: #ffff99;
+      opacity: 0.8;
+      border: solid #666633 1px;
+      inline-size: max-content;
+    }
+  }
+}
+
+#window_addCharacter_sub {
+  @include window(150px, 200px, 40%, 40%)
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+
+    #addCharacter_sub_character {
+      width: 50px;
+      height: 50px;
+      margin: auto;
+
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
     }
   }
 }
@@ -1300,27 +1580,25 @@ input {
 
 #mapGrid {
   @include full();
-  z-index: 20;
+  z-index: 52;
+  pointer-events: none;
 }
 
 #mapDraw {
   @include full();
   display: none;
-  z-index: 22;
+  z-index: 16;
+  pointer-events: none;
 }
-
-#drawPanel {
-  @include full();
-  z-index: 23;
-}
-
 
 #mapSurface {
   @include full();
-  z-index: 30;
+  z-index: 18;
 }
 
 #drawsPanel {
   @include full();
-  z-index: 25;
+  z-index: 14;
+  pointer-events: none;
 }
+

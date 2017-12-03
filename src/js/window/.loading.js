@@ -8,4 +8,6 @@ $(() => {
   require("./help.js");
   require("./memo.js");
   require("./magicRangeDD4th.js");
+  require("./saveChatLog.js");
+  require("./addCharacter.js");
 });

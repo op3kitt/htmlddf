@@ -1,7 +1,7 @@
 
 $("#btn_imageupload").on("click", (e) => {
-  $("#window_upload").show().css("z-index", 61);
-  $(".draggable:not(#window_upload)").css("z-index", 60);
+  $("#window_upload").show().css("zIndex", 151);
+  $(".draggable:not(#window_upload)").css("zIndex", 150);
 });
 
 var upload_uploadlist = [];

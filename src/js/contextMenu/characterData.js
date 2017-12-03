@@ -1,13 +1,12 @@
 $.contextMenu({
   zIndex: 150,
-  selector: '.characterFrame',
+  selector: '#mapSurface .characterFrame',
   items: {
     edit: {name: "キャラクターの変更",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
-        //ddf.removeCharacter(opt.$trigger.attr("id"), true);
+        ddf.cmd.addCharacter_show(opt.$trigger.attr("id"), true);
       },
     },
-    sep1: "---------",
     delete: {name: "キャラクターの削除",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
         ddf.removeCharacter(opt.$trigger.attr("id"), true);
@@ -21,7 +20,6 @@ $.contextMenu({
         }
       },
     },
-    sep2: "---------",
     copy: {name: "キャラクターの複製",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
         character = ddf.characters[opt.$trigger.attr("id")];
@@ -39,6 +37,15 @@ $.contextMenu({
         data.imgId = 0;
         ddf.addCharacter(data);
       },
-    }
+    },
+    url: {name: "データ参照先URLを開く",
+      visible: function(key, opt){
+          return opt.$trigger && ddf.characters[opt.$trigger.attr("id")] && ddf.characters[opt.$trigger.attr("id")].data.url != "";
+        },
+      callback: function(itemKey, opt, rootMenu, originalEvent) {
+        character = ddf.characters[opt.$trigger.attr("id")];
+        window.open(character.data.url);
+      },
+    },
   }
 });

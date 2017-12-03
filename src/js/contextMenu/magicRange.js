@@ -5,9 +5,10 @@ $.contextMenu({
     edit: {name: "魔法範囲の変更",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
         character = ddf.characters[opt.$trigger.attr("id")];
-        switch(character.data.rangeType){
-          case "closeBurstDD4th":
-          case "blastDD4th":
+        switch(character.data.type){
+          case "LogHorizonRange":
+            break;
+          case "magicRangeMarkerDD4th":
             ddf.cmd.magicRangeDD4th_show(opt.$trigger.attr("id"));
             break;
         }

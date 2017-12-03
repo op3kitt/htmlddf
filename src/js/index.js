@@ -1,4 +1,6 @@
 ddf.cmd = {};
+chatlog = [];
+var version = require('../../package.json').version;
 
 var screenshot = require('./screenshot.js').generate;
 var lang = "Japanese";
@@ -128,6 +130,31 @@ $(() => {
   $(".draggabletail").draggable({
     cancel: ".dragprev, .draggableObj"
   });
+
+  $(document).on('mouseover', ".mapMaskFrame.draggableObj", (e) => {
+    $(".mapMaskFrame.draggableObj").css('zIndex', 35);
+    $(e.currentTarget).css('zIndex', 36);
+  });
+  $(document).on('mouseover', ".magicRangeFrame", (e) => {
+    $(".magicRangeFrame").css('zIndex', 40);
+    $(e.currentTarget).css('zIndex', 41);
+  });
+  $(document).on('mouseover', ".mapMarkerFrame", (e) => {
+    $(".mapMarkerFrame").css('zIndex', 45);
+    $(e.currentTarget).css('zIndex', 46);
+  });
+  $(document).on('mouseover', ".cardFrame", (e) => {
+    $(".cardFrame").css('zIndex', 50);
+    $(e.currentTarget).css('zIndex', 51);
+  });
+  $(document).on('mouseover', ".characterFrame:not(.isHide)", (e) => {
+    $(".characterFrame:not(.isHide)").css('zIndex', 55);
+    $(e.currentTarget).css('zIndex', 56);
+  });
+  $(document).on('mouseover', ".chitFrame", (e) => {
+    $(".chitFrame").css('zIndex', 60);
+    $(e.currentTarget).css('zIndex', 61);
+  });
   
   $(".resizable").resizable({
     ghost: true,
@@ -151,14 +178,13 @@ $(() => {
   ddf.userState.own = "\t"+ddf.util.getUniqueId();
   getLoginInfo();
   
-  var version = require('../../package.json').version;
   /*待合室コマンド*/
   $("#btn_version").on('click', (e) => {
     $("#version_DodontoF").text(ddf.info.version);
     $("#version_ddfjs").text(ddf.version);
     $("#version_ddfcli").text(version);
-    $("#window_version").show().css("z-index", 61);
-    $(".draggable:not(#window_version)").css("z-index", 60);
+    $("#window_version").show().css("zIndex", 151);
+    $(".draggable:not(#window_version)").css("zIndex", 150);
   });
   
   $("#version_close").on('click', (e) => {
@@ -166,8 +192,8 @@ $(() => {
   });
   
   $("#btn_loginNumber").on('click', (e) => {
-    $("#window_loginNumber").show().css("z-index", 61);
-    $(".draggable:not(#window_loginNumber)").css("z-index", 60);
+    $("#window_loginNumber").show().css("zIndex", 151);
+    $(".draggable:not(#window_loginNumber)").css("zIndex", 150);
   });
   $("#window_loginNumber .btn").on('click', (e) =>  {
     $("#window_loginNumber").hide();
@@ -188,8 +214,8 @@ $(() => {
   
   $("#btn_createPlayRoom").on('click', (e) => {
     ddf.userState.room = -1;
-    $("#window_createPlayRoom").show().css("z-index", 61);
-    $(".draggable:not(#window_createPlayRoom)").css("z-index", 60);
+    $("#window_createPlayRoom").show().css("zIndex", 151);
+    $(".draggable:not(#window_createPlayRoom)").css("zIndex", 150);
   });
   $("#createPlayRoom_create").on('click', (e) => {
     createPlayRoom();
@@ -368,8 +394,8 @@ function checkRoomStatus(roomNumber, password = null){
     if(room.lastUpdateTime==""){
     /*ルーム未作成*/
       ddf.userState.room = roomNumber;
-    $("#window_createPlayRoom").css("zIndex", $("#window_createPlayRoom").css("zIndex") + 25);
-      $("#window_createPlayRoom").show();
+      $("#window_createPlayRoom").show().css("zIndex", 151);
+      $(".draggable:not(#window_createPlayRoom)").css("zIndex", 150);
     }else if(room.passwordLockState && password == null){
     /*パスワード付きルーム1回目*/
     }else{
@@ -380,7 +406,7 @@ function checkRoomStatus(roomNumber, password = null){
           ddf.userState.room = roominfo.roomNumber;
           ddf.userState.name = $("#login_name").val();
           ddf.userState.color = "000000";
-          ddf.sendChatMessage(0, "どどんとふ\t", "「"+ddf.userState.name+"」がログインしました。", "00aa00", true);
+          ddf.sendChatMessage(0, "どどんとふ\t", "「"+ddf.userState.name+"」がログインしました。（htmlddf "+version+"）", "00aa00", true);
           $("#main").hide();
           history.pushState({roomNumber: roomNumber}, "room="+roomNumber, "index.html?room="+roomNumber);
           $("#main2").show();
@@ -409,6 +435,7 @@ function checkRoomStatus(roomNumber, password = null){
           ddf.roomState.unread = [];
           ddf.roomState.effects = [];
           ddf.roomState.playSound = true;
+          ddf.roomState.chatChannelNames = roominfo.chatChannelNames;
           for(tab of roominfo.chatChannelNames){
             ddf.roomState.unread.push(0);
             var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
@@ -476,7 +503,7 @@ function refresh(){
       }
     }
     if(refreshData.mapData) {
-      refresh_parseMapData(refreshData);
+      ddf.cmd.refresh_parseMapData(refreshData);
     }
     if(refreshData.characters){
       refresh_parseCharacters(refreshData);
@@ -572,18 +599,21 @@ function refresh_parseChatMessageDataLog(refreshData){
           break;
         case "rollVisualDice":
           param = JSON.parse(matches[2]);
-          $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(param.chatMessage.replace(/\n/, "<br>"))}</p>`));
-          $(`#log div:eq(${item[1].channel}))`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+          $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(param.chatMessage).replace(/\n/, "<br>")}</p>`));
+          chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, param.chatMessage]);
+          $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
           lastRandResult = [param.chatMessage, param.randResults];
           continue;
           break;
       }
     }else if(matches = /^###CutInMovie###(.+)$/.exec(item[1].message)){
-      param = JSON/parse(matches[1]);
+      param = JSON.parse(matches[1]);
       $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:【${encode(param.message)}】</p>`));
+      chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, param.chatMessage]);
       $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }else{
-      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(item[1].message)}</p>`));
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(item[1].message).replace(/\n/, "<br>")}</p>`));
+      chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, item[1].message]);
       $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }
   }
@@ -760,6 +790,22 @@ ddf.cmd.refresh_parseRecordData = (refreshData) => {
       }
       obj = character.obj;
       switch(data.type){
+        case "LogHorizonRange":
+          obj.css({
+            clipPath: `polygon(0 ${data.range*50+50}px, 0 ${data.range*50}px,${data.range*50}px 0,${data.range*50+50}px 0,${data.range*100+50}px ${data.range*50}px, ${data.range*100+50}px ${data.range*50+50}px, ${data.range*50+50}px ${data.range*100+50}px, ${data.range*50}px ${data.range*100+50}px)`,
+            left: data.x * 50,
+            top: data.y * 50,
+            marginLeft: (data.range * -50) * ddf.roomState.mapData.gridInterval,
+            marginTop:  (data.range * -50) * ddf.roomState.mapData.gridInterval,
+            width: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
+            height: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
+          });
+          obj.children("object").attr("data", `img/rangeLH.svg?size=${data.range}&color=${data.color}`);
+          obj.children("object").css({
+            width: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
+            height: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval
+          });
+          break;
         case "magicRangeMarkerDD4th":
           obj.animate({
             left: data.x * 50,
@@ -874,6 +920,26 @@ function refresh_parseCharacters(refreshData){
     case "CardTrushMount":
     case "CardMount":
       break;
+    case "LogHorizonRange":
+      obj = $(`<div class="magicRangeFrame draggableObj rangeCenterMarker" id="${character.imgId}"><object type="image/svg+xml" data="img/rangeLH.svg?size=${character.range}&color=${character.color}"></div>`);
+      $("#mapSurface").append(obj);
+      ddf.characters[character.imgId] = {
+        obj: obj,
+        data: character
+      };
+      obj.css({
+        clipPath: `polygon(0 ${character.range*50+50}px, 0 ${character.range*50}px,${character.range*50}px 0,${character.range*50+50}px 0,${character.range*100+50}px ${character.range*50}px, ${character.range*100+50}px ${character.range*50+50}px, ${character.range*50+50}px ${character.range*100+50}px, ${character.range*50}px ${character.range*100+50}px)`,
+        left: character.x * 50,
+        top: character.y * 50,
+        marginLeft: (character.range * -50) * ddf.roomState.mapData.gridInterval,
+        marginTop:  (character.range * -50) * ddf.roomState.mapData.gridInterval,
+        opacity: 0.5
+      });
+      obj.children("object").css({
+        width: (character.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
+        height: (character.range * 100 + 50) * ddf.roomState.mapData.gridInterval
+      });
+      break;
     case "magicRangeMarkerDD4th":
       obj = $(`<div class="magicRangeFrame draggableObj" id="${character.imgId}"></div>`);
       $("#mapSurface").append(obj);
@@ -979,7 +1045,7 @@ function refresh_parseCharacters(refreshData){
   $(".draggableObj").draggable(ddf.dragOption);
 }
 
-function refresh_parseMapData(refreshData){
+ddf.cmd.refresh_parseMapData = (refreshData) => {
   ddf.roomState.mapData = refreshData.mapData;
   switch(refreshData.mapData.mapType){
     case "imageGraphic":
@@ -1006,8 +1072,8 @@ function refresh_parseMapData(refreshData){
       num: ddf.roomState.viewStateInfo.isPositionVisible,
       size: refreshData.mapData.gridInterval,
       color: "rgb("+[refreshData.mapData.gridColor / 65536 & 0xFF,refreshData.mapData.gridColor / 256 & 0xFF,refreshData.mapData.gridColor & 0xFF].join()+")",
-      mapMarks: escape(refreshData.mapData.mapMarks.join("/")),
-      mapMarksAlpha: refreshData.mapData.mapMarksAlpha
+      mapMarks: refreshData.mapData.mapMarks?refreshData.mapData.mapMarks.join("/"):"",
+      mapMarksAlpha: refreshData.mapData.mapMarksAlpha!=null?refreshData.mapData.mapMarksAlpha:1
     };
     $("#mapGrid").attr("data", "img/grid.svg?"+$.map(param, (v,k) => {return k+"="+v;}).join("&"));
   }
@@ -1029,7 +1095,7 @@ function refresh_parseMapData(refreshData){
     }
   }
   ddf.cmd.refresh_parseRecordData({record: redraw});
-}
+};
 
 function refresh_parseRoundTimeData(refreshData){
   if(JSON.stringify(refreshData.roundTimeData.counterNames) != JSON.stringify(ddf.roomState.roundTimeData.counterNames)){
