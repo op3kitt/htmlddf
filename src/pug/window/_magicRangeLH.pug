@@ -1,0 +1,20 @@
+#window_magicRangeLH.draggable
+  .bg 
+    div 
+      span.title 攻撃範囲追加
+      .pull-right#magicRangeLH_close2 ×
+  .body.dragprev
+    .r
+      input(type="hidden")#magicRangeLH_imgId
+      label 名前：
+      input#magicRangeLH_name
+    .r
+      label 射程：
+      input(type="number",min=0,max=100,required)#magicRangeLH_range
+    .r
+      label 色：
+      input(type="hidden")#magicRangeLH_color
+      input#magicRangeLH_color2
+    .r.center
+      button#magicRangeLH_send 追加
+      button#magicRangeLH_close キャンセル

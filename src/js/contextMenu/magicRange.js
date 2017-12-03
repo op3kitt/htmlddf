@@ -7,6 +7,7 @@ $.contextMenu({
         character = ddf.characters[opt.$trigger.attr("id")];
         switch(character.data.type){
           case "LogHorizonRange":
+            ddf.cmd.magicRangeLH_show(opt.$trigger.attr("id"));
             break;
           case "magicRangeMarkerDD4th":
             ddf.cmd.magicRangeDD4th_show(opt.$trigger.attr("id"));

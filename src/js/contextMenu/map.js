@@ -19,6 +19,7 @@ $.contextMenu({
     },
     addMagicRangeLH: {name: "ログホライズン用範囲",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
+        ddf.cmd.magicRangeLH_show("0");
       },
     },
     addMagicTimer: {name: "魔法タイマー追加",

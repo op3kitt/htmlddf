@@ -102,8 +102,8 @@ $(() => {
   });
   /*$("#btn_rangedd4").on("click", (e) => {
   });*/
-  $("#btn_rangelh").on("click", (e) => {
-  });
+  /*$("#btn_rangelh").on("click", (e) => {
+  });*/
   $("#btn_rangemg").on("click", (e) => {
   });
   $("#btn_magictimer").on("click", (e) => {
