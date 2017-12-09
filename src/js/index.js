@@ -1,5 +1,6 @@
 ddf.cmd = {};
 chatlog = [];
+
 var version = require('../../package.json').version;
 
 var screenshot = require('./screenshot.js').generate;
@@ -30,24 +31,21 @@ function titleAnimation(){
   }
 }
 
-
-
 window.addEventListener('popstate', (e) =>  {
   console.log(e);
 });
 var click = {x:0,y:0};
 
-var roominfos = [];
-
+ddf.roomInfos = [];
 var pageBuffer, diceRollBuffer, context;
 
 function playSound(buffer) {
   if(ddf.roomState.playSound){
-    var source = context.createBufferSource(); // creates a sound source
-    source.buffer = buffer;                    // tell the source which sound to play
-    source.connect(context.destination);       // connect the source to the context's destination (the speakers)
-    source.start(0);                           // play the source now
-  }                                           // note: on older systems, may have to use deprecated noteOn(time);
+    var source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.start(0);
+  }
 }
 
 $(() => {
@@ -78,12 +76,10 @@ $(() => {
         click.y = event.clientY - parseInt($(event.target).css("marginTop")) / 2;
     },
     drag: (event, ui) =>  {
-      // This is the parameter for scale()
       var zoom = ddf.roomState.zoom;
 
       var original = ui.originalPosition;
 
-      // jQuery will simply use the same object we alter here
       ui.position = {
           left: (event.clientX - click.x + original.left) / zoom,
           top:  (event.clientY - click.y + original.top ) / zoom
@@ -161,6 +157,7 @@ $(() => {
     handles: 'n, e, s, w, ne, se, sw, nw'
   });
   $('.loader-inner').loaders();
+
   $(document).on('click', "#diceResult *", (e) => {
     $("#diceResult").empty();
   });
@@ -176,20 +173,10 @@ $(() => {
   /*エントリーポイント*/
   ddf.userState.room = -1;
   ddf.userState.own = "\t"+ddf.util.getUniqueId();
+
   getLoginInfo();
   
   /*待合室コマンド*/
-  $("#btn_version").on('click', (e) => {
-    $("#version_DodontoF").text(ddf.info.version);
-    $("#version_ddfjs").text(ddf.version);
-    $("#version_ddfcli").text(version);
-    $("#window_version").show().css("zIndex", 151);
-    $(".draggable:not(#window_version)").css("zIndex", 150);
-  });
-  
-  $("#version_close").on('click', (e) => {
-    $("#window_version").hide();    
-  });
   
   $("#btn_loginNumber").on('click', (e) => {
     $("#window_loginNumber").show().css("zIndex", 151);
@@ -199,18 +186,21 @@ $(() => {
     $("#window_loginNumber").hide();
   });
   
-  $("#btn_manual").on('click', (e) => {
+  /*$("#btn_version").on("click", (e) => {
+  });*/
+  $("#btn_manual, #btn_manual2").on('click', (e) => {
     window.open(ddf.base_url + "README.html");
+  });
+  /*$("#btn_tutorial").on("click", (e) => {
+  });*/
+  $("#btn_site, #btn_site2").on('click', () => {
+    window.open("http://www.dodontof.com/");
   });
   
   $("#btn_removePlayRoom").on('click', (e) => {
     removePlayRoom(parseInt($("#playRoomNo").val().trim()));
   });
   
-
-  $("#btn_site").on('click', () => {
-    window.open("http://www.dodontof.com/");
-  });
   
   $("#btn_createPlayRoom").on('click', (e) => {
     ddf.userState.room = -1;
@@ -228,16 +218,16 @@ $(() => {
     checkRoomStatus(parseInt($("#playRoomNo").val()));
   });
 
-  $("#playRoomInfos table").tablesorter();
+  $("#playddf.roomInfos table").tablesorter();
 
   var mousewheelevent = 'onwheel' in document ? 'wheel' : 'onmousewheel' in document ? 'mousewheel' : 'DOMMouseScroll';
   $("#mapSurface").on(mousewheelevent,(e) => {
       e.preventDefault();
       var delta = e.originalEvent.deltaY ? -(e.originalEvent.deltaY) : e.originalEvent.wheelDelta ? e.originalEvent.wheelDelta : -(e.originalEvent.detail);
       if (delta < 0){
-        setZoom(-0.1);
+        ddf.cmd.setZoom(-0.1);
       } else {
-        setZoom(0.1);
+        ddf.cmd.setZoom(0.1);
       }
   });
   
@@ -249,6 +239,7 @@ ddf.safeDragDestoroy = () => {
   }catch(e){}
 }
 
+ddf.cmd.setZoom = setZoom;
 function setZoom(amount, relative = true){
   if(relative){
     ddf.roomState.zoom += amount;
@@ -287,7 +278,8 @@ function getLoginInfo(){
   });
 }
 
-ddf.cmd.getPlayRoomInfo = () => {
+ddf.cmd.getPlayRoomInfo = getPlayRoomInfo;
+function getPlayRoomInfo(){
   promises = [];
   for(i = 0;i * ddf.info.playRoomGetRangeMax < ddf.info.playRoomMaxNumber;i++){
     promises.push(
@@ -298,7 +290,7 @@ ddf.cmd.getPlayRoomInfo = () => {
     roominfo = r;
     for(key in roominfo.playRoomStates){
       room = roominfo.playRoomStates[key];
-      roominfos[parseInt(room.index.trim())] = room;
+      ddf.roomInfos[parseInt(room.index.trim())] = room;
       
       var row = "<tr>";
       row += `<td>${room.index}</td>`
@@ -322,15 +314,16 @@ ddf.cmd.getPlayRoomInfo = () => {
         button.prop("disabled", true);
       }      
       tr.children("td:last").append(button);
-      $("#playRoomInfos tbody").append(tr);
+      $("#playddf.roomInfos tbody").append(tr);
       tr.on('dblclick', ((roomNumber) => {return (e) => {
         checkRoomStatus(roomNumber);
       }})(parseInt(room.index)));
       tr.on('click', ((roomNumber) => {return (e) => {
         $("#playRoomNo").val(roomNumber);
       }})(parseInt(room.index)));
+      $("#playRoomInfos table tbody").append(tr);
     }
-    $("#playRoomInfos table").trigger( 'update');
+    $("#playddf.roomInfos table").trigger( 'update');
     return r;
   };
 
@@ -343,7 +336,7 @@ ddf.cmd.getPlayRoomInfo = () => {
   }, Promise.resolve());
   
     $("#loading").hide();
-};
+}
 
 function createPlayRoom(){
   ddf.createPlayRoom(
@@ -377,7 +370,7 @@ function createPlayRoom(){
       ddf.getPlayRoomInfo(r.playRoomIndex, r.playRoomIndex).then(
         ((roomNumber) => {
           return (r) => {
-            roominfos[roomNumber] = r.playRoomStates[0];
+            ddf.roomInfos[roomNumber] = r.playRoomStates[0];
             checkRoomStatus(roomNumber);
           };
         })(r.playRoomIndex)
@@ -388,16 +381,18 @@ function createPlayRoom(){
   });
 }
 
-function checkRoomStatus(roomNumber, password = null){
-  room = roominfos[roomNumber];
+ddf.cmd.checkRoomStatus = checkRoomStatus;
+function checkRoomStatus(roomNumber, isVisit = null, password = null){
+  room = ddf.roomInfos[roomNumber];
   if(room){
     if(room.lastUpdateTime==""){
     /*ルーム未作成*/
       ddf.userState.room = roomNumber;
       $("#window_createPlayRoom").show().css("zIndex", 151);
       $(".draggable:not(#window_createPlayRoom)").css("zIndex", 150);
-    }else if(room.passwordLockState && password == null){
-    /*パスワード付きルーム1回目*/
+    }else if((room.passwordLockState && password == null) || (room.canVisit && isVisit == null)){
+    /*見学可・パスワード付きルーム1回目*/
+      ddf.cmd.loginCheck_show(roomNumber);
     }else{
     /*ログイン*/
       return ddf.checkRoomStatus(roomNumber, password).then((r) => {
@@ -462,17 +457,19 @@ function checkRoomStatus(roomNumber, password = null){
   }
 };
 
+ddf.cmd.removePlayRoom = removePlayRoom;
 function removePlayRoom(roomNumber, password = null){
-  room = roominfos[roomNumber];
+  room = ddf.roomInfos[roomNumber];
   if(room && room.lastUpdateTime){
     if(room.passwordLockState && password == null){
     
     }else{
       body = `No.${room.index}：${room.playRoomName}\nを削除しますか？`;
       if(password != null || confirm(body)){
-        ddf.removePlayRoom(roomNumber, false, password);
-        $("#playRoomInfos tbody").empty();
-        ddf.cmd.getPlayRoomInfo();
+        ddf.removePlayRoom(roomNumber, false, password).then((r) => {
+          $("#playddf.roomInfos tbody").empty();
+          ddf.cmd.getPlayRoomInfo();
+        });
       }
     }
   }
@@ -554,7 +551,11 @@ function refresh(){
     if(refreshData.gameType){
       $("#dicebot").val(refreshData.gameType);
     }
+    if(refreshData.playRoomName){
+      ddf.roomState.playRoomName = refreshData.playRoomName;
+    }
     if(refreshData.loginUserInfo){
+      ddf.roomState.loginUserInfo = refreshData.loginUserInfo;
       $("#btn_member").text(`ルームNo.${ddf.roomState.roomNumber}：${refreshData.loginUserInfo.length}名`);
     }
     r = refreshData = null;
@@ -566,6 +567,7 @@ function refresh(){
 
 function refresh_parseEffects(refreshData){
   ddf.roomState.effects = refreshData.effects;
+  ddf.cmd.effectList_create();
 }
 
 function refresh_parseChatMessageDataLog(refreshData){
@@ -777,7 +779,8 @@ function refresh_parseViewStateInfo(refreshData){
   }
 }
 
-ddf.cmd.refresh_parseRecordData = (refreshData) => {
+ddf.cmd.refresh_parseRecordData = refresh_parseRecordData;
+function refresh_parseRecordData(refreshData){
   ddf.safeDragDestoroy();
   for(record of refreshData.record){
     switch(record[1]){
@@ -911,7 +914,7 @@ ddf.cmd.refresh_parseRecordData = (refreshData) => {
     }
   }
   $(".draggableObj").draggable(ddf.dragOption);
-};
+}
 
 function refresh_parseCharacters(refreshData){
   for(character of refreshData.characters){
@@ -1045,7 +1048,8 @@ function refresh_parseCharacters(refreshData){
   $(".draggableObj").draggable(ddf.dragOption);
 }
 
-ddf.cmd.refresh_parseMapData = (refreshData) => {
+ddf.cmd.refresh_parseMapData = refresh_parseMapData;
+function refresh_parseMapData(refreshData){
   ddf.roomState.mapData = refreshData.mapData;
   switch(refreshData.mapData.mapType){
     case "imageGraphic":
@@ -1095,7 +1099,7 @@ ddf.cmd.refresh_parseMapData = (refreshData) => {
     }
   }
   ddf.cmd.refresh_parseRecordData({record: redraw});
-};
+}
 
 function refresh_parseRoundTimeData(refreshData){
   if(JSON.stringify(refreshData.roundTimeData.counterNames) != JSON.stringify(ddf.roomState.roundTimeData.counterNames)){
@@ -1147,7 +1151,8 @@ function refresh_parseRoundTimeData(refreshData){
   ddf.roomState.roundTimeData = refreshData.roundTimeData;
 }
 
-ddf.cmd.sendChatMessage = (channel, senderName, state, gameType, message, color, isNeedResult = true) => {
+ddf.cmd.sendChatMessage = sendChatMessage;
+function sendChatMessage(channel, senderName, state, gameType, message, color, isNeedResult = true){
   ddf.roomState.gameType = gameType;
   if(message.trim()==""){return false;}
   if(!(pattern = ddf.patterns[ddf.roomState.gameType])){
@@ -1171,7 +1176,7 @@ ddf.cmd.sendChatMessage = (channel, senderName, state, gameType, message, color,
     ddf.userState.name = senderName;
     return ddf.sendChatMessage(channel, senderName + "\t"+ state, message, color);
   }
-};
+}
 
 function initiativeNext(){
 }

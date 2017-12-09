@@ -164,42 +164,22 @@ $(() => {
   /*$("#btn_imagedelete").on("click", (e) => {
   });*/
 
-  var version = require('../../package.json').version;
-  $("#btn_version2").on("click", (e) => {
-    $("#version_DodontoF").text(ddf.info.version);
-    $("#version_ddfjs").text(ddf.version);
-    $("#version_ddfcli").text(version);
-    $("#window_version").show().css("zIndex", 151);
-    $(".draggable:not(#window_version)").css("zIndex", 150);
-  });
-  $("#btn_manual2").on("click", (e) => {
-    window.open(ddf.base_url + "README.html");
-  });
-  $("#btn_tutorial").on("click", (e) => {
-  });
-  $("#btn_site2").on("click", (e) => {
-    window.open("http://www.dodontof.com/");
-  });
+  /*$("#btn_version2").on("click", (e) => {
+  });*/
+  /*$("#btn_manual2").on("click", (e) => {
+  });*/
+  /*$("#btn_tutorial2").on("click", (e) => {
+  });*/
+  /*$("#btn_site2").on("click", (e) => {
+  });*/
 
 
   $("#btn_zoomin").on("click", () => {
-    setZoom(0.1);
+    ddf.cmd.setZoom(0.1);
   });
   $("#btn_zoomout").on("click", () => {
-    setZoom(-0.1);
+    ddf.cmd.setZoom(-0.1);
   });
 
   $("#btn_screenshot").on("click", generate);
 });
-
-
-function setZoom(amount, relative = true){
-  if(relative){
-    ddf.roomState.zoom += amount;
-  }else{
-    ddf.roomState.zoom = amount;
-  }
-  ddf.roomState.zoom < 0.1 && (ddf.roomState.zoom = 0.1);
-  ddf.roomState.zoom > 3.0 && (ddf.roomState.zoom = 3.0);
-  $("#map").css("transform", "scale("+ddf.roomState.zoom+")");
-}

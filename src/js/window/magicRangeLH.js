@@ -12,7 +12,8 @@ sp_param.change = (c) => {
 };
 $("#magicRangeLH_color2").spectrum(sp_param);
 
-ddf.cmd.magicRangeLH_show = (imgId, x = 0, y = 0) => {
+ddf.cmd.magicRangeLH_show = magicRangeLH_show;
+function magicRangeLH_show(imgId, x = 0, y = 0){
   if(character = ddf.characters[imgId]){
     character = character.data;
     $("#window_magicRangeLH .title").text("攻撃範囲変更");
@@ -51,7 +52,7 @@ ddf.cmd.magicRangeLH_show = (imgId, x = 0, y = 0) => {
 
   $("#window_magicRangeLH").show().css("zIndex", 151);
   $(".draggable:not(#window_magicRangeLH)").css("zIndex", 150);
-};
+}
 
 $("#magicRangeLH_send").on('click', (e) => {
   if(character = ddf.characters[$("#magicRangeLH_imgId").val()]){

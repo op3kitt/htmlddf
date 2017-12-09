@@ -2,7 +2,8 @@ $("#btn_addCharacter").on("click", (e) => {
   addCharacter_show("0");
 });
 
-ddf.cmd.addCharacter_show = (imgId) => {
+ddf.cmd.addCharacter_show = addCharacter_show;
+function addCharacter_show(imgId){
   $("#window_addCharacter_sub").hide();
 
   ddf.getImageTagsAndImageList().then((r) => {
@@ -97,7 +98,7 @@ ddf.cmd.addCharacter_show = (imgId) => {
 
   $("#window_addCharacter").show().css("zIndex", 151);
   $(".draggable:not(#window_addCharacter)").css("zIndex", 150);
-};
+}
 
 $("#addCharacter_close, #addCharacter_close2").on("click", (e) => {
   $("#window_addCharacter").hide();

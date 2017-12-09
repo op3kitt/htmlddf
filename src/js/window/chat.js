@@ -30,8 +30,8 @@ $("#btn_vote").on('click', (e) => {
 });
 $("#btn_alarm").on('click', (e) => {
 });
-$("#btn_cutIinList").on('click', (e) => {
-});
+/*$("#btn_characterList").on('click', (e) => {
+});*/
 $("#btn_easyUpload").on('click', (e) => {
 });
 $("#btn_talk").on('click', (e) => {

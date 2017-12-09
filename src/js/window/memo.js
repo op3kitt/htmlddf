@@ -7,7 +7,8 @@ $("#memo_close, #memo_close2").on('click', (e) => {
   $("#window_memo").hide();
 });
 
-ddf.cmd.openMemo = (imgId) => {
+ddf.cmd.openMemo = openMemo;
+function openMemo(imgId){
   $("#memo_imgId").val(imgId);
   if(!(character = ddf.characters[$("#memo_imgId").val()])){
     character = {
@@ -56,7 +57,7 @@ ddf.cmd.openMemo = (imgId) => {
   $("#memo_tab .tab:eq(0), #memo_edit textarea:eq(0)").addClass("active");
   $("#window_memo").show().css("zIndex", 151);
   $(".draggable:not(#window_memo)").css("zIndex", 150);
-};
+}
 
 $("#memo_send").on('click', (e) => {
   arr = $.map($("#memo_edit textarea"),(v)=>{return $(v).val().replace("\n","\r");});

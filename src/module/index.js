@@ -745,17 +745,17 @@ ddf.uploadImageUrl = function(imageUrl, password, tags, roomNumber){
 };
 
 /**
- * @function addEffect
+ * @function addEffectCharacter
  * @description 立ち絵の追加
  * @param {String} name キャラクター名
  * @param {String} state キャラクター状態
  * @param {String} motion キャラクター動作
  * @param {String} source 画像URL
- * @param {Boolean} mirroed 左右反転フラグ
+ * @param {Boolean} mirrored 左右反転フラグ
  * @param {Integer} leftIndex 表示位置
  * @return {Promise}
  */
-ddf.addEffect = function(name, state, motion, source, mirroed, leftIndex){
+ddf.addEffectCharacter = function(name, state, motion, source, mirrored, leftIndex){
   return ddf.sendMsg({
     room: ddf.userState.room,
     own: ddf.info.uniqueId + ddf.userState.own,
@@ -765,7 +765,7 @@ ddf.addEffect = function(name, state, motion, source, mirroed, leftIndex){
       state: state,
       motion: motion,
       source: source,
-      mirrored: mirroed,
+      mirrored: mirrored,
       leftIndex: leftIndex
     },
     cmd: "addEffect"
@@ -773,8 +773,9 @@ ddf.addEffect = function(name, state, motion, source, mirroed, leftIndex){
 };
 
 /**
- * @function changeEffect
+ * @function changeEffectCharacter
  * @description 立ち絵の変更
+ * @param {String} effectId 変更するエフェクトID
  * @param {String} name キャラクター名
  * @param {String} state キャラクター状態
  * @param {String} motion キャラクター動作
@@ -782,7 +783,7 @@ ddf.addEffect = function(name, state, motion, source, mirroed, leftIndex){
  * @param {Integer} leftIndex 表示位置
  * @return {Promise}
  */
-ddf.changeEffect = function(effectId, name, state, motion, source, mirroed, leftIndex){
+ddf.changeEffectCharacter = function(effectId, name, state, motion, source, mirroed, leftIndex){
   return ddf.sendMsg({
     room: ddf.userState.room,
     own: ddf.info.uniqueId + ddf.userState.own,
