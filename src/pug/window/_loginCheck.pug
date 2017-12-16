@@ -1,0 +1,22 @@
+#window_loginCheck.draggable
+  .bg 
+    div 
+      span.title ログインチェック
+      .pull-right#loginCheck_close2 ×
+  .body.dragprev
+    input(type="hidden")#loginCheck_roomNumber
+    .row
+      label プレイルーム名：
+      span#loginCheck_playRoomName
+    .row#loginCheck_canVisit
+      label 参加者ですか？見学者ですか？：
+      input(type="radio",checked,name="isVisit",value="0")
+      | 参加者　
+      input(type="radio",name="isVisit",value="1")
+      | 見学者
+    .row#loginCheck_passwordLockState
+      label ログインパスワード：
+      input(type="password")#loginCheck_password
+    .row.center
+      button#loginCheck_send 実行
+      button#loginCheck_close キャンセル

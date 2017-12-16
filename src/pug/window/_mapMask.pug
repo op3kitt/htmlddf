@@ -14,10 +14,10 @@
       input#mapMask_color2.colorpalette
     .r
       label 高さ：
-      input#mapMask_height.spinner
+      input(type="number",min="1",max="100",required)#mapMask_height.spinner
     .r
       label 幅：
-      input#mapMask_width.spinner
+      input(type="number",min="1",max="100",required)#mapMask_width.spinner
     .r
       label 透過度
       input(type="hidden")#mapMask_alpha

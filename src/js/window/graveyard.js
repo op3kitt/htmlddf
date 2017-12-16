@@ -1,7 +1,7 @@
 $("#btn_graveyard, #btn_graveyard2").on("click", (e) => {
   getGraveyardCharacterData();
-  $("#window_graveyard").show().css("z-index", 61);
-  $(".draggable:not(#window_graveyard)").css("z-index", 60);
+  $("#window_graveyard").show().css("zIndex", 151);
+  $(".draggable:not(#window_graveyard)").css("zIndex", 150);
 });
 
 $("#graveyard_close, #graveyard_close2").on("click", (e) => {
@@ -63,7 +63,7 @@ function getGraveyardCharacterData(){
           type = "魔法範囲D&D4版";
           break;
       }
-      $("#graveyard_characters").append($(`<option value="${item.imgId}">${name}[${type}]</option>`));
+      $("#graveyard_characters").append($(`<option value="${item.imgId}">${encode(name)}[${type}]</option>`));
     }
   });
 }

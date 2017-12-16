@@ -7,7 +7,8 @@ $("#memo_close, #memo_close2").on('click', (e) => {
   $("#window_memo").hide();
 });
 
-ddf.cmd.openMemo = (imgId) => {
+ddf.cmd.openMemo = openMemo;
+function openMemo(imgId){
   $("#memo_imgId").val(imgId);
   if(!(character = ddf.characters[$("#memo_imgId").val()])){
     character = {
@@ -34,8 +35,8 @@ ddf.cmd.openMemo = (imgId) => {
   $("#memo_tab, #memo_edit").empty();
   count = 0;
   for(item of character.message.split("\t|\t")){
-    tab = $(`<div class="tab">${item.split("\r")[0]}</div>`);
-    obj = $(`<textarea>${item}</textarea>`);
+    tab = $(`<div class="tab">${encode(item.split("\r")[0])}</div>`);
+    obj = $(`<textarea>${encode(item)}</textarea>`);
     del = $(`<img src="image/icons/cancel.png">`);
     del.on('click', ((tab, obj)=>{return (e)=>{
       tab.remove();
@@ -54,9 +55,9 @@ ddf.cmd.openMemo = (imgId) => {
     count++;
   }
   $("#memo_tab .tab:eq(0), #memo_edit textarea:eq(0)").addClass("active");
-  $("#window_memo").show().css("z-index", 61);
-  $(".draggable:not(#window_memo)").css("z-index", 60);
-};
+  $("#window_memo").show().css("zIndex", 151);
+  $(".draggable:not(#window_memo)").css("zIndex", 150);
+}
 
 $("#memo_send").on('click', (e) => {
   arr = $.map($("#memo_edit textarea"),(v)=>{return $(v).val().replace("\n","\r");});
@@ -71,7 +72,7 @@ $("#memo_send").on('click', (e) => {
         }else{
           body = character.data.message.replace("\r", "<br>");
         }
-        character.obj.html(`<span>${title}</span><img src="${ddf.base_url}image/memo2.png"><div>${body}</div>`);
+        character.obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div>`);
     });
   }else{
     character = {
@@ -115,5 +116,5 @@ $("#memo_addTab").on('click', (e) => {
 });
 
 $(document).on('keyup', "#memo_edit textarea", (e) => {
-  $("#memo_tab .active").text($("#memo_edit .active").val().split("\n")[0]);
+  $("#memo_tab .active").text(encode($("#memo_edit .active").val().split("\n")[0]));
 });

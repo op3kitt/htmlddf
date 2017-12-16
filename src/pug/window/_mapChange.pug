@@ -25,14 +25,14 @@
       input(type="checkbox")#mapChange_blank
       |白地図にする　
       |縦：
-      input#mapChange_height.spinner
+      input(type="number",min=1,max=150,required)#mapChange_height
       |　横：
-      input#mapChange_width.spinner
+      input(type="number",min=1,max=150,required)#mapChange_width
       |　マス目・座標文字の色：
       input(type="hidden")#mapChange_color.colorpicker
       input#mapChange_color2.colorpicker
       |　マス目間隔：
-      input#mapChange_gridInterval.spinner
+      input(type="number",min=1,max=100,required)#mapChange_gridInterval
       |　
       input(type="checkbox")#mapChange_isAlternately
       |マスを交互に

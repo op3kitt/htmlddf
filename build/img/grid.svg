@@ -20,12 +20,14 @@ var paramArray = {
   color: "black",
   num: true,
   mapMarks: "",
-  mapMarksAlpha: 0
+  mapMarksAlpha: 0,
+  size: 1
 };
 window.onload = function(){
-  paramArray["size"] < 1 && (paramArray["size"] = 1);
+  (paramArray["size"] < 1 || paramArray["size"] == "undefined") && (paramArray["size"] = 1);
   paramArray["x"] < 1 && (paramArray["x"] = 1);
   paramArray["y"] < 1 && (paramArray["y"] = 1);
+  paramArray["mapMarks"] == "" && (paramArray["mapMarks"] = "-1");
 
   width = paramArray["x"] * 50 + 0.5;
   height = paramArray["y"] * 50 + 0.5;

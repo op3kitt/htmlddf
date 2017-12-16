@@ -1,0 +1,41 @@
+#window_chatPalette.draggable.resizable
+  .bg 
+    div
+      span.title チャットパレット
+  .body.dragprev
+    .r
+      #chatPalette_tabs.clearfix
+    .r.left
+      | 名前：
+      input#chatPalette_senderName
+      input(type="hidden")#chatPalette_color
+      input#chatPalette_color2.colorpicker
+      input.pull-right#chatPalette_tabName
+      span.pull-right タブ名：
+    .r
+      input#chatPalette_chattext
+      button#chatPalette_send 送信
+    .r
+      .wrap
+        #chatPalette_main
+        textarea#chatPalette_text
+    .r.left
+      button#chatPalette_edit 編集
+      button#chatPalette_save セーブ
+      button#chatPalette_load ロード
+      button.pull-right#chatPalette_tabEdit タブ削除
+      button.pull-right#chatPalette_tabAdd タブ追加
+#window_chatPalette_import.draggable
+  .bg
+    div
+      span.title チャットパレットインポート
+      .pull-right#chatPalette_import_close ×
+    .body.dragprev
+      #chatPalette_import_droparea
+      .overwrap
+        input(type="file",multiple,accept="plain/text,application/json").hide
+        a(href="#") ファイルを選択
+        br
+        | 　または　
+        br
+        | ファイルをドラッグアンドドロップ

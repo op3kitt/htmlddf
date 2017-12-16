@@ -14,7 +14,7 @@ $.contextMenu({
         if(character){
           ddf.safeDragDestoroy();
           character.obj && character.obj.remove();
-          ddf.characters[opt.$trigger.attr("id")] = null;
+          delete ddf.characters[opt.$trigger.attr("id")];
           $(".draggableObj").draggable(ddf.dragOption);
         }
       },

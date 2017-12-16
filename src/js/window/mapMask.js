@@ -2,7 +2,6 @@ $("#btn_mapmask").on("click", (e) => {
   ddf.mapMask_show("");
 });
 
-$("#mapMask_width, #mapMask_height").spinner({min: 1, max: 100, stop: mapMask_previewUpdate});
 $("#window_mapMask .slider").slider({min: 0,max: 1, step:0.05, stop: (e, ui) => {
     $("#mapMask_alpha").val(ui.value);
     mapMask_previewUpdate();
@@ -18,8 +17,8 @@ sp_param.change = (c) => {
 $("#mapMask_color2").spectrum(sp_param);
 
 ddf.mapMask_show = (imageId) => {
-  $("#window_mapMask").show().css("z-index", 61);
-  $(".draggable:not(#window_mapMask)").css("z-index", 60);
+  $("#window_mapMask").show().css("zIndex", 151);
+  $(".draggable:not(#window_mapMask)").css("zIndex", 150);
 
   var character;
   if(ddf.characters[imageId] != null){

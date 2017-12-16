@@ -1,0 +1,36 @@
+#initiative.draggable.resizable
+  #initiative_bg
+    .row
+      .i ラウンド:
+      .i#round 0
+      .i ／イニシアティブ:
+      .i#now_ini 0
+    .row.dragprev
+      button#initiative_prev 戻る
+      button#initiative_next 次へ
+      button#initiative_reset 戦闘開始
+      button#initiative_change 設定
+  div#wrap
+    table.dragprev
+      thead
+        tr
+      tbody
+#window_initiative_edit.draggable
+  .bg
+    div
+      span.title イニシアティブ表設定
+      .pull-right#initiative_edit_close2 ×
+  .body.dragprev
+    .row
+      p カウンターに使用するパラメータ名をスペース区切りで入力してください。
+        br
+        | 戦闘に * (全角・半角どちらでも可)を付けて記述するとチェック欄になります。
+        br
+        | （注）この設定は同一プレイルームの全員に影響します。
+    .row
+      label カウンター名一覧:
+      input#initiative_edit_value
+    .hr
+    .row.center
+      button#initiative_edit_send 実行
+      button#initiative_edit_close キャンセル

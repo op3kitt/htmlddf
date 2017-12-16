@@ -1,2 +1,4 @@
+/*.zip
 /node_modules/*
-!/node_modules/ddf/
+!/node_modules/ddf
+/node_modules/ddf/*

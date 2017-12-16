@@ -7,7 +7,6 @@
  */
 
 msgpack = require('msgpack-lite');
-store = require('store');
 
 var ddf = {};
 ddf.patterns = {};
@@ -29,18 +28,19 @@ ddf.version = require("./package.json").version;
  */
 ddf.sendMsg = function (msg, type = 'json'){
   return new Promise(function(resolve, reject){
-  	var xhr = new XMLHttpRequest();
-  	xhr.open("POST", ddf.base_url+"DodontoFServer.rb", true);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", ddf.base_url+"DodontoFServer.rb", true);
     xhr.onload = function(r){resolve(r.target.response)};
     xhr.onerror = function(r){resolve(r.target.statusText)};
     xhr.responseType = type; 
     xhr.setRequestHeader('Content-Type', 'application/x-msgpack');
     //xhr.setRequestHeader('Content-Type', 'application/x-msgpack');
-  	xhr.send(msgpack.encode(msg));
-  }).catch(function(r){
+    xhr.send(msgpack.encode(msg));
+  });
+  /*.catch(function(r){
     console.log("ddf.sendMsg rejected ("+r+")");
   })
-  .then(function(r){console.log(r);return r;});
+  .then(function(r){console.log({caller: msg.cmd, param: msg, result: r});return r;});*/
 }
 
 ddf.util = {};
@@ -62,14 +62,15 @@ ddf.util.getDiceBotName = function(gametype){
 ddf.util.hashSort = function(hash, func = null, asA = false){
   var keys = [];
   for(key in hash){
+    if(key == undefined && has[key] == undefined){continue;}
     keys[keys.length] = {
       key: key,
       val: func(hash[key])
     }; 
   }
-  keys.sort(function(a,b){return a.val < b.val;});
+  keys.sort(function(a,b){return (a.val > b.val)?1:-1;});
   if(asA) return keys.map(function(r){return r.val;});
-  var newhash = {};
+  var newhash = [];
   for(obj of keys) newhash[obj.key] = hash[obj.key];
   return newhash;
 }
@@ -745,17 +746,17 @@ ddf.uploadImageUrl = function(imageUrl, password, tags, roomNumber){
 };
 
 /**
- * @function addEffect
+ * @function addEffectCharacter
  * @description 立ち絵の追加
  * @param {String} name キャラクター名
  * @param {String} state キャラクター状態
  * @param {String} motion キャラクター動作
  * @param {String} source 画像URL
- * @param {Boolean} mirroed 左右反転フラグ
+ * @param {Boolean} mirrored 左右反転フラグ
  * @param {Integer} leftIndex 表示位置
  * @return {Promise}
  */
-ddf.addEffect = function(name, state, motion, source, mirroed, leftIndex){
+ddf.addEffectCharacter = function(name, state, motion, source, mirrored, leftIndex){
   return ddf.sendMsg({
     room: ddf.userState.room,
     own: ddf.info.uniqueId + ddf.userState.own,
@@ -765,7 +766,7 @@ ddf.addEffect = function(name, state, motion, source, mirroed, leftIndex){
       state: state,
       motion: motion,
       source: source,
-      mirrored: mirroed,
+      mirrored: mirrored,
       leftIndex: leftIndex
     },
     cmd: "addEffect"
@@ -773,8 +774,9 @@ ddf.addEffect = function(name, state, motion, source, mirroed, leftIndex){
 };
 
 /**
- * @function changeEffect
+ * @function changeEffectCharacter
  * @description 立ち絵の変更
+ * @param {String} effectId 変更するエフェクトID
  * @param {String} name キャラクター名
  * @param {String} state キャラクター状態
  * @param {String} motion キャラクター動作
@@ -782,7 +784,7 @@ ddf.addEffect = function(name, state, motion, source, mirroed, leftIndex){
  * @param {Integer} leftIndex 表示位置
  * @return {Promise}
  */
-ddf.changeEffect = function(effectId, name, state, motion, source, mirroed, leftIndex){
+ddf.changeEffectCharacter = function(effectId, name, state, motion, source, mirroed, leftIndex){
   return ddf.sendMsg({
     room: ddf.userState.room,
     own: ddf.info.uniqueId + ddf.userState.own,

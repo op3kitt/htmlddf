@@ -3,13 +3,17 @@
   <head>
     <meta charset="utf-8">
     <title>どどんとふ</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://tools.cry-kit.com/ddf/public_html/loaders.css.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/loaders.css.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.14/js/jquery.tablesorter.min.js"></script>
+    <script src="js/jquery.tablesorter.min.js"></script>
     <script src="js/jquery.contextMenu.js"></script>
     <script src="js/spectrum.js"></script>
-    <link rel="stylesheet" href="https://tools.cry-kit.com/ddf/public_html/loaders.css">
+    <script src="js/lib/htmlspecialchars.js"></script>
+    <script src="js/lib/dateformat.js"></script>
+    <script src="js/util.js"></script>
+    <script src="js/config.json"></script>
+    <link rel="stylesheet" href="js/loaders.css">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="js/jquery.contextMenu.css">
     <link rel="stylesheet" href="js/spectrum.css">
@@ -52,6 +56,39 @@
                 <div class="btn dragprev" id="createPlayRoom_close">閉じる</div>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_loginCheck">
+          <div class="bg"> 
+            <div> <span class="title">ログインチェック</span>
+              <div class="pull-right" id="loginCheck_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <input type="hidden" id="loginCheck_roomNumber">
+            <div class="row">
+              <label>プレイルーム名：</label><span id="loginCheck_playRoomName"></span>
+            </div>
+            <div class="row" id="loginCheck_canVisit">
+              <label>参加者ですか？見学者ですか？：</label>
+              <input type="radio" checked name="isVisit" value="0">参加者　
+              <input type="radio" name="isVisit" value="1">見学者
+            </div>
+            <div class="row" id="loginCheck_passwordLockState">
+              <label>ログインパスワード：</label>
+              <input type="password" id="loginCheck_password">
+            </div>
+            <div class="row center">
+              <button id="loginCheck_send">実行</button>
+              <button id="loginCheck_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_loginNumber">
+          <div class="bg">ログイン状況</div>
+          <div class="wrap">
+            <div class="body"></div>
+            <div class="btn">OK</div>
           </div>
         </div>
         <div id="loginMessage_wrap">
@@ -181,7 +218,7 @@
                   <div class="dropdown-content2">
                     <button id="btn_rangedd3" disabled>魔法範囲追加(D&D3版)</button>
                     <button id="btn_rangedd4">魔法範囲追加(D&D4版)</button>
-                    <button id="btn_rangelh" disabled>ログホライズン用範囲</button>
+                    <button id="btn_rangelh">ログホライズン用範囲</button>
                     <button id="btn_rangemg" disabled>攻撃範囲(メタリックガーディアン)</button>
                   </div>
                 </div>
@@ -236,15 +273,16 @@
           </div><img id="btn_zoomin" src="image/icons/zoom_in.png"><img id="btn_zoomout" src="image/icons/zoom_out.png">
           <button id="btn_member">ルームNo.X：0名</button>
           <button id="btn_memo">共有メモ</button>
-          <button id="btn_draw"> <img class="disabled" src="image/icons/pencil.gif">手書き</button>
+          <button class="disabled" id="btn_draw"><img src="image/icons/pencil.gif">手書き</button>
           <button id="btn_graveyard2">墓場</button>
-          <button id="btn_screenshot"><img src="image/icons/camera.png"></button>
-          <button id="btn_logout2"> <img src="image/icons/door_out.png">ログアウト</button>
+          <button class="pull-right" id="btn_logout2"><img src="image/icons/door_out.png">ログアウト</button>
+          <button class="disabled pull-right" id="btn_screenshot"><img src="image/icons/camera.png"></button>
         </div>
         <div class="draggabletail" id="map">
-          <object id="mapGrid" type="image/svg+xml" data="img/grid.svg"></object><img id="mapDraw">
-          <object id="drawsPanel" type="image/svg+xml" data="img/draw.svg"></object>
-          <div id="mapSurface"></div><img id="mapimg">
+          <div id="mapSurface">
+            <object id="mapGrid" type="image/svg+xml" data="img/grid.svg" style="pointer-events: none;"></object><img id="mapDraw">
+            <object id="drawsPanel" type="image/svg+xml" data="img/draw.svg"></object><img id="mapimg">
+          </div>
         </div>
         <div id="list_memo"></div>
         <div class="draggable resizable" id="window_chat">
@@ -320,11 +358,11 @@
               <div class="i">／イニシアティブ:</div>
               <div class="i" id="now_ini">0</div>
             </div>
-            <div class="row">
-              <div class="btn" onclick="ddf.initiative.prev()">戻る</div>
-              <div class="btn" onclick="ddf.initiative.next()">次へ</div>
-              <div class="btn" onclick="ddf.initiative.reset()">戦闘開始</div>
-              <div class="btn">設定</div>
+            <div class="row dragprev">
+              <button id="initiative_prev">戻る</button>
+              <button id="initiative_next">次へ</button>
+              <button id="initiative_reset">戦闘開始</button>
+              <button id="initiative_change">設定</button>
             </div>
           </div>
           <div id="wrap">
@@ -334,6 +372,27 @@
               </thead>
               <tbody></tbody>
             </table>
+          </div>
+        </div>
+        <div class="draggable" id="window_initiative_edit">
+          <div class="bg">
+            <div><span class="title">イニシアティブ表設定</span>
+              <div class="pull-right" id="initiative_edit_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="row">
+              <p>カウンターに使用するパラメータ名をスペース区切りで入力してください。<br>戦闘に * (全角・半角どちらでも可)を付けて記述するとチェック欄になります。<br>（注）この設定は同一プレイルームの全員に影響します。</p>
+            </div>
+            <div class="row">
+              <label>カウンター名一覧:</label>
+              <input id="initiative_edit_value">
+            </div>
+            <div class="hr"></div>
+            <div class="row center">
+              <button id="initiative_edit_send">実行</button>
+              <button id="initiative_edit_close">キャンセル</button>
+            </div>
           </div>
         </div>
         <div class="draggable" id="window_mapChange">
@@ -368,11 +427,11 @@
             <div class="r">
               <input type="checkbox" id="mapChange_blank">白地図にする　
               縦：
-              <input class="spinner" id="mapChange_height">　横：
-              <input class="spinner" id="mapChange_width">　マス目・座標文字の色：
+              <input type="number" min="1" max="150" required id="mapChange_height">　横：
+              <input type="number" min="1" max="150" required id="mapChange_width">　マス目・座標文字の色：
               <input class="colorpicker" type="hidden" id="mapChange_color">
               <input class="colorpicker" id="mapChange_color2">　マス目間隔：
-              <input class="spinner" id="mapChange_gridInterval">　
+              <input type="number" min="1" max="100" required id="mapChange_gridInterval">　
               <input type="checkbox" id="mapChange_isAlternately">マスを交互に
               <input class="hide" type="checkbox" id="mapChange_mirrored">
             </div>
@@ -384,7 +443,7 @@
         </div>
         <div class="draggable" id="window_graveyard">
           <div class="bg"> 
-            <div>墓場
+            <div><span class="title">墓場</span>
               <div class="pull-right" id="graveyard_close2">×</div>
             </div>
           </div>
@@ -402,7 +461,7 @@
         </div>
         <div class="draggable" id="window_upload">
           <div class="bg"> 
-            <div>画像アップローダ
+            <div><span class="title">画像アップローダ</span>
               <div class="pull-right" id="upload_close2">×</div>
             </div>
           </div>
@@ -459,11 +518,11 @@
             </div>
             <div class="r">
               <label>高さ：</label>
-              <input class="spinner" id="mapMask_height">
+              <input class="spinner" type="number" min="1" max="100" required id="mapMask_height">
             </div>
             <div class="r">
               <label>幅：</label>
-              <input class="spinner" id="mapMask_width">
+              <input class="spinner" type="number" min="1" max="100" required id="mapMask_width">
             </div>
             <div class="r">
               <label>透過度</label>
@@ -508,54 +567,413 @@
         </div>
         <div class="draggable" id="window_memo">
           <div class="bg"> 
-            <div>���L����
-              <div class="pull-right" id="memo_close2">�~</div>
+            <div> <span class="title">共有メモ</span>
+              <div class="pull-right" id="memo_close2">×</div>
             </div>
           </div>
           <div class="body dragprev">
+            <div class="r clearfix" id="memo_listTab">
+              <input type="hidden" id="memo_imgId">
+              <div id="memo_tab"></div>
+            </div>
+            <div class="r" id="memo_edit"></div>
             <div class="r">
-              <div id="memo_droparea"></div>
-              <div class="overwrap">
-                <input type="file" multiple accept="image/png,image/jpeg,image/gif"><a href="#">�t�@�C�����I��</a><br>�@�܂��́@<br>�t�@�C�����h���b�O�A���h�h���b�v
-              </div>
-            </div>
-            <div class="r">�Ή��摜:JPEG/GIF/PNG
-              <select id="memo_public">
-                <option value="">���p</option>
-                <option value="1">�S��</option>
-              </select>
-              <button id="memo_btnpassword">�p�X���[�h�Ȃ�</button>
-              <input id="memo_password">
-            </div>
-            <div class="r">�t�^�����^�O�i���p�E�S�p�X�y�[�X�ŋ��؂��j
-              <input id="memo_tag" value="�L�����N�^�[�摜�@">
-              <select id="memo_tagbox">
-                <option>�L�����N�^�[�摜</option>
-                <option>�t���A�^�C���摜</option>
-                <option>�}�b�v�摜</option>
-                <option>�����X�^�[</option>
-                <option>�����G</option>
-              </select>
-            </div>
-            <div class="r">
-              <button id="memo_send">�A�b�v���[�h</button>
-              <button id="memo_close">�L�����Z��</button>
-            </div>
-            <div class="r">����
-              <div id="memo_result"></div>
+              <button id="memo_send">追加</button>
+              <button id="memo_close">キャンセル</button>
+              <button class="pull-right" id="memo_addTab">タブ追加</button>
             </div>
           </div>
         </div>
         <div class="draggable" id="window_help">
           <div class="bg"> 
-            <div>ダイスボット解説
+            <div><span class="title">ダイスボット解説</span>
               <div class="pull-right" id="help_close">×</div>
             </div>
           </div>
-          <div class="wrap">
+          <div class="body dragprev">
+            <div class="r">
+              <pre id="help_text"></pre>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_magicRangeDD4th">
+          <div class="bg"> 
+            <div> <span class="title">魔法範囲作成（Ｄ＆Ｄ４版）</span>
+              <div class="pull-right" id="magicRangeDD4th_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <input type="hidden" id="magicRangeDD4th_imgId">
+              <label>名前：</label>
+              <input id="magicRangeDD4th_name">
+            </div>
+            <div class="r">
+              <label>範囲種別：</label>
+              <select id="magicRangeDD4th_rangeType">
+                <option value="closeBurstDD4th">爆発</option>
+                <option value="blastDD4th">噴射</option>
+              </select>
+            </div>
+            <div class="r">
+              <label>範囲（マス）：</label>
+              <input type="number" min="1" max="100" required id="magicRangeDD4th_feets">
+            </div>
+            <div class="r">
+              <label>色：</label>
+              <input type="hidden" id="magicRangeDD4th_color">
+              <input id="magicRangeDD4th_color2">
+            </div>
+            <div class="r">
+              <label>持続時間：</label>
+              <input type="number" min="1" max="99" required id="magicRangeDD4th_timeRange">
+            </div>
+            <div class="r">
+              <label>その他：</label>
+              <input id="magicRangeDD4th_info">
+            </div>
+            <div class="r">
+              <input type="checkbox" checked id="magicRangeDD4th_isHide">イニシアティブ表に表示する
+            </div>
+            <div class="r center">
+              <button id="magicRangeDD4th_send">変更</button>
+              <button id="magicRangeDD4th_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_magicRangeLH">
+          <div class="bg"> 
+            <div> <span class="title">攻撃範囲追加</span>
+              <div class="pull-right" id="magicRangeLH_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <input type="hidden" id="magicRangeLH_imgId">
+              <label>名前：</label>
+              <input id="magicRangeLH_name">
+            </div>
+            <div class="r">
+              <label>射程：</label>
+              <input type="number" min="0" max="100" required id="magicRangeLH_range">
+            </div>
+            <div class="r">
+              <label>色：</label>
+              <input type="hidden" id="magicRangeLH_color">
+              <input id="magicRangeLH_color2">
+            </div>
+            <div class="r center">
+              <button id="magicRangeLH_send">追加</button>
+              <button id="magicRangeLH_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_saveChatLog">
+          <div class="bg"> 
+            <div><span class="title">チャットログ保存</span>
+              <div class="pull-right" id="saveChatLog_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r center">
+              <input type="radio" value="HTML" name="saveChatLog_mode" checked>HTMLとして保存　
+              <input type="radio" value="Text" name="saveChatLog_mode">テキストとして保存
+            </div>
+            <div class="r">フォントサイズ：
+              <select id="saveChatLog_fontSize">
+                <option value="8pt">8pt</option>
+                <option value="10pt">10pt</option>
+                <option value="12pt" selected>12pt</option>
+                <option value="14pt">14pt</option>
+              </select>　行間の高さ：
+              <select id="saveChatLog_lineHeight">
+                <option value="1.0">100％</option>
+                <option value="1.2">120％</option>
+                <option value="1.4" selected>140％</option>
+                <option value="1.6">160％t</option>
+              </select>
+            </div>
+            <hr>
+            <div class="r center">
+              <button id="saveChatLog_saveAll">全タブ</button>
+            </div>
+            <div class="r" id="saveChatLog_channel"></div>
+            <hr>
+            <div class="r center">
+              <button id="saveChatLog_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_addCharacter">
+          <div class="bg"> 
+            <div><span class="title">キャラクター変更</span>
+              <div class="pull-right" id="addCharacter_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r clearfix">
+              <input type="hidden" id="addCharacter_imgId">
+              <div id="addCharacter_preview">
+                <input type="hidden" id="addCharacter_imageName">
+                <div id="addCharacter_image"></div>
+              </div>
+              <div id="addCharacter_imageSelect">
+                <div class="r">
+                  <div id="addCharacter_imagearea"></div>
+                </div>
+                <div class="r">検索タグ
+                  <select id="addCharacter_tagbox"></select>
+                  <button id="addCharacter_btnpassword">隠し画像</button>
+                  <input id="addCharacter_password">
+                  <input type="checkbox" id="addCharacter_mirrored">左右反転
+                </div>
+              </div>
+            </div>
+            <div class="r">
+              <button disabled>画像切替設定</button>
+            </div>
+            <div class="r">
+              <table id="addCharacter_counters"></table>
+            </div>
+            <div class="r">
+              <div class="left-block">
+                <div class="r">
+                  <label>名前：</label>
+                  <input id="addCharacter_name">
+                </div>
+                <div class="r">
+                  <label>ドッグタグ：</label>
+                  <input id="addCharacter_dogTag">
+                </div>
+                <div class="r">
+                  <label>サイズ：</label>
+                  <input type="number" min="1" max="10" required id="addCharacter_size">　
+                  <input type="checkbox" id="addCharacter_isHide">マップマスクの下へ隠す
+                </div>
+                <div class="r">
+                  <label style="position:relative;">参照URL：
+                    <div class="helptext">設定するとコマの右クリックからURLを開けるようになります。</div>
+                  </label>
+                  <input id="addCharacter_url">
+                </div>
+              </div>
+              <div class="right-block">
+                <div class="r">
+                  <label>その他：</label>
+                  <div class="pull-right" style="position:relative;">
+                    <button id="addCharacter_alias">■
+                      <div class="helptext">カウンターのチェック欄に名前を付ける</div>
+                    </button>
+                  </div>
+                </div>
+                <div class="r">
+                  <textarea id="addCharacter_info"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="r center">
+              <button id="addCharacter_send">追加</button>
+              <button id="addCharacter_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_addCharacter_sub">
+          <div class="bg"> 
+            <div><span class="title">キャラクター置き場</span>
+              <div class="pull-right" id="addCharacter_sub_close">×</div>
+            </div>
+          </div>
+          <div class="body center">
+            <div class="r">
+              <div id="addCharacter_sub_name"></div>
+            </div>
+            <div class="r" style="position: relative;">
+              <div class="characterFrame" style="position: relative;height: 50px;">
+                <div class="inner" id="addCharacter_sub_character"></div>
+              </div>
+            </div>
+            <div class="r">
+              <input type="checkbox" id="addCharacter_sub_multiple">連続作成
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_playRoomInfo">
+          <div class="bg"> 
+            <div><span class="title">プレイルーム情報表示</span>
+              <div class="pull-right" id="playRoomInfo_close2">×</div>
+            </div>
+          </div>
+          <div class="body">
+            <div class="r" id="playRoomInfo_main"></div>
+            <div class="r right">
+              <button disabled id="playRoomInfo_changeRoomInfo">プレイルーム情報変更</button>
+            </div>
+            <div class="r center">
+              <button id="playRoomInfo_close">閉じる</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_characterCutin">
+          <div class="bg"> 
+            <div><span class="title">立ち絵設定</span>
+              <div class="pull-right" id="characterCutin_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <button id="characterCutin_create">追加</button>
+              <button class="pull-right" id="characterCutin_close">閉じる</button>
+            </div>
+            <div class="r">
+              <div class="table_wrap">
+                <table>
+                  <tbody>
+                    <tr>
+                      <th>変更</th>
+                      <th>名前</th>
+                      <th>状態</th>
+                      <th>位置</th>
+                      <th>ファイル</th>
+                      <th>削除</th>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_characterCutin_create">
+          <div class="bg"> 
+            <div><span class="title">立ち絵追加</span>
+              <div class="pull-right" id="characterCutin_create_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <input type="hidden" id="characterCutin_create_effectId">
+            <div class="r clearfix">
+              <div id="characterCutin_create_preview">
+                <input type="hidden" id="characterCutin_create_imageName">
+                <div id="characterCutin_create_image"></div>
+              </div>
+              <div id="characterCutin_create_imageSelect">
+                <div class="r">
+                  <div id="characterCutin_create_imagearea"></div>
+                </div>
+                <div class="r">検索タグ
+                  <select id="characterCutin_create_tagbox"></select>
+                  <button id="characterCutin_create_btnpassword">隠し画像</button>
+                  <input id="characterCutin_create_password">
+                  <input type="checkbox" id="characterCutin_create_mirrored">左右反転
+                </div>
+              </div>
+            </div>
+            <div class="r center">下記で設定した「キャラクター名」「状態」でチャットで発言すると立絵が表示されます。</div>
+            <div class="r">
+              <label>キャラクター名：</label>
+              <input id="characterCutin_create_name">
+            </div>
+            <div class="r">
+              <label>状態：</label>
+              <input id="characterCutin_create_state">
+            </div>
+            <div class="r">
+              <label>表示位置（１：左端、１２：右端）：</label>
+              <input type="hidden" id="characterCutin_create_leftIndex">
+              <div class="slider"></div>
+              <select id="characterCutin_create_motion">
+                <option value="">エフェクト無し</option>
+                <option value="zoom">拡大・縮小</option>
+                <option value="shake">車両</option>
+                <option value="walk">歩行</option>
+              </select>
+            </div>
+            <div class="r center">
+              <button id="characterCutin_create_send">追加</button>
+              <button class="pull-right" id="characterCutin_create_close">閉じる</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_chatFont">
+          <div class="bg"> 
+            <div><span class="title">チャット文字設定</span>
+              <div class="pull-right" id="chatFont_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="row">
+              <label>文字色：</label>
+              <input type="hidden" id="chatFont_chatColor">
+              <input class="colorpicker" id="chatFont_chatColor2">
+            </div>
+            <div class="row">
+              <label>背景色：</label>
+              <input type="hidden" id="chatFont_backgroundColor">
+              <input class="colorpicker" id="chatFont_backgroundColor2">
+            </div>
+            <div class="row">
+              <label>文字サイズ：</label>
+              <input type="number" min="8" max="72" id="chatFont_fontSize">
+            </div>
+            <div class="row">
+              <label>フォーマット：</label>
+              <input type="checkbox" id="chatFont_showTime">時刻表示
+            </div>
+            <div class="row">
+              <label>別タブメッセージ：</label>
+              <input type="checkbox" disabled id="chatFont_showOtherTab">表示する
+            </div>
+            <div class="row">
+              <label>タブの色：</label>
+              <input type="checkbox" disabled id="chatFont_tabColor">色分けする
+            </div>
+            <div class="row center">
+              <button id="chatFont_send">設定</button>
+              <button id="chatFont_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable resizable" id="window_chatPalette">
+          <div class="bg"> 
+            <div><span class="title">チャットパレット</span></div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <div class="clearfix" id="chatPalette_tabs"></div>
+            </div>
+            <div class="r left">名前：
+              <input id="chatPalette_senderName">
+              <input type="hidden" id="chatPalette_color">
+              <input class="colorpicker" id="chatPalette_color2">
+              <input class="pull-right" id="chatPalette_tabName"><span class="pull-right">タブ名：</span>
+            </div>
+            <div class="r">
+              <input id="chatPalette_chattext">
+              <button id="chatPalette_send">送信</button>
+            </div>
+            <div class="r">
+              <div class="wrap">
+                <div id="chatPalette_main"></div>
+                <textarea id="chatPalette_text"></textarea>
+              </div>
+            </div>
+            <div class="r left">
+              <button id="chatPalette_edit">編集</button>
+              <button id="chatPalette_save">セーブ</button>
+              <button id="chatPalette_load">ロード</button>
+              <button class="pull-right" id="chatPalette_tabEdit">タブ削除</button>
+              <button class="pull-right" id="chatPalette_tabAdd">タブ追加</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_chatPalette_import">
+          <div class="bg">
+            <div><span class="title">チャットパレットインポート</span>
+              <div class="pull-right" id="chatPalette_import_close">×</div>
+            </div>
             <div class="body dragprev">
-              <div class="r">
-                <pre id="help_text"></pre>
+              <div id="chatPalette_import_droparea"></div>
+              <div class="overwrap">
+                <input class="hide" type="file" multiple accept="plain/text,application/json"><a href="#">ファイルを選択</a><br>　または　<br>ファイルをドラッグアンドドロップ
               </div>
             </div>
           </div>
@@ -580,13 +998,6 @@
           </div>
         </div>
         <div class="btn" id="version_close">閉じる</div>
-      </div>
-      <div class="draggable" id="window_loginNumber">
-        <div class="bg">ログイン状況</div>
-        <div class="wrap">
-          <div class="body"></div>
-          <div class="btn">OK</div>
-        </div>
       </div>
     </div>
   </body>

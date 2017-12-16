@@ -1,10 +1,11 @@
 ddf.cmd = {};
+chatlog = [];
 
+var version = require('../../package.json').version;
+
+var store = require('store');
 var screenshot = require('./screenshot.js').generate;
 var lang = "Japanese";
-
-require("./.config.json");
-ddf.base_url = ddf.config.base_url;
 
 require("./contextMenu/.loading.js");
 require("./window/.loading.js");
@@ -28,27 +29,26 @@ function titleAnimation(){
   }
 }
 
-
-
 window.addEventListener('popstate', (e) =>  {
-  // e.state is equal to the data-attribute of the last image we clicked
+  //console.log(e);
 });
 var click = {x:0,y:0};
 
-var roominfos = [];
-
+ddf.roomInfos = [];
 var pageBuffer, diceRollBuffer, context;
 
 function playSound(buffer) {
   if(ddf.roomState.playSound){
-    var source = context.createBufferSource(); // creates a sound source
-    source.buffer = buffer;                    // tell the source which sound to play
-    source.connect(context.destination);       // connect the source to the context's destination (the speakers)
-    source.start(0);                           // play the source now
-  }                                           // note: on older systems, may have to use deprecated noteOn(time);
+    var source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.start(0);
+  }
 }
 
 $(() => {
+  ddf.base_url = config.base_url;
+
   window.AudioContext = window.AudioContext||window.webkitAudioContext;
   context = new AudioContext();
   var request = new XMLHttpRequest();
@@ -76,12 +76,10 @@ $(() => {
         click.y = event.clientY - parseInt($(event.target).css("marginTop")) / 2;
     },
     drag: (event, ui) =>  {
-      // This is the parameter for scale()
       var zoom = ddf.roomState.zoom;
 
       var original = ui.originalPosition;
 
-      // jQuery will simply use the same object we alter here
       ui.position = {
           left: (event.clientX - click.x + original.left) / zoom,
           top:  (event.clientY - click.y + original.top ) / zoom
@@ -128,12 +126,38 @@ $(() => {
   $(".draggabletail").draggable({
     cancel: ".dragprev, .draggableObj"
   });
+
+  $(document).on('mouseover', ".mapMaskFrame.draggableObj", (e) => {
+    $(".mapMaskFrame.draggableObj").css('zIndex', 35);
+    $(e.currentTarget).css('zIndex', 36);
+  });
+  $(document).on('mouseover', ".magicRangeFrame", (e) => {
+    $(".magicRangeFrame").css('zIndex', 40);
+    $(e.currentTarget).css('zIndex', 41);
+  });
+  $(document).on('mouseover', ".mapMarkerFrame", (e) => {
+    $(".mapMarkerFrame").css('zIndex', 45);
+    $(e.currentTarget).css('zIndex', 46);
+  });
+  $(document).on('mouseover', ".cardFrame", (e) => {
+    $(".cardFrame").css('zIndex', 50);
+    $(e.currentTarget).css('zIndex', 51);
+  });
+  $(document).on('mouseover', ".characterFrame:not(.isHide)", (e) => {
+    $(".characterFrame:not(.isHide)").css('zIndex', 55);
+    $(e.currentTarget).css('zIndex', 56);
+  });
+  $(document).on('mouseover', ".chitFrame", (e) => {
+    $(".chitFrame").css('zIndex', 60);
+    $(e.currentTarget).css('zIndex', 61);
+  });
   
   $(".resizable").resizable({
     ghost: true,
     handles: 'n, e, s, w, ne, se, sw, nw'
   });
   $('.loader-inner').loaders();
+
   $(document).on('click', "#diceResult *", (e) => {
     $("#diceResult").empty();
   });
@@ -146,50 +170,38 @@ $(() => {
     e.returnValue = '他のページに移動しようとしています。\n移動しますか？';
   };
   
-  /*エントリーポイント*/
-  ddf.userState.room = -1;
-  ddf.userState.own = "\t"+ddf.util.getUniqueId();
   getLoginInfo();
   
-  var version = require('../../package.json').version;
   /*待合室コマンド*/
-  $("#btn_version").on('click', (e) => {
-    $("#version_DodontoF").text(ddf.info.version);
-    $("#version_ddfjs").text(ddf.version);
-    $("#version_ddfcli").text(version);
-    $("#window_version").show().css("z-index", 61);
-    $(".draggable:not(#window_version)").css("z-index", 60);
-  });
-  
-  $("#version_close").on('click', (e) => {
-    $("#window_version").hide();    
-  });
   
   $("#btn_loginNumber").on('click', (e) => {
-    $("#window_loginNumber").show().css("z-index", 61);
-    $(".draggable:not(#window_loginNumber)").css("z-index", 60);
+    $("#window_loginNumber").show().css("zIndex", 151);
+    $(".draggable:not(#window_loginNumber)").css("zIndex", 150);
   });
   $("#window_loginNumber .btn").on('click', (e) =>  {
     $("#window_loginNumber").hide();
   });
   
-  $("#btn_manual").on('click', (e) => {
+  /*$("#btn_version").on("click", (e) => {
+  });*/
+  $("#btn_manual, #btn_manual2").on('click', (e) => {
     window.open(ddf.base_url + "README.html");
+  });
+  /*$("#btn_tutorial").on("click", (e) => {
+  });*/
+  $("#btn_site, #btn_site2").on('click', () => {
+    window.open("http://www.dodontof.com/");
   });
   
   $("#btn_removePlayRoom").on('click', (e) => {
     removePlayRoom(parseInt($("#playRoomNo").val().trim()));
   });
   
-
-  $("#btn_site").on('click', () => {
-    window.open("http://www.dodontof.com/");
-  });
   
   $("#btn_createPlayRoom").on('click', (e) => {
     ddf.userState.room = -1;
-    $("#window_createPlayRoom").show().css("z-index", 61);
-    $(".draggable:not(#window_createPlayRoom)").css("z-index", 60);
+    $("#window_createPlayRoom").show().css("zIndex", 151);
+    $(".draggable:not(#window_createPlayRoom)").css("zIndex", 150);
   });
   $("#createPlayRoom_create").on('click', (e) => {
     createPlayRoom();
@@ -202,16 +214,16 @@ $(() => {
     checkRoomStatus(parseInt($("#playRoomNo").val()));
   });
 
-  $("#playRoomInfos table").tablesorter();
+  $("#playddf.roomInfos table").tablesorter();
 
   var mousewheelevent = 'onwheel' in document ? 'wheel' : 'onmousewheel' in document ? 'mousewheel' : 'DOMMouseScroll';
   $("#mapSurface").on(mousewheelevent,(e) => {
       e.preventDefault();
       var delta = e.originalEvent.deltaY ? -(e.originalEvent.deltaY) : e.originalEvent.wheelDelta ? e.originalEvent.wheelDelta : -(e.originalEvent.detail);
       if (delta < 0){
-        setZoom(-0.1);
+        ddf.cmd.setZoom(-0.1);
       } else {
-        setZoom(0.1);
+        ddf.cmd.setZoom(0.1);
       }
   });
   
@@ -223,6 +235,7 @@ ddf.safeDragDestoroy = () => {
   }catch(e){}
 }
 
+ddf.cmd.setZoom = setZoom;
 function setZoom(amount, relative = true){
   if(relative){
     ddf.roomState.zoom += amount;
@@ -256,12 +269,33 @@ function getLoginInfo(){
     for(item of ddf.info.diceBotInfos){
       $("#playRoomGameType").append($('<option value="'+item.gameType+'">'+item.name+'</option>'));
     }
+    
+    if(store.get('userState')){
+      ddf.userState = store.get('userState');
+      ddf.userState.room = -1;
+      ddf.userState.backgroundColor = "FFFFFF";
+    }else{
+      ddf.userState = {
+        room: -1,
+        own: "\t"+ddf.util.getUniqueId(),
+        name: ddf.info.defaultUserNames.length==0?"ななしさん":ddf.info.defaultUserNames[Math.random()*ddf.info.defaultUserNames.length|0],
+        fontSize: 10,
+        chatColor: "000000",
+        backgroundColor: "FFFFFF",
+        showTime: false,
+        chatPalette: []
+      };
+      saveUserState();
+    }
+    $("#login_name").val(ddf.userState.name);
+
     ddf.cmd.getPlayRoomInfo();
     return r;
   });
 }
 
-ddf.cmd.getPlayRoomInfo = () => {
+ddf.cmd.getPlayRoomInfo = getPlayRoomInfo;
+function getPlayRoomInfo(){
   promises = [];
   for(i = 0;i * ddf.info.playRoomGetRangeMax < ddf.info.playRoomMaxNumber;i++){
     promises.push(
@@ -272,17 +306,17 @@ ddf.cmd.getPlayRoomInfo = () => {
     roominfo = r;
     for(key in roominfo.playRoomStates){
       room = roominfo.playRoomStates[key];
-      roominfos[parseInt(room.index.trim())] = room;
+      ddf.roomInfos[parseInt(room.index.trim())] = room;
       
       var row = "<tr>";
-      row += "<td>"+room.index+"</td>"
-      row += "<td>"+room.playRoomName+"</td>"
-      row += "<td>"+ddf.util.getDiceBotName(room.gameType)+"</td>"
-      row += "<td>"+room.loginUsers.length+"</td>"
-      row += "<td>"+(room.passwordLockState?"有り":"--")+"</td>"
-      row += "<td>"+(room.canVisit?"可":"--")+"</td>"
-      row += "<td>"+(room.lastUpdateTime?room.lastUpdateTime:"")+"</td>"
-      row += "<td></td></tr>"
+      row += `<td>${room.index}</td>`
+      row += `<td>${encode(room.playRoomName)}</td>`
+      row += `<td>${encode(ddf.util.getDiceBotName(room.gameType))}</td>`
+      row += `<td>${room.loginUsers.length}</td>`
+      row += `<td>${room.passwordLockState?"有り":"--"}</td>`;
+      row += `<td>${room.canVisit?"可":"--"}</td>`;
+      row += `<td>${room.lastUpdateTime?room.lastUpdateTime:""}</td>`;
+      row += "<td></td></tr>";
       tr = $(row);
       button = $("<button>削除</button>");
       if(room.lastUpdateTime){
@@ -296,15 +330,16 @@ ddf.cmd.getPlayRoomInfo = () => {
         button.prop("disabled", true);
       }      
       tr.children("td:last").append(button);
-      $("#playRoomInfos tbody").append(tr);
+      $("#playddf.roomInfos tbody").append(tr);
       tr.on('dblclick', ((roomNumber) => {return (e) => {
         checkRoomStatus(roomNumber);
       }})(parseInt(room.index)));
       tr.on('click', ((roomNumber) => {return (e) => {
         $("#playRoomNo").val(roomNumber);
       }})(parseInt(room.index)));
+      $("#playRoomInfos table tbody").append(tr);
     }
-    $("#playRoomInfos table").trigger( 'update');
+    $("#playddf.roomInfos table").trigger( 'update');
     return r;
   };
 
@@ -317,7 +352,7 @@ ddf.cmd.getPlayRoomInfo = () => {
   }, Promise.resolve());
   
     $("#loading").hide();
-};
+}
 
 function createPlayRoom(){
   ddf.createPlayRoom(
@@ -351,7 +386,7 @@ function createPlayRoom(){
       ddf.getPlayRoomInfo(r.playRoomIndex, r.playRoomIndex).then(
         ((roomNumber) => {
           return (r) => {
-            roominfos[roomNumber] = r.playRoomStates[0];
+            ddf.roomInfos[roomNumber] = r.playRoomStates[0];
             checkRoomStatus(roomNumber);
           };
         })(r.playRoomIndex)
@@ -362,16 +397,18 @@ function createPlayRoom(){
   });
 }
 
-function checkRoomStatus(roomNumber, password = null){
-  room = roominfos[roomNumber];
+ddf.cmd.checkRoomStatus = checkRoomStatus;
+function checkRoomStatus(roomNumber, isVisit = null, password = null){
+  room = ddf.roomInfos[roomNumber];
   if(room){
     if(room.lastUpdateTime==""){
     /*ルーム未作成*/
       ddf.userState.room = roomNumber;
-    $("#window_createPlayRoom").css("zIndex", $("#window_createPlayRoom").css("zIndex") + 25);
-      $("#window_createPlayRoom").show();
-    }else if(room.passwordLockState && password == null){
-    /*パスワード付きルーム1回目*/
+      $("#window_createPlayRoom").show().css("zIndex", 151);
+      $(".draggable:not(#window_createPlayRoom)").css("zIndex", 150);
+    }else if((room.passwordLockState && password == null) || (room.canVisit && isVisit == null)){
+    /*見学可・パスワード付きルーム1回目*/
+      ddf.cmd.loginCheck_show(roomNumber);
     }else{
     /*ログイン*/
       return ddf.checkRoomStatus(roomNumber, password).then((r) => {
@@ -379,10 +416,10 @@ function checkRoomStatus(roomNumber, password = null){
         if(roominfo.isRoomExist){
           ddf.userState.room = roominfo.roomNumber;
           ddf.userState.name = $("#login_name").val();
-          ddf.userState.color = "000000";
-          ddf.sendChatMessage(0, "どどんとふ\t", "「"+ddf.userState.name+"」がログインしました。", "00aa00", true);
+          saveUserState();
+          ddf.sendChatMessage(0, "どどんとふ\t", "「"+ddf.userState.name+"」がログインしました。（htmlddf "+version+"）", "00aa00", true);
           $("#main").hide();
-          history.pushState({roomNumber: roomNumber}, "room="+roomNumber, "index.html?room="+roomNumber);
+          //history.pushState({roomNumber: roomNumber}, "room="+roomNumber, "index.html?room="+roomNumber);
           $("#main2").show();
           $("#chatname").val(ddf.userState.name);
           ddf.userState.room = roominfo.roomNumber;
@@ -396,22 +433,59 @@ function checkRoomStatus(roomNumber, password = null){
             playRoomInfo: 0,
             record: 0
           };
+          if(ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber]){
+            for(item in ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber]){
+              palette = ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber][item];
+              palette && $("#chatPalette_tabs").append($(`<p id="${palette.tabName}">${/^id/.test(palette.tabName)?$("#chatPalette_tabs p").length+1:palette.tabName}</p>`))
+            }
+          }else{
+            item = {
+              tabName: "id"+ddf.util.getUniqueId(),
+              text: "",
+              name: "",
+              color: 0xFFFFFF
+            };
+            ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber] = [];
+            ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber][item.tabName] = item;
+            $("#chatPalette_tabs").append($(`<p id="${item.tabName}">1</p>`))
+
+            ddf.cmd.saveUserState();
+          }
+          $("#chatPalette_tabs > p:eq(0)").click();
           getDiceBotInfos();
           ddf.characters = [];
           ddf.roomState = {};
           ddf.roomState.roomNumber = roomNumber;
           ddf.roomState.zoom = 1;
           ddf.roomState.roundTimeData = {};
-          ddf.roomState.ini_characters = {};
+          ddf.roomState.ini_characters = [];
           ddf.roomState.roundTimeData.counterNames = [];
           ddf.userState.rIndex = 0;
           var count = 0;
           ddf.roomState.unread = [];
           ddf.roomState.effects = [];
           ddf.roomState.playSound = true;
+          ddf.roomState.chatChannelNames = roominfo.chatChannelNames;
+          ddf.roomState.viewStateInfo =  {
+            isCardPickUpVisible:false,
+            isChatPaletteVisible:false,
+            isSnapMovablePiece:true,
+            isCardHandleLogVisible:true,
+            isCounterRemoconVisible:false,
+            isStandingGraphicVisible:true,
+            isRotateMarkerVisible:true,
+            isDiceVisible:true,
+            isAdjustImageSize:true,
+            isChatVisible:true,
+            isGridVisible:true,
+            isInitiativeListVisible:true,
+            isPositionVisible:true,
+            isCutInVisible:true,
+            isResourceWindowVisible:false
+          };
           for(tab of roominfo.chatChannelNames){
             ddf.roomState.unread.push(0);
-            var obj = $("<p>"+tab+"/<span class=\"tab_label\">0</span></p>");
+            var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
             obj.on("click", ((index) => {
               return (e) => {
                 if(!$(e.currentTarget).hasClass("active")){
@@ -424,9 +498,13 @@ function checkRoomStatus(roomNumber, password = null){
           }
           for(item of ddf.info.diceBotInfos){
             if(/^[^:]*$/.test(item.gameType) && item.gameType != "BaseDiceBot"){
-              $("#dicebot").append($("<option value='"+item.gameType+"'>"+item.name+"</option>"));
+              $("#dicebot").append($(`<option value="${encode(item.gameType)}">${encode(item.name)}</option>`));
             }
           }
+          $("#log > div, #chattext").css({
+            backgroundColor: "#"+ddf.userState.backgroundColor,
+            fontSize: ddf.userState.fontSize+"pt"
+          });
           setChatTab("0");
           refresh();
         }
@@ -435,17 +513,19 @@ function checkRoomStatus(roomNumber, password = null){
   }
 };
 
+ddf.cmd.removePlayRoom = removePlayRoom;
 function removePlayRoom(roomNumber, password = null){
-  room = roominfos[roomNumber];
+  room = ddf.roomInfos[roomNumber];
   if(room && room.lastUpdateTime){
     if(room.passwordLockState && password == null){
     
     }else{
-      body = "No."+room.index+"："+room.playRoomName+"\nを削除しますか？";
+      body = `No.${room.index}：${room.playRoomName}\nを削除しますか？`;
       if(password != null || confirm(body)){
-        ddf.removePlayRoom(roomNumber, false, password);
-        $("#playRoomInfos tbody").empty();
-        ddf.cmd.getPlayRoomInfo();
+        ddf.removePlayRoom(roomNumber, false, password).then((r) => {
+          $("#playddf.roomInfos tbody").empty();
+          ddf.cmd.getPlayRoomInfo();
+        });
       }
     }
   }
@@ -454,9 +534,9 @@ function removePlayRoom(roomNumber, password = null){
 function setChatTab(index){
   ddf.userState.channel = index;
   $("#tab p.active, #log div.active").removeClass('active');
-  $("#tab p:eq("+index+"), #log div:eq("+index+")").addClass('active');
+  $(`#tab p:eq(${index}), #log div:eq(${index})`).addClass('active');
   ddf.roomState.unread[index] = 0;
-  $("#tab p:eq("+index+") span").text(0);
+  $(`#tab p:eq(${index}) span`).text(0);
 }
 
 function refresh(){
@@ -468,15 +548,15 @@ function refresh(){
       ddf.roomState.viewStateInfo = refreshData.viewStateInfo;
     }
     if(refreshData.gameType){
-      if($("#dicebot").children("[value="+refreshData.gameType+"]").length==1){
+      if($("#dicebot").children(`[value=${refreshData.gameType}]`).length==1){
         $("#dicebot").val($(refreshData.gameType));
       }else{
-        $("#dicebot").append($("<option value='"+refreshData.gameType+"'>"+refreshData.gameType+"</option>"));
+        $("#dicebot").append($(`<option value="${encode(refreshData.gameType)}">${encode(refreshData.gameType)}</option>`));
         $("#dicebot").val(refreshData.gameType);
       }
     }
     if(refreshData.mapData) {
-      refresh_parseMapData(refreshData);
+      ddf.cmd.refresh_parseMapData(refreshData);
     }
     if(refreshData.characters){
       refresh_parseCharacters(refreshData);
@@ -499,7 +579,7 @@ function refresh(){
       for(i = 0;i < refreshData.chatChannelNames.length;i++){
         if(ddf.roomState.chatChannelNames.length <= i){
           ddf.roomState.unread.push(0);
-          var obj = $("<p>"+tab+"/<span class=\"tab_label\">0</span></p>");
+          var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
           obj.on("click", ((index) => {
             return (e) => {
               if(!$(e.currentTarget).hasClass("active")){
@@ -510,7 +590,7 @@ function refresh(){
           $("#tab").append(obj);
           $("#log").append($("<div><p></p></div>"));
         }else{
-          $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${refreshData.chatChannelNames[i]}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
+          $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${encode(refreshData.chatChannelNames[i])}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
         }
       }
       if($("#tab .active").length == 0){
@@ -527,7 +607,11 @@ function refresh(){
     if(refreshData.gameType){
       $("#dicebot").val(refreshData.gameType);
     }
+    if(refreshData.playRoomName){
+      ddf.roomState.playRoomName = refreshData.playRoomName;
+    }
     if(refreshData.loginUserInfo){
+      ddf.roomState.loginUserInfo = refreshData.loginUserInfo;
       $("#btn_member").text(`ルームNo.${ddf.roomState.roomNumber}：${refreshData.loginUserInfo.length}名`);
     }
     r = refreshData = null;
@@ -539,6 +623,7 @@ function refresh(){
 
 function refresh_parseEffects(refreshData){
   ddf.roomState.effects = refreshData.effects;
+  ddf.cmd.effectList_create();
 }
 
 function refresh_parseChatMessageDataLog(refreshData){
@@ -553,10 +638,13 @@ function refresh_parseChatMessageDataLog(refreshData){
       titleAnimation();
     }
     ddf.roomState.lastMessageTime = item[0];
-    if(matches = /^(.*)@([^@]+)(@([^@]+))?$/.exec(item[1].message)){
+    if(matches = /^(.*)@([^@]+)@([^@]+)$/.exec(item[1].message)){
       item[1].message = matches[1];
       item[1].senderName = matches[2];
-      item[1].state = matches[4];
+      item[1].state = matches[3];
+    }else if(matches = /^(.*)@([^@]+)$/.exec(item[1].message)){
+      item[1].message = matches[1];
+      item[1].senderName = matches[2];
     }else if(matches = /^(.*)\t(.*)$/.exec(item[1].senderName)){
       item[1].senderName = matches[1];
       item[1].state = matches[2];
@@ -571,20 +659,23 @@ function refresh_parseChatMessageDataLog(refreshData){
           continue;
           break;
         case "rollVisualDice":
-          eval("param = " + matches[2]);
-          $("#log div:eq("+item[1].channel+")").append($("<p style='color: #"+item[1].color+"'>"+item[1].senderName+":"+param.chatMessage.replace(/\n/, "<br>")+"</p>"));
-          $("#log div:eq("+item[1].channel+")").hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+          param = JSON.parse(matches[2]);
+          $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(param.chatMessage).replace(/\n/, "<br>")}</p>`));
+          chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, param.chatMessage]);
+          $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
           lastRandResult = [param.chatMessage, param.randResults];
           continue;
           break;
       }
     }else if(matches = /^###CutInMovie###(.+)$/.exec(item[1].message)){
-      eval("param = " + matches[1]);
-      $("#log div:eq("+item[1].channel+")").append($("<p style='color: #"+item[1].color+"'>"+item[1].senderName+":【"+param.message+"】</p>"));
-      $("#log div:eq("+item[1].channel+")").hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+      param = JSON.parse(matches[1]);
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:【${encode(param.message)}】</p>`));
+      chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, param.chatMessage]);
+      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }else{
-      $("#log div:eq("+item[1].channel+")").append($("<p style='color: #"+item[1].color+"'>"+item[1].senderName+":"+item[1].message+"</p>"));
-      $("#log div:eq("+item[1].channel+")").hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(item[1].message).replace(/\n/, "<br>")}</p>`));
+      chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, item[1].message]);
+      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }
   }
   if(refreshData.isFirstChatRefresh){
@@ -629,13 +720,13 @@ function refresh_parseChatMessageDataLog(refreshData){
     $("#diceResult").empty();
     for(item of lastRandResult[1]){
       if([4,6,8,10,12,20].includes(item[1])){
-        $("#diceResult").append($(`<img src="${ddf.base_url}image/diceImage/${item[1]}_dice/${item[1]}_dice[${item[0]}].png" alt="${item[0]}">`));
+        $("#diceResult").append($(`<img src="${ddf.base_url}img/diceImage/${item[1]}_dice/${item[1]}_dice[${item[0]}].png" alt="${item[0]}">`));
       }else{
-        $("#diceResult").append($(`<img src="${ddf.base_url}image/diceImage/unknown.png" alt="${item[0]}">`));
+        $("#diceResult").append($(`<img src="${ddf.base_url}img/diceImage/unknown.png" alt="${item[0]}">`));
       }
     }
     total = /\s([^\s]+)$/.exec(lastRandResult[0])[1];
-    $("#diceResult").append($(`<div class="total">${total}</div>`));
+    $("#diceResult").append($(`<div class="total">${encode(total)}</div>`));
   }else if(sound){
     playSound(pageBuffer);
   }
@@ -731,8 +822,7 @@ function refresh_parseViewStateInfo(refreshData){
         if(refreshData.viewStateInfo[key]){
           $("#btn_displaychatpalette").addClass("checked");
           
-          //$("#chatpalette").show();
-          /*TODO*/
+          $("#window_chatPalette").show();
         }
         break;
       case "isCounterRemoconVisible":
@@ -747,11 +837,15 @@ function refresh_parseViewStateInfo(refreshData){
   }
 }
 
-ddf.cmd.refresh_parseRecordData = (refreshData) => {
+ddf.cmd.refresh_parseRecordData = refresh_parseRecordData;
+function refresh_parseRecordData(refreshData){
   ddf.safeDragDestoroy();
+  iniChanged = false;
+  force = false;
   for(record of refreshData.record){
     switch(record[1]){
     case "addCharacter":
+      force = true;
     case "changeCharacter":
       data = record[2][0];
       character = ddf.characters[data.imgId];
@@ -760,15 +854,33 @@ ddf.cmd.refresh_parseRecordData = (refreshData) => {
       }
       obj = character.obj;
       switch(data.type){
+        case "LogHorizonRange":
+          obj.css({
+            clipPath: `polygon(0 ${data.range*50+50}px, 0 ${data.range*50}px,${data.range*50}px 0,${data.range*50+50}px 0,${data.range*100+50}px ${data.range*50}px, ${data.range*100+50}px ${data.range*50+50}px, ${data.range*50+50}px ${data.range*100+50}px, ${data.range*50}px ${data.range*100+50}px)`,
+            left: data.x * 50,
+            top: data.y * 50,
+            marginLeft: (data.range * -50) * ddf.roomState.mapData.gridInterval,
+            marginTop:  (data.range * -50) * ddf.roomState.mapData.gridInterval,
+            width: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
+            height: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
+          });
+          obj.children("object").attr("data", `img/rangeLH.svg?size=${data.range}&color=${data.color}`);
+          obj.children("object").css({
+            width: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
+            height: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval
+          });
+          break;
         case "magicRangeMarkerDD4th":
+          iniChanged = true;
           obj.animate({
             left: data.x * 50,
             top: data.y * 50
           }, 300);
           if(!data.isHide){
-            ddf.roomState.ini_characters[character.imgId] = ddf.characters[character.imgId];
+            ddf.roomState.ini_characters[character.data.imgId] = ddf.characters[character.data.imgId];
           }else{
-            ddf.roomState.ini_characters[character.imgId] = null;
+            character.row && character.row.remove();
+            delete ddf.roomState.ini_characters[character.data.imgId];
           }
           obj.css({
             backgroundColor: "rgb("+[data.color / 65536 & 0xFF, data.color / 256 & 0xFF, data.color & 0xFF].join()+")"
@@ -820,6 +932,7 @@ ddf.cmd.refresh_parseRecordData = (refreshData) => {
         }
         break;
       case "characterData":
+        iniChanged = true;
         obj.animate({
           left: data.x * 50,
           top: data.y * 50
@@ -829,10 +942,11 @@ ddf.cmd.refresh_parseRecordData = (refreshData) => {
           height: data.size * 50
         });
         if(!data.isHide){
-          ddf.roomState.ini_characters[character.imgId] = ddf.characters[character.imgId];
+          ddf.roomState.ini_characters[character.data.imgId] = ddf.characters[character.data.imgId];
           obj.removeClass("isHide");
         }else{
-          ddf.roomState.ini_characters[character.imgId] = null;
+          character.row && character.row.remove();
+          delete ddf.roomState.ini_characters[character.data.imgId];
           obj.addClass("isHide");
         }
         obj.children(".inner").css({
@@ -850,22 +964,27 @@ ddf.cmd.refresh_parseRecordData = (refreshData) => {
         }else{
           body = data.message.replace("\r", "<br>");
         }
-        obj.html(`<span>${title}</span><img src="${ddf.base_url}image/memo2.png"><div>${body}</div>`);
+        obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}img/memo2.png"><div>${encode(body)}</div>`);
       }
       character.data = data;
       break;
     case "removeCharacter":
+      iniChanged = true;
       data = record[2][0];
       character = ddf.characters[data];
       if(character){
         character.obj && character.obj.remove();
         character.row && character.row.remove();
-        ddf.characters[data[0]] = null;
+        delete ddf.characters[data[0]];
+        if(ddf.roomState.ini_characters[data[0]]){
+          delete ddf.roomState.ini_characters[data[0]];
+        }
       }
     }
   }
+  iniChanged && ddf.cmd.initiative_sort(force);
   $(".draggableObj").draggable(ddf.dragOption);
-};
+}
 
 function refresh_parseCharacters(refreshData){
   for(character of refreshData.characters){
@@ -873,6 +992,26 @@ function refresh_parseCharacters(refreshData){
     case "Card":
     case "CardTrushMount":
     case "CardMount":
+      break;
+    case "LogHorizonRange":
+      obj = $(`<div class="magicRangeFrame draggableObj rangeCenterMarker" id="${character.imgId}"><object type="image/svg+xml" data="img/rangeLH.svg?size=${character.range}&color=${character.color}"></div>`);
+      $("#mapSurface").append(obj);
+      ddf.characters[character.imgId] = {
+        obj: obj,
+        data: character
+      };
+      obj.css({
+        clipPath: `polygon(0 ${character.range*50+50}px, 0 ${character.range*50}px,${character.range*50}px 0,${character.range*50+50}px 0,${character.range*100+50}px ${character.range*50}px, ${character.range*100+50}px ${character.range*50+50}px, ${character.range*50+50}px ${character.range*100+50}px, ${character.range*50}px ${character.range*100+50}px)`,
+        left: character.x * 50,
+        top: character.y * 50,
+        marginLeft: (character.range * -50) * ddf.roomState.mapData.gridInterval,
+        marginTop:  (character.range * -50) * ddf.roomState.mapData.gridInterval,
+        opacity: 0.5
+      });
+      obj.children("object").css({
+        width: (character.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
+        height: (character.range * 100 + 50) * ddf.roomState.mapData.gridInterval
+      });
       break;
     case "magicRangeMarkerDD4th":
       obj = $(`<div class="magicRangeFrame draggableObj" id="${character.imgId}"></div>`);
@@ -913,7 +1052,7 @@ function refresh_parseCharacters(refreshData){
     case "mapMask":
       obj = $(`<div class="mapMaskFrame" id="${character.imgId}"></div>`);
       if(character.draggable){obj.addClass("draggableObj");}
-      obj.append($(`<div class="name">${character.name}</div>`));
+      obj.append($(`<div class="name">${encode(character.name)}</div>`));
       ddf.characters[character.imgId] = {
         obj: obj,
         data: character
@@ -935,8 +1074,8 @@ function refresh_parseCharacters(refreshData){
       $("#mapSurface").append(obj);
       break;
     case "characterData":
-      obj = $("<div class='characterFrame draggableObj' id='"+character.imgId+"'></div>");
-      obj.append($("<div class='inner'></div><div class='dogtag'>"+character.dogTag+"</div><div class='name'>"+character.name+"</div>"));
+      obj = $(`<div class="characterFrame draggableObj" id="${character.imgId}"></div>`);
+      obj.append($(`<div class="inner"></div><div class="dogtag">${encode(character.dogTag)}</div><div class="name">${encode(character.name)}</div>`));
       ddf.characters[character.imgId] = {
         obj: obj,
         data: character
@@ -967,7 +1106,7 @@ function refresh_parseCharacters(refreshData){
       }else{
         body = character.message.replace("\r", "<br>");
       }
-      obj = $(`<div class="draggableObj" id="${character.imgId}"><span>${title}</span><img src="${ddf.base_url}image/memo2.png"><div>${body}</div></div>`);
+      obj = $(`<div class="draggableObj" id="${character.imgId}"><span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div></div>`);
       $("#list_memo").append(obj);
       ddf.characters[character.imgId] = {
         obj: obj,
@@ -979,6 +1118,7 @@ function refresh_parseCharacters(refreshData){
   $(".draggableObj").draggable(ddf.dragOption);
 }
 
+ddf.cmd.refresh_parseMapData = refresh_parseMapData;
 function refresh_parseMapData(refreshData){
   ddf.roomState.mapData = refreshData.mapData;
   switch(refreshData.mapData.mapType){
@@ -1006,8 +1146,8 @@ function refresh_parseMapData(refreshData){
       num: ddf.roomState.viewStateInfo.isPositionVisible,
       size: refreshData.mapData.gridInterval,
       color: "rgb("+[refreshData.mapData.gridColor / 65536 & 0xFF,refreshData.mapData.gridColor / 256 & 0xFF,refreshData.mapData.gridColor & 0xFF].join()+")",
-      mapMarks: escape(refreshData.mapData.mapMarks.join("/")),
-      mapMarksAlpha: refreshData.mapData.mapMarksAlpha
+      mapMarks: refreshData.mapData.mapMarks?refreshData.mapData.mapMarks.join("/"):"",
+      mapMarksAlpha: refreshData.mapData.mapMarksAlpha!=null?refreshData.mapData.mapMarksAlpha:1
     };
     $("#mapGrid").attr("data", "img/grid.svg?"+$.map(param, (v,k) => {return k+"="+v;}).join("&"));
   }
@@ -1031,15 +1171,16 @@ function refresh_parseMapData(refreshData){
   ddf.cmd.refresh_parseRecordData({record: redraw});
 }
 
-function refresh_parseRoundTimeData(refreshData){
-  if(JSON.stringify(refreshData.roundTimeData.counterNames) != JSON.stringify(ddf.roomState.roundTimeData.counterNames)){
+ddf.cmd.refresh_parseRoundTimeData = refresh_parseRoundTimeData;
+function refresh_parseRoundTimeData(refreshData, force = false){
+  if(force || JSON.stringify(refreshData.roundTimeData.counterNames) != JSON.stringify(ddf.roomState.roundTimeData.counterNames)){
     $("#initiative table thead tr").empty();
     $("#initiative table thead tr").append($("<th><p>順番</p></th>"));
     $("#initiative table thead tr").append($("<th><p>イニシアティブ</p></th>"));
     $("#initiative table thead tr").append($("<th><p>修正値</p></th>"));
     $("#initiative table thead tr").append($("<th><p>名前</p></th>"));
     for(counter of refreshData.roundTimeData.counterNames){
-      $("#initiative table thead tr").append($("<th><p>"+counter.replace(/^\*/, "")+"</p></th>"));
+      $("#initiative table thead tr").append($(`<th><p>${encode(counter.replace(/^\*/, ""))}</p></th>`));
     }
     $("#initiative table thead tr").append($("<th><p>その他</p></th>"));
     
@@ -1047,32 +1188,61 @@ function refresh_parseRoundTimeData(refreshData){
     ddf.roomState.ini_characters = ddf.util.hashSort(ddf.roomState.ini_characters, (obj) => {return obj.data.initiative});
     for(key in ddf.roomState.ini_characters){
       var character = ddf.roomState.ini_characters[key];
-      var tmp = "<tr>";
-      tmp+= "<td>"+(character.data.initiative==refreshData.roundTimeData.initiative?"●":"")+"</td>";
-      tmp+= "<td>"+(character.data.initiative|0)+"</td>";
-      tmp+= "<td>"+(character.data.initiative*100 % 100)+"</td>";
-      tmp+= "<td>"+(character.data.name)+"</td>";
+      var tmp = `<tr id="${character.data.imgId}">`;
+      tmp+= `<td>${(character.data.initiative==refreshData.roundTimeData.initiative?"●":"")}</td>`;
+      if(character.data.initiative < 0 && character.data.initiative % 1 >= -0.1){
+        tmp+= `<td><input class="initiative" type="number" value="${Math.ceil(character.data.initiative)}"></td>`;
+        tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100)}" min="-10" max="89"></td>`;
+      }else if(character.data.initiative < 0){
+        tmp+= `<td><input class="initiative" type="number" value="${Math.floor(character.data.initiative)}"></td>`;
+        tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100)+100}" min="-10" max="89"></td>`;
+      }else if(character.data.initiative % 1 >= 0.9){
+        tmp+= `<td><input class="initiative" type="number" value="${Math.ceil(character.data.initiative)}"></td>`;
+        tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100 - 100)}" min="-10" max="89"></td>`;
+      }else{
+        tmp+= `<td><input class="initiative" type="number" value="${Math.floor(character.data.initiative)}"></td>`;
+        tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100)}" min="-10" max="89"></td>`;
+      }
+      tmp+= `<td>${encode(character.data.name)}</td>`;
+      count = 0;
       for(counter of refreshData.roundTimeData.counterNames){
         character.data.counters == null && (character.data.counters = {});
         character.data.statusAlias == null && (character.data.statusAlias = {});
         character.data.counters[counter]==undefined && (character.data.counters[counter] = 0);
         if(/^\*/.test(counter)){
-          tmp+= "<td>"+(character.data.counters[counter]!=0?"●":"")+"</td>";
+          if(character.data.statusAlias && character.data.statusAlias[counter]){
+            tmp+= `<td><input class="v${count}" type="checkbox" ${(character.data.counters[counter]!=0?"checked":"")}>${character.data.statusAlias[counter]?character.data.statusAlias[counter]:""}</td>`;
+          }else{
+            tmp+= `<td><input class="v${count}" type="checkbox" ${(character.data.counters[counter]!=0?"checked":"")}></td>`;
+          }
         }else{
-          tmp+= "<td>"+(character.data.counters[counter])+"</td>";        
+          tmp+= `<td><input class="v${count}" type="number" value="${(character.data.counters[counter])}"></td>`;
         }
+        count++;
       }
-      tmp+= "<td>"+character.data.info+"</td>";
+      tmp+= `<td><input value="${encode(character.data.info)}" class="info"></td>`;
       tmp+= "</tr>";
       character.row = $(tmp);
-      $("#initiative table tbody").append(
-        character.row
-      );
+      if($("#initiative table tbody tr").length > 0){
+        $("#initiative table tbody tr:eq(0)").before(
+          character.row
+        );
+      }else{
+        $("#initiative table tbody").append(
+          character.row
+        );
+      }
     }
   }else{
+      ddf.roomState.ini_characters = ddf.util.hashSort(ddf.roomState.ini_characters, (obj) => {return obj.data.initiative});
       for(key in ddf.roomState.ini_characters){
         var character = ddf.roomState.ini_characters[key];
-        character.row.children("td:eq(0)").text(character.data.initiative==refreshData.roundTimeData.initiative?"●":"");
+        if(character != undefined){
+          character.row.children("td:eq(0)").text(character.data.initiative==refreshData.roundTimeData.initiative?"●":"");
+          $("#initiative table tbody tr:eq(0)").before(
+            character.row
+          );
+        }
       }
     }
   $("#round").text(refreshData.roundTimeData.round);
@@ -1081,7 +1251,8 @@ function refresh_parseRoundTimeData(refreshData){
   ddf.roomState.roundTimeData = refreshData.roundTimeData;
 }
 
-ddf.cmd.sendChatMessage = (channel, senderName, state, gameType, message, color, isNeedResult = true) => {
+ddf.cmd.sendChatMessage = sendChatMessage;
+function sendChatMessage(channel, senderName, state, gameType, message, color, isNeedResult = true){
   ddf.roomState.gameType = gameType;
   if(message.trim()==""){return false;}
   if(!(pattern = ddf.patterns[ddf.roomState.gameType])){
@@ -1096,6 +1267,7 @@ ddf.cmd.sendChatMessage = (channel, senderName, state, gameType, message, color,
   if(!!pattern.find((r) => {return !!(match = r.exec(message));})){
     //DiceBotMessage
     ddf.userState.name = senderName;
+    saveUserState();
     return ddf.sendDiceBotChatMessage(channel, senderName, state, match[2]?match[2]:0, match[3], color, ddf.roomState.gameType, isNeedResult);
   }else{
     //ChatMessage
@@ -1103,14 +1275,35 @@ ddf.cmd.sendChatMessage = (channel, senderName, state, gameType, message, color,
       message = "Wrong Message -> " + message;
     }
     ddf.userState.name = senderName;
+    saveUserState();
     return ddf.sendChatMessage(channel, senderName + "\t"+ state, message, color);
   }
-};
+}
 
-function initiativeNext(){
+ddf.cmd.saveUserState = saveUserState;
+function saveUserState(){
+  chatPalette = {};
+  for(item in ddf.userState.chatPalette){
+    chatPalette[item] = {};
+    for(item2 in ddf.userState.chatPalette[item]){
+      if(ddf.userState.chatPalette[item][item2]){
+        chatPalette[item][item2] = ddf.userState.chatPalette[item][item2];
+      }
+    }
+  }
+  store.set('userState', {
+    name: ddf.userState.name,
+    own: ddf.userState.own,
+    chatColor: ddf.userState.chatColor,
+    showTime: ddf.userState.showTime,
+    chatPalette: chatPalette,
+    fontSize: ddf.userState.fontSize,
+  });
 }
-function initiativeBack(){
-}
-function initiativeReset(){
-  return ddf.changeRoundTime();
+
+
+ddf.cmd.clearUserState = clearUserState;
+function clearUserState(){
+  store.clearAll();
+  //クリア後はリロードが必要。
 }

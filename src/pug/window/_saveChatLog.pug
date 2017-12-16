@@ -1,0 +1,31 @@
+#window_saveChatLog.draggable
+  .bg 
+    div
+      span.title チャットログ保存
+      .pull-right#saveChatLog_close2 ×
+  .body.dragprev
+    .r.center
+      input(type="radio",value="HTML",name="saveChatLog_mode",checked)
+      | HTMLとして保存　
+      input(type="radio",value="Text",name="saveChatLog_mode")
+      | テキストとして保存
+    .r
+      | フォントサイズ：
+      select#saveChatLog_fontSize
+        option(value="8pt") 8pt
+        option(value="10pt") 10pt
+        option(value="12pt",selected) 12pt
+        option(value="14pt") 14pt
+      | 　行間の高さ：
+      select#saveChatLog_lineHeight
+        option(value="1.0") 100％
+        option(value="1.2") 120％
+        option(value="1.4",selected) 140％
+        option(value="1.6") 160％t
+    hr
+    .r.center
+      button#saveChatLog_saveAll 全タブ
+    .r#saveChatLog_channel
+    hr
+    .r.center
+      button#saveChatLog_close キャンセル

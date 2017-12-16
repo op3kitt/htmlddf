@@ -11,8 +11,8 @@ buffer = require('vinyl-buffer');
 sourcemaps = require('gulp-sourcemaps');
 exec = require('child_process').exec;
 
-gulp.task('clean', function(cb){
-  del(['build/**/*'], cb);
+gulp.task('clean', function(){
+  del(['build/**/*', '!build/js', '!build/js/lib']);
 });
 
 gulp.task('release', [
@@ -42,7 +42,7 @@ gulp.task('build:scss', function(){
     .pipe(plumber({errorHandler: notify.onError('<%= error.message %>')}))
     .pipe(sass())
     .pipe(sourcemaps.init())
-    .pipe(cssnano())
+    .pipe(cssnano({zindex: false}))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('build/css/'));
 });

@@ -8,8 +8,8 @@ $(() => {
   });
   $("#btn_loadall").on("click", (e) => {
   });
-  $("#btn_savechatlog").on("click", (e) => {
-  });
+  /*$("#btn_savechatlog, #btn_saveChatLog2").on("click", (e) => {
+  });*/
   $("#btn_startrecord").on("click", (e) => {
   });
   $("#btn_endrecord").on("click", (e) => {
@@ -51,8 +51,7 @@ $(() => {
     ddf.roomState.viewStateInfo.isChatPaletteVisible = !ddf.roomState.viewStateInfo.isChatPaletteVisible;
     $(e.currentTarget).toggleClass("checked");
     
-    //$("#chatpalette").toggle();
-    /*TODO*/
+    $("#window_chatPalette").toggle();
   });
   $("#btn_displaycounter").on("click", (e) => {
     ddf.roomState.viewStateInfo.isCounterRemoconVisible = !ddf.roomState.viewStateInfo.isCounterRemoconVisible;
@@ -73,12 +72,12 @@ $(() => {
   $("#btn_displaygridnum").on("click", (e) => {
     ddf.roomState.viewStateInfo.isPositionVisible = !ddf.roomState.viewStateInfo.isPositionVisible;
     $(e.currentTarget).toggleClass("checked");
-    refresh_parseMapData({mapData: ddf.roomState.mapData});
+    ddf.cmd.refresh_parseMapData({mapData: ddf.roomState.mapData});
   });
   $("#btn_displaygridline").on("click", (e) => {
     ddf.roomState.viewStateInfo.isGridVisible = !ddf.roomState.viewStateInfo.isGridVisible;
     $(e.currentTarget).toggleClass("checked");
-    refresh_parseMapData({mapData: ddf.roomState.mapData});
+    ddf.cmd.refresh_parseMapData({mapData: ddf.roomState.mapData});
   });
   $("#btn_gridguide").on("click", (e) => {
     ddf.roomState.viewStateInfo.isSnapMovablePiece = !ddf.roomState.viewStateInfo.isSnapMovablePiece;
@@ -96,14 +95,14 @@ $(() => {
   $("#btn_resetdisplay").on("click", (e) => {
   });
 
-  $("#btn_createcharacter").on("click", (e) => {
-  });
+  /*$("#btn_addCharacter").on("click", (e) => {
+  });*/
   $("#btn_ragedd3").on("click", (e) => {
   });
   /*$("#btn_rangedd4").on("click", (e) => {
   });*/
-  $("#btn_rangelh").on("click", (e) => {
-  });
+  /*$("#btn_rangelh").on("click", (e) => {
+  });*/
   $("#btn_rangemg").on("click", (e) => {
   });
   $("#btn_magictimer").on("click", (e) => {
@@ -145,7 +144,10 @@ $(() => {
   $("#btn_mapsave").on("click", (e) => {
     ddf.saveMap().then((r)=>{
       if(r.result == "OK"){
-        window.open(ddf.base_url+r.saveFileName.replace("./", ''));
+        a = $(`<a href="${ddf.base_url+r.saveFileName.replace("./", '')}" download="">.</a>`);
+        $(document.body).append(a);
+        a[0].click();
+        a[0].remove();
       }
     });
   });
@@ -161,42 +163,22 @@ $(() => {
   /*$("#btn_imagedelete").on("click", (e) => {
   });*/
 
-  var version = require('../../package.json').version;
-  $("#btn_version2").on("click", (e) => {
-    $("#version_DodontoF").text(ddf.info.version);
-    $("#version_ddfjs").text(ddf.version);
-    $("#version_ddfcli").text(version);
-    $("#window_version").show().css("z-index", 61);
-    $(".draggable:not(#window_version)").css("z-index", 60);
-  });
-  $("#btn_manual2").on("click", (e) => {
-    window.open(ddf.base_url + "README.html");
-  });
-  $("#btn_tutorial").on("click", (e) => {
-  });
-  $("#btn_site2").on("click", (e) => {
-    window.open("http://www.dodontof.com/");
-  });
+  /*$("#btn_version2").on("click", (e) => {
+  });*/
+  /*$("#btn_manual2").on("click", (e) => {
+  });*/
+  /*$("#btn_tutorial2").on("click", (e) => {
+  });*/
+  /*$("#btn_site2").on("click", (e) => {
+  });*/
 
 
   $("#btn_zoomin").on("click", () => {
-    setZoom(0.1);
+    ddf.cmd.setZoom(0.1);
   });
   $("#btn_zoomout").on("click", () => {
-    setZoom(-0.1);
+    ddf.cmd.setZoom(-0.1);
   });
 
   $("#btn_screenshot").on("click", generate);
 });
-
-
-function setZoom(amount, relative = true){
-  if(relative){
-    ddf.roomState.zoom += amount;
-  }else{
-    ddf.roomState.zoom = amount;
-  }
-  ddf.roomState.zoom < 0.1 && (ddf.roomState.zoom = 0.1);
-  ddf.roomState.zoom > 3.0 && (ddf.roomState.zoom = 3.0);
-  $("#map").css("transform", "scale("+ddf.roomState.zoom+")");
-}

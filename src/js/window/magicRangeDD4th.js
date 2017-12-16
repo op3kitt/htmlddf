@@ -6,15 +6,14 @@ $("#magicRangeDD4th_close, #magicRangeDD4th_close2").on('click', (e) => {
   $("#window_magicRangeDD4th").hide();
 });
 
-$("#magicRangeDD4th_feets").spinner({min: 1, max:100});
-$("#magicRangeDD4th_timeRange").spinner({min: 1, max:99});
 sp_param = require("../.option.spectrum.json");
 sp_param.change = (c) => {
   $("#magicRangeDD4th_color").val(c.toHex());
 };
 $("#magicRangeDD4th_color2").spectrum(sp_param);
 
-ddf.cmd.magicRangeDD4th_show = (imgId, x = 0, y = 0) => {
+ddf.cmd.magicRangeDD4th_show = magicRangeDD4th_show
+function magicRangeDD4th_show(imgId, x = 0, y = 0){
   if(character = ddf.characters[imgId]){
     character = character.data;
     $("#window_magicRangeDD4th .title").text("魔法範囲変更（Ｄ＆Ｄ４版）");
@@ -63,9 +62,9 @@ ddf.cmd.magicRangeDD4th_show = (imgId, x = 0, y = 0) => {
   $("#magicRangeDD4th_info").val(character.info);
   $("#magicRangeDD4th_isHide").prop("checked", !character.isHide);
 
-  $("#window_magicRangeDD4th").show().css("zIndex", 61);
-  $(".draggable:not(#window_magicRangeDD4th)").css("zIndex", 60);
-};
+  $("#window_magicRangeDD4th").show().css("zIndex", 151);
+  $(".draggable:not(#window_magicRangeDD4th)").css("zIndex", 150);
+}
 
 $("#magicRangeDD4th_send").on('click', (e) => {
   if(character = ddf.characters[$("#magicRangeDD4th_imgId").val()]){
@@ -116,6 +115,7 @@ $("#magicRangeDD4th_send").on('click', (e) => {
 
     ddf.addCharacter(character).then((r) => {
       $("#window_magicRangeDD4th").hide();
+      ddf.cmd.initiative_sort(true);
     });
   }
 });

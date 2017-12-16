@@ -1,0 +1,61 @@
+#window_characterCutin.draggable
+  .bg 
+    div
+      span.title 立ち絵設定
+      .pull-right#characterCutin_close2 ×
+  .body.dragprev
+    .r
+      button#characterCutin_create 追加
+      button.pull-right#characterCutin_close 閉じる
+    .r
+      .table_wrap
+        table
+          tbody
+            tr
+              th 変更
+              th 名前
+              th 状態
+              th 位置
+              th ファイル
+              th 削除
+#window_characterCutin_create.draggable
+  .bg 
+    div
+      span.title 立ち絵追加
+      .pull-right#characterCutin_create_close2 ×
+  .body.dragprev
+    input(type="hidden")#characterCutin_create_effectId
+    .r.clearfix
+      #characterCutin_create_preview
+        input(type="hidden")#characterCutin_create_imageName
+        #characterCutin_create_image
+      #characterCutin_create_imageSelect
+        .r
+          #characterCutin_create_imagearea
+        .r
+          | 検索タグ
+          select#characterCutin_create_tagbox
+          button#characterCutin_create_btnpassword 隠し画像
+          input#characterCutin_create_password
+          input(type="checkbox")#characterCutin_create_mirrored
+          |左右反転
+    .r.center
+      | 下記で設定した「キャラクター名」「状態」でチャットで発言すると立絵が表示されます。
+    .r
+      label キャラクター名：
+      input#characterCutin_create_name
+    .r
+      label 状態：
+      input#characterCutin_create_state
+    .r
+      label 表示位置（１：左端、１２：右端）：
+      input(type="hidden")#characterCutin_create_leftIndex
+      .slider
+      select#characterCutin_create_motion
+        option(value="") エフェクト無し
+        option(value="zoom") 拡大・縮小
+        option(value="shake") 車両
+        option(value="walk") 歩行
+    .r.center
+      button#characterCutin_create_send 追加
+      button.pull-right#characterCutin_create_close 閉じる

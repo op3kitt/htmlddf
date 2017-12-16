@@ -4,6 +4,7 @@ $.contextMenu({
   items: {
     addCharacter: {name: "キャラクター追加",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
+        ddf.cmd.addCharacter_show("0");
       },
     },
     addMagicRangeDD3: {name: "魔法範囲追加(DD3版)",
@@ -13,11 +14,12 @@ $.contextMenu({
     },
     addMagicRangeDD4: {name: "魔法範囲追加(DD4版)",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
+        ddf.cmd.magicRangeDD4th_show("0");
       },
     },
     addMagicRangeLH: {name: "ログホライズン用範囲",
-      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
+        ddf.cmd.magicRangeLH_show("0");
       },
     },
     addMagicTimer: {name: "魔法タイマー追加",
@@ -26,7 +28,6 @@ $.contextMenu({
       },
     },
     addMapMask: {name: "マップマスク追加",
-      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
         ddf.mapMask_show("");
       },

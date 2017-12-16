@@ -3,13 +3,17 @@ html(lang='ja')
   head
     meta(charset='utf-8')
     title どどんとふ
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js')
-    script(src='https://tools.cry-kit.com/ddf/public_html/loaders.css.js')
+    script(src='js/jquery.min.js')
+    script(src='js/loaders.css.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js')
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.14/js/jquery.tablesorter.min.js')
+    script(src='js/jquery.tablesorter.min.js')
     script(src='js/jquery.contextMenu.js')
     script(src='js/spectrum.js')
-    link(rel='stylesheet',href='https://tools.cry-kit.com/ddf/public_html/loaders.css')
+    script(src='js/lib/htmlspecialchars.js')
+    script(src='js/lib/dateformat.js')
+    script(src='js/util.js')
+    script(src='js/config.json')
+    link(rel='stylesheet',href='js/loaders.css')
     link(rel='stylesheet',href='https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css')
     link(rel='stylesheet',href='js/jquery.contextMenu.css')
     link(rel='stylesheet',href='js/spectrum.css')
@@ -18,7 +22,6 @@ html(lang='ja')
     script(src='js/index.js')
   body
     #container
-      include main/_main.pug
-      include _main2.pug
+      include _lobby.pug
+      include _playRoom.pug
       include window/_version
-      include window/_loginNumber

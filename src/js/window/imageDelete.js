@@ -1,6 +1,6 @@
 $("#btn_imagedelete").on('click', (e) => {
-  $("#window_imageDelete").show().css("z-index", 61);
-  $(".draggable:not(#window_imageDelete)").css("z-index", 60);
+  $("#window_imageDelete").show().css("zIndex", 151);
+  $(".draggable:not(#window_imageDelete)").css("zIndex", 150);
 
   ddf.getImageTagsAndImageList().then((r) => {
     tagList = ["（全て）"];
@@ -16,7 +16,7 @@ $("#btn_imagedelete").on('click', (e) => {
 
     $("#imageDelete_tagbox").empty();
     for(item of tagList){
-      $("#imageDelete_tagbox").append($(`<option>${item}</option>`));
+      $("#imageDelete_tagbox").append($(`<option>${encode(item)}</option>`));
     }
     imageDelete_setTag(tagList[0]);
   });
