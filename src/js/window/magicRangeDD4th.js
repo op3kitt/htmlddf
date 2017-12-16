@@ -115,6 +115,7 @@ $("#magicRangeDD4th_send").on('click', (e) => {
 
     ddf.addCharacter(character).then((r) => {
       $("#window_magicRangeDD4th").hide();
+      ddf.cmd.initiative_sort(true);
     });
   }
 });

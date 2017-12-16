@@ -1,0 +1,32 @@
+#window_chatFont.draggable
+  .bg 
+    div
+      span.title チャット文字設定
+      .pull-right#chatFont_close2 ×
+  .body.dragprev
+    .row
+      label 文字色：
+      input(type="hidden")#chatFont_chatColor
+      input#chatFont_chatColor2.colorpicker
+    .row
+      label 背景色：
+      input(type="hidden")#chatFont_backgroundColor
+      input#chatFont_backgroundColor2.colorpicker
+    .row
+      label 文字サイズ：
+      input(type="number",min=8,max=72)#chatFont_fontSize
+    .row
+      label フォーマット：
+      input(type="checkbox")#chatFont_showTime
+      | 時刻表示
+    .row
+      label 別タブメッセージ：
+      input(type="checkbox",disabled)#chatFont_showOtherTab
+      | 表示する
+    .row
+      label タブの色：
+      input(type="checkbox",disabled)#chatFont_tabColor
+      | 色分けする
+    .row.center
+      button#chatFont_send 設定
+      button#chatFont_close キャンセル

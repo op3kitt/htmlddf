@@ -5,6 +5,7 @@ $(() => {
 
   require("./saveChatLog.js");
 
+  require("./chatPalette.js");
   require("./graveyard.js");
 
   require("./addCharacter.js");
@@ -20,7 +21,10 @@ $(() => {
   require("./playRoomInfo.js");
   require("./memo.js");
 
+  require("./initiative.js");
   require("./chat.js");
+
   require("./help.js");
+  require("./chatFont.js");
   require("./characterCutin.js");
 });

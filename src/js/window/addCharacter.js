@@ -1,4 +1,4 @@
-$("#btn_addCharacter").on("click", (e) => {
+$("#btn_createcharacter").on("click", (e) => {
   addCharacter_show("0");
 });
 
@@ -265,12 +265,16 @@ $("#window_addCharacter_sub .characterFrame").draggable({
           character.counters[item] = obj.val();
         }
       }
-      ddf.addCharacter(character);
+        ddf.addCharacter(character).then((r) => {;
+          ddf.cmd.initiative_sort(true);
+        });
       if($("#addCharacter_sub_multiple").prop("checked")){
-        match = /^(.+)(_(\d+))?$/.exec($("#addCharacter_name").val());
-        basename = match[1];
-        index = match[3]!=null?parseInt(match[3]):0;
+        basename = $("#addCharacter_name").val().replace(/_\d+$/, "");
         reg = new RegExp(basename+"_(\\d+)");
+        index = 0;
+        if(v = reg.exec($("#addCharacter_name").val())){
+          index = Math.max(index, parseInt(v[1]))
+        }
         for(item in ddf.characters){
           if(v = reg.exec(ddf.characters[item].data.name)){
             index = Math.max(index, parseInt(v[1]))

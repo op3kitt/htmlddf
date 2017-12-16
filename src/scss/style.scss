@@ -347,7 +347,7 @@ label {
     .menuarea{
       display: inline-block;
       background: linear-gradient(to bottom, $cbg, transparent 120%);
-      margin: 4px;
+      margin: 4px 20px;
       border: #aaa solid 1px;
       .dropdown{
         width: 5em;
@@ -384,6 +384,23 @@ label {
       }
     }
     
+    #btn_zoomin {
+      margin-left: 20px;
+      margin-top: 3px;
+    }
+    #btn_zoomout {
+      margin-right: 20px;
+      margin-top: 3px;
+    }
+
+    #btn_screenshot {
+      margin-top: 4px;
+      margin-right: 8px;
+    }
+    #btn_logout2 {
+      margin-top: 4px;
+      margin-right: 20px;
+    }
   }
 }
 
@@ -421,6 +438,7 @@ label {
   left: 0;
   bottom: 100%;
   height: 105px;
+  z-index: 110;
 
   .total {
     position: absolute;
@@ -446,7 +464,6 @@ label {
     margin-top: 35px;
     height: 70px;
     float: left;
-    z-index: 110;
 
     &:hover {
       opacity: 0.5;
@@ -459,11 +476,11 @@ label {
   left: 0;
   right: 0;
   bottom: 100%;
+  z-index: 100;
 
   img {
     position: absolute;
     bottom: 0;
-    z-index: 100;
 
     &.pos1{left: 0;}
     &.pos2{left: 7%;}
@@ -758,12 +775,42 @@ label {
   table td {
     border-right: solid #ccc 1px;
     border-bottom: solid #ccc 1px;
+
+    input:not([type="checkbox"]) {
+      border: 0;
+      width: 100%;
+    }
   }
 
   table th p {
     overflow: hidden;
     margin: 0;
     height: 1.5em;
+  }
+}
+
+#window_initiative_edit {
+  @include window(500px, 220px, 40%, 40%);
+
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button {
+      margin: 0.3em 0.5em;
+    }
   }
 }
 
@@ -1722,12 +1769,15 @@ label {
       background: #fff;
       overflow: hidden;
 
-
       div {
         display: none;
         @include full();
         bottom: -18px;
         overflow: scroll;
+
+        .time {
+          color: black;
+        }
       }
 
       div.active {
@@ -1824,6 +1874,37 @@ label {
   }
 }
 
+
+#window_chatFont {
+  @include window(300px, 310px, 200px, 200px);
+
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 22px;
+    padding: 0.3em;
+
+    .row {
+      padding: 8px;
+      width: 100%;
+    }
+
+    label {
+      width: 9em;
+    }
+  }
+}
+
 #window_loginCheck {
   @include window(400px, 190px, 200px, 200px);
 
@@ -1850,21 +1931,190 @@ label {
   }
 }
 
-#window_createPlayRoom {
-  @include window(500px, 140px, 200px, 200px);
+#window_chatPalette {
+  @include window(500px, 540px, 200px, 200px);
 
   .bg {
     @include bg(0.8);
+
+    & > div {
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
   }
 
   .body {
-    position: absolute;
+    @include full();
     top: 22px;
     padding: 0.3em;
     text-align: center;
     left: 0;
     right: 0;
     bottm: 0;
+
+    .wrap {
+      position: relative;
+      height: 100%;
+    }
+
+    #chatPalette_tabs {
+      height: 1.8em;
+      overflow: hidden;
+      padding-left: 10px;
+
+      & > p {
+        background: linear-gradient(to bottom, #ccc, transparent 120%);
+        float: left;
+        margin: 0;
+        padding: 0.2em 1em;
+        margin-right: 4px;
+      }
+
+      & > p.active {
+        background: #fff;
+      }
+    }
+
+    #chatPalette_name {
+      width: 6em;
+    }
+
+    #chatPalette_tabName {
+      width: 4em;
+    }
+
+    #chatPalette_chattext {
+      width: 440px;
+    }
+
+    .wrap {
+      @include full();
+      overflow: hidden;
+    }
+
+    #chatPalette_main {
+      @include full();
+      bottom: -17px;
+      overflow: scroll;
+
+      background: #fff;
+
+      p {
+        margin: 0;
+        text-align: left;
+        overflow: hidden;
+        min-height: 1em;
+      }
+
+      p:hover {
+        background: #99f;
+      }
+    }
+
+    #chatPalette_text {
+      @include full();
+      display: none;
+      width: 100%;
+    }
+
+    .r:nth-child(4) {
+      @include full();
+      top: 88px;
+      bottom: 40px;
+      left: 8px;
+      right: 8px;
+    }
+
+    .r:last-child {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      padding: 0 8px;
+    }
+  }
+}
+
+#window_chatPalette_import {
+  @include window(250px, 152px, 40%, 40%);
+
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 22px;
+    padding: 0.3em;
+    text-align: center;
+    left: 0;
+    right: 0;
+    bottm: 0;
+  }
+
+  #chatPalette_import_droparea {
+    width: 100%;
+    height: 120px;
+    border: solid #666 1px;
+    z-index: 55;
+    background: #fff;
+
+    &.is-dragover{
+      background: #ccf;
+
+      & ~ .overwrap, img {
+        display: none;
+      }
+      
+      &::before {
+        content: "ここにドロップ";
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    div {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+
+      img {
+        max-width: 50px;
+        max-height: 50px;
+      }
+    }
+
+    & ~ .overwrap {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      top: 8px;
+      left: 0;
+      
+      input {
+        overflow: hidden;
+        width: 0;
+      }
+      z-index: 54;
+    }
+    
+    
+  }
+}
+
+#window_createPlayRoom {
+  @include window(500px, 140px, 200px, 200px);
+
+  .bg {
+    @include bg(0.8);
   }
 
   .body {

@@ -3,11 +3,9 @@ chatlog = [];
 
 var version = require('../../package.json').version;
 
+var store = require('store');
 var screenshot = require('./screenshot.js').generate;
 var lang = "Japanese";
-
-require("./.config.json");
-ddf.base_url = ddf.config.base_url;
 
 require("./contextMenu/.loading.js");
 require("./window/.loading.js");
@@ -32,7 +30,7 @@ function titleAnimation(){
 }
 
 window.addEventListener('popstate', (e) =>  {
-  console.log(e);
+  //console.log(e);
 });
 var click = {x:0,y:0};
 
@@ -49,6 +47,8 @@ function playSound(buffer) {
 }
 
 $(() => {
+  ddf.base_url = config.base_url;
+
   window.AudioContext = window.AudioContext||window.webkitAudioContext;
   context = new AudioContext();
   var request = new XMLHttpRequest();
@@ -170,10 +170,6 @@ $(() => {
     e.returnValue = '他のページに移動しようとしています。\n移動しますか？';
   };
   
-  /*エントリーポイント*/
-  ddf.userState.room = -1;
-  ddf.userState.own = "\t"+ddf.util.getUniqueId();
-
   getLoginInfo();
   
   /*待合室コマンド*/
@@ -273,6 +269,26 @@ function getLoginInfo(){
     for(item of ddf.info.diceBotInfos){
       $("#playRoomGameType").append($('<option value="'+item.gameType+'">'+item.name+'</option>'));
     }
+    
+    if(store.get('userState')){
+      ddf.userState = store.get('userState');
+      ddf.userState.room = -1;
+      ddf.userState.backgroundColor = "FFFFFF";
+    }else{
+      ddf.userState = {
+        room: -1,
+        own: "\t"+ddf.util.getUniqueId(),
+        name: ddf.info.defaultUserNames.length==0?"ななしさん":ddf.info.defaultUserNames[Math.random()*ddf.info.defaultUserNames.length|0],
+        fontSize: 10,
+        chatColor: "000000",
+        backgroundColor: "FFFFFF",
+        showTime: false,
+        chatPalette: []
+      };
+      saveUserState();
+    }
+    $("#login_name").val(ddf.userState.name);
+
     ddf.cmd.getPlayRoomInfo();
     return r;
   });
@@ -400,10 +416,10 @@ function checkRoomStatus(roomNumber, isVisit = null, password = null){
         if(roominfo.isRoomExist){
           ddf.userState.room = roominfo.roomNumber;
           ddf.userState.name = $("#login_name").val();
-          ddf.userState.color = "000000";
+          saveUserState();
           ddf.sendChatMessage(0, "どどんとふ\t", "「"+ddf.userState.name+"」がログインしました。（htmlddf "+version+"）", "00aa00", true);
           $("#main").hide();
-          history.pushState({roomNumber: roomNumber}, "room="+roomNumber, "index.html?room="+roomNumber);
+          //history.pushState({roomNumber: roomNumber}, "room="+roomNumber, "index.html?room="+roomNumber);
           $("#main2").show();
           $("#chatname").val(ddf.userState.name);
           ddf.userState.room = roominfo.roomNumber;
@@ -417,13 +433,32 @@ function checkRoomStatus(roomNumber, isVisit = null, password = null){
             playRoomInfo: 0,
             record: 0
           };
+          if(ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber]){
+            for(item in ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber]){
+              palette = ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber][item];
+              palette && $("#chatPalette_tabs").append($(`<p id="${palette.tabName}">${/^id/.test(palette.tabName)?$("#chatPalette_tabs p").length+1:palette.tabName}</p>`))
+            }
+          }else{
+            item = {
+              tabName: "id"+ddf.util.getUniqueId(),
+              text: "",
+              name: "",
+              color: 0xFFFFFF
+            };
+            ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber] = [];
+            ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber][item.tabName] = item;
+            $("#chatPalette_tabs").append($(`<p id="${item.tabName}">1</p>`))
+
+            ddf.cmd.saveUserState();
+          }
+          $("#chatPalette_tabs > p:eq(0)").click();
           getDiceBotInfos();
           ddf.characters = [];
           ddf.roomState = {};
           ddf.roomState.roomNumber = roomNumber;
           ddf.roomState.zoom = 1;
           ddf.roomState.roundTimeData = {};
-          ddf.roomState.ini_characters = {};
+          ddf.roomState.ini_characters = [];
           ddf.roomState.roundTimeData.counterNames = [];
           ddf.userState.rIndex = 0;
           var count = 0;
@@ -431,6 +466,23 @@ function checkRoomStatus(roomNumber, isVisit = null, password = null){
           ddf.roomState.effects = [];
           ddf.roomState.playSound = true;
           ddf.roomState.chatChannelNames = roominfo.chatChannelNames;
+          ddf.roomState.viewStateInfo =  {
+            isCardPickUpVisible:false,
+            isChatPaletteVisible:false,
+            isSnapMovablePiece:true,
+            isCardHandleLogVisible:true,
+            isCounterRemoconVisible:false,
+            isStandingGraphicVisible:true,
+            isRotateMarkerVisible:true,
+            isDiceVisible:true,
+            isAdjustImageSize:true,
+            isChatVisible:true,
+            isGridVisible:true,
+            isInitiativeListVisible:true,
+            isPositionVisible:true,
+            isCutInVisible:true,
+            isResourceWindowVisible:false
+          };
           for(tab of roominfo.chatChannelNames){
             ddf.roomState.unread.push(0);
             var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
@@ -449,6 +501,10 @@ function checkRoomStatus(roomNumber, isVisit = null, password = null){
               $("#dicebot").append($(`<option value="${encode(item.gameType)}">${encode(item.name)}</option>`));
             }
           }
+          $("#log > div, #chattext").css({
+            backgroundColor: "#"+ddf.userState.backgroundColor,
+            fontSize: ddf.userState.fontSize+"pt"
+          });
           setChatTab("0");
           refresh();
         }
@@ -582,10 +638,13 @@ function refresh_parseChatMessageDataLog(refreshData){
       titleAnimation();
     }
     ddf.roomState.lastMessageTime = item[0];
-    if(matches = /^(.*)@([^@]+)(@([^@]+))?$/.exec(item[1].message)){
+    if(matches = /^(.*)@([^@]+)@([^@]+)$/.exec(item[1].message)){
       item[1].message = matches[1];
       item[1].senderName = matches[2];
-      item[1].state = matches[4];
+      item[1].state = matches[3];
+    }else if(matches = /^(.*)@([^@]+)$/.exec(item[1].message)){
+      item[1].message = matches[1];
+      item[1].senderName = matches[2];
     }else if(matches = /^(.*)\t(.*)$/.exec(item[1].senderName)){
       item[1].senderName = matches[1];
       item[1].state = matches[2];
@@ -601,7 +660,7 @@ function refresh_parseChatMessageDataLog(refreshData){
           break;
         case "rollVisualDice":
           param = JSON.parse(matches[2]);
-          $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(param.chatMessage).replace(/\n/, "<br>")}</p>`));
+          $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(param.chatMessage).replace(/\n/, "<br>")}</p>`));
           chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, param.chatMessage]);
           $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
           lastRandResult = [param.chatMessage, param.randResults];
@@ -610,11 +669,11 @@ function refresh_parseChatMessageDataLog(refreshData){
       }
     }else if(matches = /^###CutInMovie###(.+)$/.exec(item[1].message)){
       param = JSON.parse(matches[1]);
-      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:【${encode(param.message)}】</p>`));
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:【${encode(param.message)}】</p>`));
       chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, param.chatMessage]);
       $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }else{
-      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(item[1].message).replace(/\n/, "<br>")}</p>`));
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(item[1].message).replace(/\n/, "<br>")}</p>`));
       chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, item[1].message]);
       $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }
@@ -661,9 +720,9 @@ function refresh_parseChatMessageDataLog(refreshData){
     $("#diceResult").empty();
     for(item of lastRandResult[1]){
       if([4,6,8,10,12,20].includes(item[1])){
-        $("#diceResult").append($(`<img src="${ddf.base_url}image/diceImage/${item[1]}_dice/${item[1]}_dice[${item[0]}].png" alt="${item[0]}">`));
+        $("#diceResult").append($(`<img src="${ddf.base_url}img/diceImage/${item[1]}_dice/${item[1]}_dice[${item[0]}].png" alt="${item[0]}">`));
       }else{
-        $("#diceResult").append($(`<img src="${ddf.base_url}image/diceImage/unknown.png" alt="${item[0]}">`));
+        $("#diceResult").append($(`<img src="${ddf.base_url}img/diceImage/unknown.png" alt="${item[0]}">`));
       }
     }
     total = /\s([^\s]+)$/.exec(lastRandResult[0])[1];
@@ -763,8 +822,7 @@ function refresh_parseViewStateInfo(refreshData){
         if(refreshData.viewStateInfo[key]){
           $("#btn_displaychatpalette").addClass("checked");
           
-          //$("#chatpalette").show();
-          /*TODO*/
+          $("#window_chatPalette").show();
         }
         break;
       case "isCounterRemoconVisible":
@@ -782,9 +840,12 @@ function refresh_parseViewStateInfo(refreshData){
 ddf.cmd.refresh_parseRecordData = refresh_parseRecordData;
 function refresh_parseRecordData(refreshData){
   ddf.safeDragDestoroy();
+  iniChanged = false;
+  force = false;
   for(record of refreshData.record){
     switch(record[1]){
     case "addCharacter":
+      force = true;
     case "changeCharacter":
       data = record[2][0];
       character = ddf.characters[data.imgId];
@@ -810,14 +871,16 @@ function refresh_parseRecordData(refreshData){
           });
           break;
         case "magicRangeMarkerDD4th":
+          iniChanged = true;
           obj.animate({
             left: data.x * 50,
             top: data.y * 50
           }, 300);
           if(!data.isHide){
-            ddf.roomState.ini_characters[character.imgId] = ddf.characters[character.imgId];
+            ddf.roomState.ini_characters[character.data.imgId] = ddf.characters[character.data.imgId];
           }else{
-            ddf.roomState.ini_characters[character.imgId] = null;
+            character.row && character.row.remove();
+            delete ddf.roomState.ini_characters[character.data.imgId];
           }
           obj.css({
             backgroundColor: "rgb("+[data.color / 65536 & 0xFF, data.color / 256 & 0xFF, data.color & 0xFF].join()+")"
@@ -869,6 +932,7 @@ function refresh_parseRecordData(refreshData){
         }
         break;
       case "characterData":
+        iniChanged = true;
         obj.animate({
           left: data.x * 50,
           top: data.y * 50
@@ -878,10 +942,11 @@ function refresh_parseRecordData(refreshData){
           height: data.size * 50
         });
         if(!data.isHide){
-          ddf.roomState.ini_characters[character.imgId] = ddf.characters[character.imgId];
+          ddf.roomState.ini_characters[character.data.imgId] = ddf.characters[character.data.imgId];
           obj.removeClass("isHide");
         }else{
-          ddf.roomState.ini_characters[character.imgId] = null;
+          character.row && character.row.remove();
+          delete ddf.roomState.ini_characters[character.data.imgId];
           obj.addClass("isHide");
         }
         obj.children(".inner").css({
@@ -899,20 +964,25 @@ function refresh_parseRecordData(refreshData){
         }else{
           body = data.message.replace("\r", "<br>");
         }
-        obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div>`);
+        obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}img/memo2.png"><div>${encode(body)}</div>`);
       }
       character.data = data;
       break;
     case "removeCharacter":
+      iniChanged = true;
       data = record[2][0];
       character = ddf.characters[data];
       if(character){
         character.obj && character.obj.remove();
         character.row && character.row.remove();
-        ddf.characters[data[0]] = null;
+        delete ddf.characters[data[0]];
+        if(ddf.roomState.ini_characters[data[0]]){
+          delete ddf.roomState.ini_characters[data[0]];
+        }
       }
     }
   }
+  iniChanged && ddf.cmd.initiative_sort(force);
   $(".draggableObj").draggable(ddf.dragOption);
 }
 
@@ -1101,8 +1171,9 @@ function refresh_parseMapData(refreshData){
   ddf.cmd.refresh_parseRecordData({record: redraw});
 }
 
-function refresh_parseRoundTimeData(refreshData){
-  if(JSON.stringify(refreshData.roundTimeData.counterNames) != JSON.stringify(ddf.roomState.roundTimeData.counterNames)){
+ddf.cmd.refresh_parseRoundTimeData = refresh_parseRoundTimeData;
+function refresh_parseRoundTimeData(refreshData, force = false){
+  if(force || JSON.stringify(refreshData.roundTimeData.counterNames) != JSON.stringify(ddf.roomState.roundTimeData.counterNames)){
     $("#initiative table thead tr").empty();
     $("#initiative table thead tr").append($("<th><p>順番</p></th>"));
     $("#initiative table thead tr").append($("<th><p>イニシアティブ</p></th>"));
@@ -1117,32 +1188,61 @@ function refresh_parseRoundTimeData(refreshData){
     ddf.roomState.ini_characters = ddf.util.hashSort(ddf.roomState.ini_characters, (obj) => {return obj.data.initiative});
     for(key in ddf.roomState.ini_characters){
       var character = ddf.roomState.ini_characters[key];
-      var tmp = "<tr>";
+      var tmp = `<tr id="${character.data.imgId}">`;
       tmp+= `<td>${(character.data.initiative==refreshData.roundTimeData.initiative?"●":"")}</td>`;
-      tmp+= `<td>${(character.data.initiative|0)}</td>`;
-      tmp+= `<td>${(character.data.initiative*100 % 100)}</td>`;
+      if(character.data.initiative < 0 && character.data.initiative % 1 >= -0.1){
+        tmp+= `<td><input class="initiative" type="number" value="${Math.ceil(character.data.initiative)}"></td>`;
+        tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100)}" min="-10" max="89"></td>`;
+      }else if(character.data.initiative < 0){
+        tmp+= `<td><input class="initiative" type="number" value="${Math.floor(character.data.initiative)}"></td>`;
+        tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100)+100}" min="-10" max="89"></td>`;
+      }else if(character.data.initiative % 1 >= 0.9){
+        tmp+= `<td><input class="initiative" type="number" value="${Math.ceil(character.data.initiative)}"></td>`;
+        tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100 - 100)}" min="-10" max="89"></td>`;
+      }else{
+        tmp+= `<td><input class="initiative" type="number" value="${Math.floor(character.data.initiative)}"></td>`;
+        tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100)}" min="-10" max="89"></td>`;
+      }
       tmp+= `<td>${encode(character.data.name)}</td>`;
+      count = 0;
       for(counter of refreshData.roundTimeData.counterNames){
         character.data.counters == null && (character.data.counters = {});
         character.data.statusAlias == null && (character.data.statusAlias = {});
         character.data.counters[counter]==undefined && (character.data.counters[counter] = 0);
         if(/^\*/.test(counter)){
-          tmp+= `<td>${(character.data.counters[counter]!=0?"●":"")}</td>`;
+          if(character.data.statusAlias && character.data.statusAlias[counter]){
+            tmp+= `<td><input class="v${count}" type="checkbox" ${(character.data.counters[counter]!=0?"checked":"")}>${character.data.statusAlias[counter]?character.data.statusAlias[counter]:""}</td>`;
+          }else{
+            tmp+= `<td><input class="v${count}" type="checkbox" ${(character.data.counters[counter]!=0?"checked":"")}></td>`;
+          }
         }else{
-          tmp+= `<td>${(character.data.counters[counter])}</td>`;
+          tmp+= `<td><input class="v${count}" type="number" value="${(character.data.counters[counter])}"></td>`;
         }
+        count++;
       }
-      tmp+= `<td>${encode(character.data.info)}</td>`;
+      tmp+= `<td><input value="${encode(character.data.info)}" class="info"></td>`;
       tmp+= "</tr>";
       character.row = $(tmp);
-      $("#initiative table tbody").append(
-        character.row
-      );
+      if($("#initiative table tbody tr").length > 0){
+        $("#initiative table tbody tr:eq(0)").before(
+          character.row
+        );
+      }else{
+        $("#initiative table tbody").append(
+          character.row
+        );
+      }
     }
   }else{
+      ddf.roomState.ini_characters = ddf.util.hashSort(ddf.roomState.ini_characters, (obj) => {return obj.data.initiative});
       for(key in ddf.roomState.ini_characters){
         var character = ddf.roomState.ini_characters[key];
-        character.row.children("td:eq(0)").text(character.data.initiative==refreshData.roundTimeData.initiative?"●":"");
+        if(character != undefined){
+          character.row.children("td:eq(0)").text(character.data.initiative==refreshData.roundTimeData.initiative?"●":"");
+          $("#initiative table tbody tr:eq(0)").before(
+            character.row
+          );
+        }
       }
     }
   $("#round").text(refreshData.roundTimeData.round);
@@ -1167,6 +1267,7 @@ function sendChatMessage(channel, senderName, state, gameType, message, color, i
   if(!!pattern.find((r) => {return !!(match = r.exec(message));})){
     //DiceBotMessage
     ddf.userState.name = senderName;
+    saveUserState();
     return ddf.sendDiceBotChatMessage(channel, senderName, state, match[2]?match[2]:0, match[3], color, ddf.roomState.gameType, isNeedResult);
   }else{
     //ChatMessage
@@ -1174,14 +1275,35 @@ function sendChatMessage(channel, senderName, state, gameType, message, color, i
       message = "Wrong Message -> " + message;
     }
     ddf.userState.name = senderName;
+    saveUserState();
     return ddf.sendChatMessage(channel, senderName + "\t"+ state, message, color);
   }
 }
 
-function initiativeNext(){
+ddf.cmd.saveUserState = saveUserState;
+function saveUserState(){
+  chatPalette = {};
+  for(item in ddf.userState.chatPalette){
+    chatPalette[item] = {};
+    for(item2 in ddf.userState.chatPalette[item]){
+      if(ddf.userState.chatPalette[item][item2]){
+        chatPalette[item][item2] = ddf.userState.chatPalette[item][item2];
+      }
+    }
+  }
+  store.set('userState', {
+    name: ddf.userState.name,
+    own: ddf.userState.own,
+    chatColor: ddf.userState.chatColor,
+    showTime: ddf.userState.showTime,
+    chatPalette: chatPalette,
+    fontSize: ddf.userState.fontSize,
+  });
 }
-function initiativeBack(){
-}
-function initiativeReset(){
-  return ddf.changeRoundTime();
+
+
+ddf.cmd.clearUserState = clearUserState;
+function clearUserState(){
+  store.clearAll();
+  //クリア後はリロードが必要。
 }

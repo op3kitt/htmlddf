@@ -7,7 +7,6 @@
  */
 
 msgpack = require('msgpack-lite');
-store = require('store');
 
 var ddf = {};
 ddf.patterns = {};
@@ -40,7 +39,7 @@ ddf.sendMsg = function (msg, type = 'json'){
   }).catch(function(r){
     console.log("ddf.sendMsg rejected ("+r+")");
   })
-  .then(function(r){console.log({caller: msg.cmd, result: r});return r;});
+  .then(function(r){console.log({caller: msg.cmd, param: msg, result: r});return r;});
 }
 
 ddf.util = {};
@@ -62,14 +61,15 @@ ddf.util.getDiceBotName = function(gametype){
 ddf.util.hashSort = function(hash, func = null, asA = false){
   var keys = [];
   for(key in hash){
+    if(key == undefined && has[key] == undefined){continue;}
     keys[keys.length] = {
       key: key,
       val: func(hash[key])
     }; 
   }
-  keys.sort(function(a,b){return a.val < b.val;});
+  keys.sort(function(a,b){return (a.val > b.val)?1:-1;});
   if(asA) return keys.map(function(r){return r.val;});
-  var newhash = {};
+  var newhash = [];
   for(obj of keys) newhash[obj.key] = hash[obj.key];
   return newhash;
 }

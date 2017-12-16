@@ -38,6 +38,6 @@ $("#btn_talk").on('click', (e) => {
 });
 
 $("#btn_chatsend").on('click', (e) => {
-  ddf.cmd.sendChatMessage(ddf.userState.channel, $("#chatname").val(), "", $("#dicebot").val(), $("#chattext").val(), ddf.userState.color)
+  ddf.cmd.sendChatMessage(ddf.userState.channel, $("#chatname").val(), "", $("#dicebot").val(), $("#chattext").val(), ddf.userState.chatColor)
   $("#chattext").val("");
 });

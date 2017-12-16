@@ -1917,14 +1917,1268 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 }
 
 },{}],4:[function(require,module,exports){
+var engine = require('../src/store-engine')
+
+var storages = require('../storages/all')
+var plugins = [require('../plugins/json2')]
+
+module.exports = engine.createStore(storages, plugins)
+
+},{"../plugins/json2":5,"../src/store-engine":7,"../storages/all":9}],5:[function(require,module,exports){
+module.exports = json2Plugin
+
+function json2Plugin() {
+	require('./lib/json2')
+	return {}
+}
+
+},{"./lib/json2":6}],6:[function(require,module,exports){
+/* eslint-disable */
+
+//  json2.js
+//  2016-10-28
+//  Public Domain.
+//  NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+//  See http://www.JSON.org/js.html
+//  This code should be minified before deployment.
+//  See http://javascript.crockford.com/jsmin.html
+
+//  USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+//  NOT CONTROL.
+
+//  This file creates a global JSON object containing two methods: stringify
+//  and parse. This file provides the ES5 JSON capability to ES3 systems.
+//  If a project might run on IE8 or earlier, then this file should be included.
+//  This file does nothing on ES5 systems.
+
+//      JSON.stringify(value, replacer, space)
+//          value       any JavaScript value, usually an object or array.
+//          replacer    an optional parameter that determines how object
+//                      values are stringified for objects. It can be a
+//                      function or an array of strings.
+//          space       an optional parameter that specifies the indentation
+//                      of nested structures. If it is omitted, the text will
+//                      be packed without extra whitespace. If it is a number,
+//                      it will specify the number of spaces to indent at each
+//                      level. If it is a string (such as "\t" or "&nbsp;"),
+//                      it contains the characters used to indent at each level.
+//          This method produces a JSON text from a JavaScript value.
+//          When an object value is found, if the object contains a toJSON
+//          method, its toJSON method will be called and the result will be
+//          stringified. A toJSON method does not serialize: it returns the
+//          value represented by the name/value pair that should be serialized,
+//          or undefined if nothing should be serialized. The toJSON method
+//          will be passed the key associated with the value, and this will be
+//          bound to the value.
+
+//          For example, this would serialize Dates as ISO strings.
+
+//              Date.prototype.toJSON = function (key) {
+//                  function f(n) {
+//                      // Format integers to have at least two digits.
+//                      return (n < 10)
+//                          ? "0" + n
+//                          : n;
+//                  }
+//                  return this.getUTCFullYear()   + "-" +
+//                       f(this.getUTCMonth() + 1) + "-" +
+//                       f(this.getUTCDate())      + "T" +
+//                       f(this.getUTCHours())     + ":" +
+//                       f(this.getUTCMinutes())   + ":" +
+//                       f(this.getUTCSeconds())   + "Z";
+//              };
+
+//          You can provide an optional replacer method. It will be passed the
+//          key and value of each member, with this bound to the containing
+//          object. The value that is returned from your method will be
+//          serialized. If your method returns undefined, then the member will
+//          be excluded from the serialization.
+
+//          If the replacer parameter is an array of strings, then it will be
+//          used to select the members to be serialized. It filters the results
+//          such that only members with keys listed in the replacer array are
+//          stringified.
+
+//          Values that do not have JSON representations, such as undefined or
+//          functions, will not be serialized. Such values in objects will be
+//          dropped; in arrays they will be replaced with null. You can use
+//          a replacer function to replace those with JSON values.
+
+//          JSON.stringify(undefined) returns undefined.
+
+//          The optional space parameter produces a stringification of the
+//          value that is filled with line breaks and indentation to make it
+//          easier to read.
+
+//          If the space parameter is a non-empty string, then that string will
+//          be used for indentation. If the space parameter is a number, then
+//          the indentation will be that many spaces.
+
+//          Example:
+
+//          text = JSON.stringify(["e", {pluribus: "unum"}]);
+//          // text is '["e",{"pluribus":"unum"}]'
+
+//          text = JSON.stringify(["e", {pluribus: "unum"}], null, "\t");
+//          // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
+
+//          text = JSON.stringify([new Date()], function (key, value) {
+//              return this[key] instanceof Date
+//                  ? "Date(" + this[key] + ")"
+//                  : value;
+//          });
+//          // text is '["Date(---current time---)"]'
+
+//      JSON.parse(text, reviver)
+//          This method parses a JSON text to produce an object or array.
+//          It can throw a SyntaxError exception.
+
+//          The optional reviver parameter is a function that can filter and
+//          transform the results. It receives each of the keys and values,
+//          and its return value is used instead of the original value.
+//          If it returns what it received, then the structure is not modified.
+//          If it returns undefined then the member is deleted.
+
+//          Example:
+
+//          // Parse the text. Values that look like ISO date strings will
+//          // be converted to Date objects.
+
+//          myData = JSON.parse(text, function (key, value) {
+//              var a;
+//              if (typeof value === "string") {
+//                  a =
+//   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
+//                  if (a) {
+//                      return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+//                          +a[5], +a[6]));
+//                  }
+//              }
+//              return value;
+//          });
+
+//          myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
+//              var d;
+//              if (typeof value === "string" &&
+//                      value.slice(0, 5) === "Date(" &&
+//                      value.slice(-1) === ")") {
+//                  d = new Date(value.slice(5, -1));
+//                  if (d) {
+//                      return d;
+//                  }
+//              }
+//              return value;
+//          });
+
+//  This is a reference implementation. You are free to copy, modify, or
+//  redistribute.
+
+/*jslint
+    eval, for, this
+*/
+
+/*property
+    JSON, apply, call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
+    getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
+    lastIndex, length, parse, prototype, push, replace, slice, stringify,
+    test, toJSON, toString, valueOf
+*/
+
+
+// Create a JSON object only if one does not already exist. We create the
+// methods in a closure to avoid creating global variables.
+
+if (typeof JSON !== "object") {
+    JSON = {};
+}
+
+(function () {
+    "use strict";
+
+    var rx_one = /^[\],:{}\s]*$/;
+    var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+    var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+    var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
+    var rx_escapable = /[\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+    var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+
+    function f(n) {
+        // Format integers to have at least two digits.
+        return n < 10
+            ? "0" + n
+            : n;
+    }
+
+    function this_value() {
+        return this.valueOf();
+    }
+
+    if (typeof Date.prototype.toJSON !== "function") {
+
+        Date.prototype.toJSON = function () {
+
+            return isFinite(this.valueOf())
+                ? this.getUTCFullYear() + "-" +
+                        f(this.getUTCMonth() + 1) + "-" +
+                        f(this.getUTCDate()) + "T" +
+                        f(this.getUTCHours()) + ":" +
+                        f(this.getUTCMinutes()) + ":" +
+                        f(this.getUTCSeconds()) + "Z"
+                : null;
+        };
+
+        Boolean.prototype.toJSON = this_value;
+        Number.prototype.toJSON = this_value;
+        String.prototype.toJSON = this_value;
+    }
+
+    var gap;
+    var indent;
+    var meta;
+    var rep;
+
+
+    function quote(string) {
+
+// If the string contains no control characters, no quote characters, and no
+// backslash characters, then we can safely slap some quotes around it.
+// Otherwise we must also replace the offending characters with safe escape
+// sequences.
+
+        rx_escapable.lastIndex = 0;
+        return rx_escapable.test(string)
+            ? "\"" + string.replace(rx_escapable, function (a) {
+                var c = meta[a];
+                return typeof c === "string"
+                    ? c
+                    : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+            }) + "\""
+            : "\"" + string + "\"";
+    }
+
+
+    function str(key, holder) {
+
+// Produce a string from holder[key].
+
+        var i;          // The loop counter.
+        var k;          // The member key.
+        var v;          // The member value.
+        var length;
+        var mind = gap;
+        var partial;
+        var value = holder[key];
+
+// If the value has a toJSON method, call it to obtain a replacement value.
+
+        if (value && typeof value === "object" &&
+                typeof value.toJSON === "function") {
+            value = value.toJSON(key);
+        }
+
+// If we were called with a replacer function, then call the replacer to
+// obtain a replacement value.
+
+        if (typeof rep === "function") {
+            value = rep.call(holder, key, value);
+        }
+
+// What happens next depends on the value's type.
+
+        switch (typeof value) {
+        case "string":
+            return quote(value);
+
+        case "number":
+
+// JSON numbers must be finite. Encode non-finite numbers as null.
+
+            return isFinite(value)
+                ? String(value)
+                : "null";
+
+        case "boolean":
+        case "null":
+
+// If the value is a boolean or null, convert it to a string. Note:
+// typeof null does not produce "null". The case is included here in
+// the remote chance that this gets fixed someday.
+
+            return String(value);
+
+// If the type is "object", we might be dealing with an object or an array or
+// null.
+
+        case "object":
+
+// Due to a specification blunder in ECMAScript, typeof null is "object",
+// so watch out for that case.
+
+            if (!value) {
+                return "null";
+            }
+
+// Make an array to hold the partial results of stringifying this object value.
+
+            gap += indent;
+            partial = [];
+
+// Is the value an array?
+
+            if (Object.prototype.toString.apply(value) === "[object Array]") {
+
+// The value is an array. Stringify every element. Use null as a placeholder
+// for non-JSON values.
+
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || "null";
+                }
+
+// Join all of the elements together, separated with commas, and wrap them in
+// brackets.
+
+                v = partial.length === 0
+                    ? "[]"
+                    : gap
+                        ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
+                        : "[" + partial.join(",") + "]";
+                gap = mind;
+                return v;
+            }
+
+// If the replacer is an array, use it to select the members to be stringified.
+
+            if (rep && typeof rep === "object") {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === "string") {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (
+                                gap
+                                    ? ": "
+                                    : ":"
+                            ) + v);
+                        }
+                    }
+                }
+            } else {
+
+// Otherwise, iterate through all of the keys in the object.
+
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (
+                                gap
+                                    ? ": "
+                                    : ":"
+                            ) + v);
+                        }
+                    }
+                }
+            }
+
+// Join all of the member texts together, separated with commas,
+// and wrap them in braces.
+
+            v = partial.length === 0
+                ? "{}"
+                : gap
+                    ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
+                    : "{" + partial.join(",") + "}";
+            gap = mind;
+            return v;
+        }
+    }
+
+// If the JSON object does not yet have a stringify method, give it one.
+
+    if (typeof JSON.stringify !== "function") {
+        meta = {    // table of character substitutions
+            "\b": "\\b",
+            "\t": "\\t",
+            "\n": "\\n",
+            "\f": "\\f",
+            "\r": "\\r",
+            "\"": "\\\"",
+            "\\": "\\\\"
+        };
+        JSON.stringify = function (value, replacer, space) {
+
+// The stringify method takes a value and an optional replacer, and an optional
+// space parameter, and returns a JSON text. The replacer can be a function
+// that can replace values, or an array of strings that will select the keys.
+// A default replacer method can be provided. Use of the space parameter can
+// produce text that is more easily readable.
+
+            var i;
+            gap = "";
+            indent = "";
+
+// If the space parameter is a number, make an indent string containing that
+// many spaces.
+
+            if (typeof space === "number") {
+                for (i = 0; i < space; i += 1) {
+                    indent += " ";
+                }
+
+// If the space parameter is a string, it will be used as the indent string.
+
+            } else if (typeof space === "string") {
+                indent = space;
+            }
+
+// If there is a replacer, it must be a function or an array.
+// Otherwise, throw an error.
+
+            rep = replacer;
+            if (replacer && typeof replacer !== "function" &&
+                    (typeof replacer !== "object" ||
+                    typeof replacer.length !== "number")) {
+                throw new Error("JSON.stringify");
+            }
+
+// Make a fake root object containing our value under the key of "".
+// Return the result of stringifying the value.
+
+            return str("", {"": value});
+        };
+    }
+
+
+// If the JSON object does not yet have a parse method, give it one.
+
+    if (typeof JSON.parse !== "function") {
+        JSON.parse = function (text, reviver) {
+
+// The parse method takes a text and an optional reviver function, and returns
+// a JavaScript value if the text is a valid JSON text.
+
+            var j;
+
+            function walk(holder, key) {
+
+// The walk method is used to recursively walk the resulting structure so
+// that modifications can be made.
+
+                var k;
+                var v;
+                var value = holder[key];
+                if (value && typeof value === "object") {
+                    for (k in value) {
+                        if (Object.prototype.hasOwnProperty.call(value, k)) {
+                            v = walk(value, k);
+                            if (v !== undefined) {
+                                value[k] = v;
+                            } else {
+                                delete value[k];
+                            }
+                        }
+                    }
+                }
+                return reviver.call(holder, key, value);
+            }
+
+
+// Parsing happens in four stages. In the first stage, we replace certain
+// Unicode characters with escape sequences. JavaScript handles many characters
+// incorrectly, either silently deleting them, or treating them as line endings.
+
+            text = String(text);
+            rx_dangerous.lastIndex = 0;
+            if (rx_dangerous.test(text)) {
+                text = text.replace(rx_dangerous, function (a) {
+                    return "\\u" +
+                            ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+                });
+            }
+
+// In the second stage, we run the text against regular expressions that look
+// for non-JSON patterns. We are especially concerned with "()" and "new"
+// because they can cause invocation, and "=" because it can cause mutation.
+// But just to be safe, we want to reject all unexpected forms.
+
+// We split the second stage into 4 regexp operations in order to work around
+// crippling inefficiencies in IE's and Safari's regexp engines. First we
+// replace the JSON backslash pairs with "@" (a non-JSON character). Second, we
+// replace all simple value tokens with "]" characters. Third, we delete all
+// open brackets that follow a colon or comma or that begin the text. Finally,
+// we look to see that the remaining characters are only whitespace or "]" or
+// "," or ":" or "{" or "}". If that is so, then the text is safe for eval.
+
+            if (
+                rx_one.test(
+                    text
+                        .replace(rx_two, "@")
+                        .replace(rx_three, "]")
+                        .replace(rx_four, "")
+                )
+            ) {
+
+// In the third stage we use the eval function to compile the text into a
+// JavaScript structure. The "{" operator is subject to a syntactic ambiguity
+// in JavaScript: it can begin a block or an object literal. We wrap the text
+// in parens to eliminate the ambiguity.
+
+                j = eval("(" + text + ")");
+
+// In the optional fourth stage, we recursively walk the new structure, passing
+// each name/value pair to a reviver function for possible transformation.
+
+                return (typeof reviver === "function")
+                    ? walk({"": j}, "")
+                    : j;
+            }
+
+// If the text is not JSON parseable, then a SyntaxError is thrown.
+
+            throw new SyntaxError("JSON.parse");
+        };
+    }
+}());
+},{}],7:[function(require,module,exports){
+var util = require('./util')
+var slice = util.slice
+var pluck = util.pluck
+var each = util.each
+var bind = util.bind
+var create = util.create
+var isList = util.isList
+var isFunction = util.isFunction
+var isObject = util.isObject
+
+module.exports = {
+	createStore: createStore
+}
+
+var storeAPI = {
+	version: '2.0.12',
+	enabled: false,
+	
+	// get returns the value of the given key. If that value
+	// is undefined, it returns optionalDefaultValue instead.
+	get: function(key, optionalDefaultValue) {
+		var data = this.storage.read(this._namespacePrefix + key)
+		return this._deserialize(data, optionalDefaultValue)
+	},
+
+	// set will store the given value at key and returns value.
+	// Calling set with value === undefined is equivalent to calling remove.
+	set: function(key, value) {
+		if (value === undefined) {
+			return this.remove(key)
+		}
+		this.storage.write(this._namespacePrefix + key, this._serialize(value))
+		return value
+	},
+
+	// remove deletes the key and value stored at the given key.
+	remove: function(key) {
+		this.storage.remove(this._namespacePrefix + key)
+	},
+
+	// each will call the given callback once for each key-value pair
+	// in this store.
+	each: function(callback) {
+		var self = this
+		this.storage.each(function(val, namespacedKey) {
+			callback.call(self, self._deserialize(val), (namespacedKey || '').replace(self._namespaceRegexp, ''))
+		})
+	},
+
+	// clearAll will remove all the stored key-value pairs in this store.
+	clearAll: function() {
+		this.storage.clearAll()
+	},
+
+	// additional functionality that can't live in plugins
+	// ---------------------------------------------------
+
+	// hasNamespace returns true if this store instance has the given namespace.
+	hasNamespace: function(namespace) {
+		return (this._namespacePrefix == '__storejs_'+namespace+'_')
+	},
+
+	// createStore creates a store.js instance with the first
+	// functioning storage in the list of storage candidates,
+	// and applies the the given mixins to the instance.
+	createStore: function() {
+		return createStore.apply(this, arguments)
+	},
+	
+	addPlugin: function(plugin) {
+		this._addPlugin(plugin)
+	},
+	
+	namespace: function(namespace) {
+		return createStore(this.storage, this.plugins, namespace)
+	}
+}
+
+function _warn() {
+	var _console = (typeof console == 'undefined' ? null : console)
+	if (!_console) { return }
+	var fn = (_console.warn ? _console.warn : _console.log)
+	fn.apply(_console, arguments)
+}
+
+function createStore(storages, plugins, namespace) {
+	if (!namespace) {
+		namespace = ''
+	}
+	if (storages && !isList(storages)) {
+		storages = [storages]
+	}
+	if (plugins && !isList(plugins)) {
+		plugins = [plugins]
+	}
+
+	var namespacePrefix = (namespace ? '__storejs_'+namespace+'_' : '')
+	var namespaceRegexp = (namespace ? new RegExp('^'+namespacePrefix) : null)
+	var legalNamespaces = /^[a-zA-Z0-9_\-]*$/ // alpha-numeric + underscore and dash
+	if (!legalNamespaces.test(namespace)) {
+		throw new Error('store.js namespaces can only have alphanumerics + underscores and dashes')
+	}
+	
+	var _privateStoreProps = {
+		_namespacePrefix: namespacePrefix,
+		_namespaceRegexp: namespaceRegexp,
+
+		_testStorage: function(storage) {
+			try {
+				var testStr = '__storejs__test__'
+				storage.write(testStr, testStr)
+				var ok = (storage.read(testStr) === testStr)
+				storage.remove(testStr)
+				return ok
+			} catch(e) {
+				return false
+			}
+		},
+
+		_assignPluginFnProp: function(pluginFnProp, propName) {
+			var oldFn = this[propName]
+			this[propName] = function pluginFn() {
+				var args = slice(arguments, 0)
+				var self = this
+
+				// super_fn calls the old function which was overwritten by
+				// this mixin.
+				function super_fn() {
+					if (!oldFn) { return }
+					each(arguments, function(arg, i) {
+						args[i] = arg
+					})
+					return oldFn.apply(self, args)
+				}
+
+				// Give mixing function access to super_fn by prefixing all mixin function
+				// arguments with super_fn.
+				var newFnArgs = [super_fn].concat(args)
+
+				return pluginFnProp.apply(self, newFnArgs)
+			}
+		},
+
+		_serialize: function(obj) {
+			return JSON.stringify(obj)
+		},
+
+		_deserialize: function(strVal, defaultVal) {
+			if (!strVal) { return defaultVal }
+			// It is possible that a raw string value has been previously stored
+			// in a storage without using store.js, meaning it will be a raw
+			// string value instead of a JSON serialized string. By defaulting
+			// to the raw string value in case of a JSON parse error, we allow
+			// for past stored values to be forwards-compatible with store.js
+			var val = ''
+			try { val = JSON.parse(strVal) }
+			catch(e) { val = strVal }
+
+			return (val !== undefined ? val : defaultVal)
+		},
+		
+		_addStorage: function(storage) {
+			if (this.enabled) { return }
+			if (this._testStorage(storage)) {
+				this.storage = storage
+				this.enabled = true
+			}
+		},
+
+		_addPlugin: function(plugin) {
+			var self = this
+
+			// If the plugin is an array, then add all plugins in the array.
+			// This allows for a plugin to depend on other plugins.
+			if (isList(plugin)) {
+				each(plugin, function(plugin) {
+					self._addPlugin(plugin)
+				})
+				return
+			}
+
+			// Keep track of all plugins we've seen so far, so that we
+			// don't add any of them twice.
+			var seenPlugin = pluck(this.plugins, function(seenPlugin) {
+				return (plugin === seenPlugin)
+			})
+			if (seenPlugin) {
+				return
+			}
+			this.plugins.push(plugin)
+
+			// Check that the plugin is properly formed
+			if (!isFunction(plugin)) {
+				throw new Error('Plugins must be function values that return objects')
+			}
+
+			var pluginProperties = plugin.call(this)
+			if (!isObject(pluginProperties)) {
+				throw new Error('Plugins must return an object of function properties')
+			}
+
+			// Add the plugin function properties to this store instance.
+			each(pluginProperties, function(pluginFnProp, propName) {
+				if (!isFunction(pluginFnProp)) {
+					throw new Error('Bad plugin property: '+propName+' from plugin '+plugin.name+'. Plugins should only return functions.')
+				}
+				self._assignPluginFnProp(pluginFnProp, propName)
+			})
+		},
+		
+		// Put deprecated properties in the private API, so as to not expose it to accidential
+		// discovery through inspection of the store object.
+		
+		// Deprecated: addStorage
+		addStorage: function(storage) {
+			_warn('store.addStorage(storage) is deprecated. Use createStore([storages])')
+			this._addStorage(storage)
+		}
+	}
+
+	var store = create(_privateStoreProps, storeAPI, {
+		plugins: []
+	})
+	store.raw = {}
+	each(store, function(prop, propName) {
+		if (isFunction(prop)) {
+			store.raw[propName] = bind(store, prop)			
+		}
+	})
+	each(storages, function(storage) {
+		store._addStorage(storage)
+	})
+	each(plugins, function(plugin) {
+		store._addPlugin(plugin)
+	})
+	return store
+}
+
+},{"./util":8}],8:[function(require,module,exports){
+(function (global){
+var assign = make_assign()
+var create = make_create()
+var trim = make_trim()
+var Global = (typeof window !== 'undefined' ? window : global)
+
+module.exports = {
+	assign: assign,
+	create: create,
+	trim: trim,
+	bind: bind,
+	slice: slice,
+	each: each,
+	map: map,
+	pluck: pluck,
+	isList: isList,
+	isFunction: isFunction,
+	isObject: isObject,
+	Global: Global
+}
+
+function make_assign() {
+	if (Object.assign) {
+		return Object.assign
+	} else {
+		return function shimAssign(obj, props1, props2, etc) {
+			for (var i = 1; i < arguments.length; i++) {
+				each(Object(arguments[i]), function(val, key) {
+					obj[key] = val
+				})
+			}			
+			return obj
+		}
+	}
+}
+
+function make_create() {
+	if (Object.create) {
+		return function create(obj, assignProps1, assignProps2, etc) {
+			var assignArgsList = slice(arguments, 1)
+			return assign.apply(this, [Object.create(obj)].concat(assignArgsList))
+		}
+	} else {
+		function F() {} // eslint-disable-line no-inner-declarations
+		return function create(obj, assignProps1, assignProps2, etc) {
+			var assignArgsList = slice(arguments, 1)
+			F.prototype = obj
+			return assign.apply(this, [new F()].concat(assignArgsList))
+		}
+	}
+}
+
+function make_trim() {
+	if (String.prototype.trim) {
+		return function trim(str) {
+			return String.prototype.trim.call(str)
+		}
+	} else {
+		return function trim(str) {
+			return str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')
+		}
+	}
+}
+
+function bind(obj, fn) {
+	return function() {
+		return fn.apply(obj, Array.prototype.slice.call(arguments, 0))
+	}
+}
+
+function slice(arr, index) {
+	return Array.prototype.slice.call(arr, index || 0)
+}
+
+function each(obj, fn) {
+	pluck(obj, function(val, key) {
+		fn(val, key)
+		return false
+	})
+}
+
+function map(obj, fn) {
+	var res = (isList(obj) ? [] : {})
+	pluck(obj, function(v, k) {
+		res[k] = fn(v, k)
+		return false
+	})
+	return res
+}
+
+function pluck(obj, fn) {
+	if (isList(obj)) {
+		for (var i=0; i<obj.length; i++) {
+			if (fn(obj[i], i)) {
+				return obj[i]
+			}
+		}
+	} else {
+		for (var key in obj) {
+			if (obj.hasOwnProperty(key)) {
+				if (fn(obj[key], key)) {
+					return obj[key]
+				}
+			}
+		}
+	}
+}
+
+function isList(val) {
+	return (val != null && typeof val != 'function' && typeof val.length == 'number')
+}
+
+function isFunction(val) {
+	return val && {}.toString.call(val) === '[object Function]'
+}
+
+function isObject(val) {
+	return val && {}.toString.call(val) === '[object Object]'
+}
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],9:[function(require,module,exports){
+module.exports = [
+	// Listed in order of usage preference
+	require('./localStorage'),
+	require('./oldFF-globalStorage'),
+	require('./oldIE-userDataStorage'),
+	require('./cookieStorage'),
+	require('./sessionStorage'),
+	require('./memoryStorage')
+]
+
+},{"./cookieStorage":10,"./localStorage":11,"./memoryStorage":12,"./oldFF-globalStorage":13,"./oldIE-userDataStorage":14,"./sessionStorage":15}],10:[function(require,module,exports){
+// cookieStorage is useful Safari private browser mode, where localStorage
+// doesn't work but cookies do. This implementation is adopted from
+// https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage
+
+var util = require('../src/util')
+var Global = util.Global
+var trim = util.trim
+
+module.exports = {
+	name: 'cookieStorage',
+	read: read,
+	write: write,
+	each: each,
+	remove: remove,
+	clearAll: clearAll,
+}
+
+var doc = Global.document
+
+function read(key) {
+	if (!key || !_has(key)) { return null }
+	var regexpStr = "(?:^|.*;\\s*)" +
+		escape(key).replace(/[\-\.\+\*]/g, "\\$&") +
+		"\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*"
+	return unescape(doc.cookie.replace(new RegExp(regexpStr), "$1"))
+}
+
+function each(callback) {
+	var cookies = doc.cookie.split(/; ?/g)
+	for (var i = cookies.length - 1; i >= 0; i--) {
+		if (!trim(cookies[i])) {
+			continue
+		}
+		var kvp = cookies[i].split('=')
+		var key = unescape(kvp[0])
+		var val = unescape(kvp[1])
+		callback(val, key)
+	}
+}
+
+function write(key, data) {
+	if(!key) { return }
+	doc.cookie = escape(key) + "=" + escape(data) + "; expires=Tue, 19 Jan 2038 03:14:07 GMT; path=/"
+}
+
+function remove(key) {
+	if (!key || !_has(key)) {
+		return
+	}
+	doc.cookie = escape(key) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"
+}
+
+function clearAll() {
+	each(function(_, key) {
+		remove(key)
+	})
+}
+
+function _has(key) {
+	return (new RegExp("(?:^|;\\s*)" + escape(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(doc.cookie)
+}
+
+},{"../src/util":8}],11:[function(require,module,exports){
+var util = require('../src/util')
+var Global = util.Global
+
+module.exports = {
+	name: 'localStorage',
+	read: read,
+	write: write,
+	each: each,
+	remove: remove,
+	clearAll: clearAll,
+}
+
+function localStorage() {
+	return Global.localStorage
+}
+
+function read(key) {
+	return localStorage().getItem(key)
+}
+
+function write(key, data) {
+	return localStorage().setItem(key, data)
+}
+
+function each(fn) {
+	for (var i = localStorage().length - 1; i >= 0; i--) {
+		var key = localStorage().key(i)
+		fn(read(key), key)
+	}
+}
+
+function remove(key) {
+	return localStorage().removeItem(key)
+}
+
+function clearAll() {
+	return localStorage().clear()
+}
+
+},{"../src/util":8}],12:[function(require,module,exports){
+// memoryStorage is a useful last fallback to ensure that the store
+// is functions (meaning store.get(), store.set(), etc will all function).
+// However, stored values will not persist when the browser navigates to
+// a new page or reloads the current page.
+
+module.exports = {
+	name: 'memoryStorage',
+	read: read,
+	write: write,
+	each: each,
+	remove: remove,
+	clearAll: clearAll,
+}
+
+var memoryStorage = {}
+
+function read(key) {
+	return memoryStorage[key]
+}
+
+function write(key, data) {
+	memoryStorage[key] = data
+}
+
+function each(callback) {
+	for (var key in memoryStorage) {
+		if (memoryStorage.hasOwnProperty(key)) {
+			callback(memoryStorage[key], key)
+		}
+	}
+}
+
+function remove(key) {
+	delete memoryStorage[key]
+}
+
+function clearAll(key) {
+	memoryStorage = {}
+}
+
+},{}],13:[function(require,module,exports){
+// oldFF-globalStorage provides storage for Firefox
+// versions 6 and 7, where no localStorage, etc
+// is available.
+
+var util = require('../src/util')
+var Global = util.Global
+
+module.exports = {
+	name: 'oldFF-globalStorage',
+	read: read,
+	write: write,
+	each: each,
+	remove: remove,
+	clearAll: clearAll,
+}
+
+var globalStorage = Global.globalStorage
+
+function read(key) {
+	return globalStorage[key]
+}
+
+function write(key, data) {
+	globalStorage[key] = data
+}
+
+function each(fn) {
+	for (var i = globalStorage.length - 1; i >= 0; i--) {
+		var key = globalStorage.key(i)
+		fn(globalStorage[key], key)
+	}
+}
+
+function remove(key) {
+	return globalStorage.removeItem(key)
+}
+
+function clearAll() {
+	each(function(key, _) {
+		delete globalStorage[key]
+	})
+}
+
+},{"../src/util":8}],14:[function(require,module,exports){
+// oldIE-userDataStorage provides storage for Internet Explorer
+// versions 6 and 7, where no localStorage, sessionStorage, etc
+// is available.
+
+var util = require('../src/util')
+var Global = util.Global
+
+module.exports = {
+	name: 'oldIE-userDataStorage',
+	write: write,
+	read: read,
+	each: each,
+	remove: remove,
+	clearAll: clearAll,
+}
+
+var storageName = 'storejs'
+var doc = Global.document
+var _withStorageEl = _makeIEStorageElFunction()
+var disable = (Global.navigator ? Global.navigator.userAgent : '').match(/ (MSIE 8|MSIE 9|MSIE 10)\./) // MSIE 9.x, MSIE 10.x
+
+function write(unfixedKey, data) {
+	if (disable) { return }
+	var fixedKey = fixKey(unfixedKey)
+	_withStorageEl(function(storageEl) {
+		storageEl.setAttribute(fixedKey, data)
+		storageEl.save(storageName)
+	})
+}
+
+function read(unfixedKey) {
+	if (disable) { return }
+	var fixedKey = fixKey(unfixedKey)
+	var res = null
+	_withStorageEl(function(storageEl) {
+		res = storageEl.getAttribute(fixedKey)
+	})
+	return res
+}
+
+function each(callback) {
+	_withStorageEl(function(storageEl) {
+		var attributes = storageEl.XMLDocument.documentElement.attributes
+		for (var i=attributes.length-1; i>=0; i--) {
+			var attr = attributes[i]
+			callback(storageEl.getAttribute(attr.name), attr.name)
+		}
+	})
+}
+
+function remove(unfixedKey) {
+	var fixedKey = fixKey(unfixedKey)
+	_withStorageEl(function(storageEl) {
+		storageEl.removeAttribute(fixedKey)
+		storageEl.save(storageName)
+	})
+}
+
+function clearAll() {
+	_withStorageEl(function(storageEl) {
+		var attributes = storageEl.XMLDocument.documentElement.attributes
+		storageEl.load(storageName)
+		for (var i=attributes.length-1; i>=0; i--) {
+			storageEl.removeAttribute(attributes[i].name)
+		}
+		storageEl.save(storageName)
+	})
+}
+
+// Helpers
+//////////
+
+// In IE7, keys cannot start with a digit or contain certain chars.
+// See https://github.com/marcuswestin/store.js/issues/40
+// See https://github.com/marcuswestin/store.js/issues/83
+var forbiddenCharsRegex = new RegExp("[!\"#$%&'()*+,/\\\\:;<=>?@[\\]^`{|}~]", "g")
+function fixKey(key) {
+	return key.replace(/^\d/, '___$&').replace(forbiddenCharsRegex, '___')
+}
+
+function _makeIEStorageElFunction() {
+	if (!doc || !doc.documentElement || !doc.documentElement.addBehavior) {
+		return null
+	}
+	var scriptTag = 'script',
+		storageOwner,
+		storageContainer,
+		storageEl
+
+	// Since #userData storage applies only to specific paths, we need to
+	// somehow link our data to a specific path.  We choose /favicon.ico
+	// as a pretty safe option, since all browsers already make a request to
+	// this URL anyway and being a 404 will not hurt us here.  We wrap an
+	// iframe pointing to the favicon in an ActiveXObject(htmlfile) object
+	// (see: http://msdn.microsoft.com/en-us/library/aa752574(v=VS.85).aspx)
+	// since the iframe access rules appear to allow direct access and
+	// manipulation of the document element, even for a 404 page.  This
+	// document can be used instead of the current document (which would
+	// have been limited to the current path) to perform #userData storage.
+	try {
+		/* global ActiveXObject */
+		storageContainer = new ActiveXObject('htmlfile')
+		storageContainer.open()
+		storageContainer.write('<'+scriptTag+'>document.w=window</'+scriptTag+'><iframe src="/favicon.ico"></iframe>')
+		storageContainer.close()
+		storageOwner = storageContainer.w.frames[0].document
+		storageEl = storageOwner.createElement('div')
+	} catch(e) {
+		// somehow ActiveXObject instantiation failed (perhaps some special
+		// security settings or otherwse), fall back to per-path storage
+		storageEl = doc.createElement('div')
+		storageOwner = doc.body
+	}
+
+	return function(storeFunction) {
+		var args = [].slice.call(arguments, 0)
+		args.unshift(storageEl)
+		// See http://msdn.microsoft.com/en-us/library/ms531081(v=VS.85).aspx
+		// and http://msdn.microsoft.com/en-us/library/ms531424(v=VS.85).aspx
+		storageOwner.appendChild(storageEl)
+		storageEl.addBehavior('#default#userData')
+		storageEl.load(storageName)
+		storeFunction.apply(this, args)
+		storageOwner.removeChild(storageEl)
+		return
+	}
+}
+
+},{"../src/util":8}],15:[function(require,module,exports){
+var util = require('../src/util')
+var Global = util.Global
+
+module.exports = {
+	name: 'sessionStorage',
+	read: read,
+	write: write,
+	each: each,
+	remove: remove,
+	clearAll: clearAll
+}
+
+function sessionStorage() {
+	return Global.sessionStorage
+}
+
+function read(key) {
+	return sessionStorage().getItem(key)
+}
+
+function write(key, data) {
+	return sessionStorage().setItem(key, data)
+}
+
+function each(fn) {
+	for (var i = sessionStorage().length - 1; i >= 0; i--) {
+		var key = sessionStorage().key(i)
+		fn(read(key), key)
+	}
+}
+
+function remove(key) {
+	return sessionStorage().removeItem(key)
+}
+
+function clearAll() {
+	return sessionStorage().clear()
+}
+
+},{"../src/util":8}],16:[function(require,module,exports){
 module.exports={
   "name": "DodontoF_html5cli",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "DodontoF.rb client build package",
   "main": "gulpfile.js",
   "dependencies": {
+    "ddf": "^0.5.0",
     "browserify": "^14.4.0",
-    "ddf": "^1.0.0",
     "gulp": "^3.9.1",
     "gulp-cssnano": "^2.1.2",
     "gulp-pug": "^3.3.0",
@@ -1938,7 +3192,8 @@ module.exports={
     "store": "^2.0.12",
     "vinyl-buffer": "^1.0.0",
     "watchify": "^3.9.0",
-    "del": "^3.0.0"
+    "del": "^3.0.0",
+    "store": "^2.0.12"
   },
   "devDependencies": {},
   "scripts": {
@@ -1951,12 +3206,7 @@ module.exports={
   }
 }
 
-},{}],5:[function(require,module,exports){
-module.exports=ddf.config = {
-  originalColorPalette: false, //true���w�肷���Ƃǂǂ��ƂӂƓ����ɂȂ��B
-  base_url: "https://tools.cry-kit.com/ddf/public_html/DodontoF/"
-}
-},{}],6:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 module.exports={
   clickoutFiresChange: true,
   showInput: true,
@@ -1966,8 +3216,8 @@ module.exports={
   hideAfterPaletteSelect:true,
   chooseText: "選択",
   cancelText: "キャンセル",
-  containerClassName: ddf.config.originalColorPalette?"originalColorSet":"",
-  palette: ddf.config.originalColorPalette?
+  containerClassName: config.originalColorPalette?"originalColorSet":"",
+  palette: config.originalColorPalette?
   [
     ["#000000","#000000","#003300","#006600","#009900","#00CC00","#00FF00","#330000","#333300","#336600","#339900","#33CC00","#33FF00","#660000","#663300","#666600","#669900","#66CC00","#66FF00"],
     ["#333333","#000033","#003333","#006633","#009933","#00CC33","#00FF33","#330033","#333333","#336633","#339933","#33CC33","#33FF33","#660033","#663333","#666633","#669933","#66CC33","#66FF33"],
@@ -1991,3064 +3241,97 @@ module.exports={
     ["#000000","#4C1C18","#4C2D30","#4C3E3E","#4C4C2D","#424C2D","#284534","#1E3D4C","#3C374B","#443542","#473B2A"]
   ]
 }
-},{}],7:[function(require,module,exports){
-$(() => {
-  require("./map.js");
-  require("./characterData.js");
-  require("./mapMask.js");
-  require("./memo.js");
-  require("./magicRange.js");
-});
-},{"./characterData.js":8,"./magicRange.js":9,"./map.js":10,"./mapMask.js":11,"./memo.js":12}],8:[function(require,module,exports){
-$.contextMenu({
-  zIndex: 150,
-  selector: '#mapSurface .characterFrame',
-  items: {
-    edit: {name: "キャラクターの変更",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.cmd.addCharacter_show(opt.$trigger.attr("id"), true);
-      },
-    },
-    delete: {name: "キャラクターの削除",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.removeCharacter(opt.$trigger.attr("id"), true);
-        character = ddf.characters[opt.$trigger.attr("id")];
-        if(character){
-          ddf.safeDragDestoroy();
-          character.obj && character.obj.remove();
-          character.row && character.row.remove();
-          ddf.characters[opt.$trigger.attr("id")] = null;
-          $(".draggableObj").draggable(ddf.dragOption);
-        }
-      },
-    },
-    copy: {name: "キャラクターの複製",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        character = ddf.characters[opt.$trigger.attr("id")];
-        basename = character.data.name.replace(/_\d+$/, "");
-        index = 0;
-        reg = new RegExp(basename+"_(\\d+)");
-        for(item in ddf.characters){
-          if(v = reg.exec(ddf.characters[item].data.name)){
-            index = Math.max(index, parseInt(v[1]))
-          }
-        }
-        data = $.extend(true, {}, character.data);
-        data.name = basename + "_" + index + 1;
-        data.dogTag = index + 1;
-        data.imgId = 0;
-        ddf.addCharacter(data);
-      },
-    },
-    url: {name: "データ参照先URLを開く",
-      visible: function(key, opt){
-          return opt.$trigger && ddf.characters[opt.$trigger.attr("id")] && ddf.characters[opt.$trigger.attr("id")].data.url != "";
-        },
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        character = ddf.characters[opt.$trigger.attr("id")];
-        window.open(character.data.url);
-      },
-    },
-  }
-});
-},{}],9:[function(require,module,exports){
-$.contextMenu({
-  zIndex: 150,
-  selector: '.magicRangeFrame',
-  items: {
-    edit: {name: "魔法範囲の変更",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        character = ddf.characters[opt.$trigger.attr("id")];
-        switch(character.data.type){
-          case "LogHorizonRange":
-            ddf.cmd.magicRangeLH_show(opt.$trigger.attr("id"));
-            break;
-          case "magicRangeMarkerDD4th":
-            ddf.cmd.magicRangeDD4th_show(opt.$trigger.attr("id"));
-            break;
-        }
-      },
-    },
-    delete: {name: "魔法範囲の削除",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.removeCharacter(opt.$trigger.attr("id"), true);
-        character = ddf.characters[opt.$trigger.attr("id")];
-        if(character){
-          ddf.safeDragDestoroy();
-          character.obj && character.obj.remove();
-          ddf.characters[opt.$trigger.attr("id")] = null;
-          $(".draggableObj").draggable(ddf.dragOption);
-        }
-      },
-    }
-  }
-});
-
-},{}],10:[function(require,module,exports){
-$.contextMenu({
-  zIndex: 150,
-  selector: '#mapSurface',
-  items: {
-    addCharacter: {name: "キャラクター追加",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.cmd.addCharacter_show("0");
-      },
-    },
-    addMagicRangeDD3: {name: "魔法範囲追加(DD3版)",
-      disabled: true, 
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-      },
-    },
-    addMagicRangeDD4: {name: "魔法範囲追加(DD4版)",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.cmd.magicRangeDD4th_show("0");
-      },
-    },
-    addMagicRangeLH: {name: "ログホライズン用範囲",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.cmd.magicRangeLH_show("0");
-      },
-    },
-    addMagicTimer: {name: "魔法タイマー追加",
-      disabled: true, 
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-      },
-    },
-    addMapMask: {name: "マップマスク追加",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.mapMask_show("");
-      },
-    },
-    addMapMarker: {name: "マップマーカー追加",
-      disabled: true, 
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-      },
-    },
-    sep1: "---------",
-    addDiceSymbol: {name: "ダイスシンボル追加",
-      disabled: true, 
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-      },
-    },
-    sep2: "---------",
-    addCardHolder: {name: "手札置き場の作成",
-      disabled: true, 
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-      },
-    },
-    addMessageCard: {name: "メッセージカードの追加",
-      disabled: true, 
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-      },
-    },
-    sep3: "---------",
-    resetWindow: {name: "ウィンドウ配置初期化",
-      disabled: true, 
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-      },
-    }
-  }
-});
-},{}],11:[function(require,module,exports){
-$.contextMenu({
-  zIndex: 150,
-  selector: '.mapMaskFrame.draggableObj',
-  items: {
-    edit: {name: "マップマスクの変更",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.mapMask_show(opt.$trigger.attr("id"));
-      },
-    },
-    fix: {name: "マップマスクの固定",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.safeDragDestoroy();
-        character = ddf.characters[opt.$trigger.attr("id")];
-        character.data.draggable = false;
-        ddf.changeCharacter(character.data);
-        character.obj.removeClass("draggableObj");
-        $(".draggableObj").draggable(ddf.dragOption);
-      },
-    },
-    delete: {name: "マップマスクの削除",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.removeCharacter(opt.$trigger.attr("id"), true);
-        character = ddf.characters[opt.$trigger.attr("id")];
-        if(character){
-          ddf.safeDragDestoroy();
-          character.obj && character.obj.remove();
-          ddf.characters[opt.$trigger.attr("id")] = null;
-          $(".draggableObj").draggable(ddf.dragOption);
-        }
-      },
-    }
-  }
-});
-
-$.contextMenu({
-  selector: '.mapMaskFrame:not(.draggableObj)',
-  items: {
-    delete: {name: "マップマスクの削除",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.removeCharacter(opt.$trigger.attr("id"), true);
-        character = ddf.characters[opt.$trigger.attr("id")];
-        if(character){
-          ddf.safeDragDestoroy();
-          character.obj && character.obj.remove();
-          ddf.characters[opt.$trigger.attr("id")] = null;
-          $(".draggableObj").draggable(ddf.dragOption);
-        }
-      }
-    }
-  }
-});
-},{}],12:[function(require,module,exports){
-$.contextMenu({
-  zIndex: 150,
-  selector: '#list_memo > div',
-  items: {
-    edit: {name: "共有メモの変更",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.cmd.openMemo(opt.$trigger.attr("id"));
-      },
-    },
-    delete: {name: "共有メモの削除",
-      callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.removeCharacter(opt.$trigger.attr("id"), true);
-        character = ddf.characters[opt.$trigger.attr("id")];
-        if(character){
-          ddf.safeDragDestoroy();
-          character.obj && character.obj.remove();
-          ddf.characters[opt.$trigger.attr("id")] = null;
-          $(".draggableObj").draggable(ddf.dragOption);
-        }
-      },
-    }
-  }
-});
-
-},{}],13:[function(require,module,exports){
-ddf.cmd = {};
-chatlog = [];
-var version = require('../../package.json').version;
-
-var screenshot = require('./screenshot.js').generate;
-var lang = "Japanese";
-
-require("./.config.json");
-ddf.base_url = ddf.config.base_url;
-
-require("./contextMenu/.loading.js");
-require("./window/.loading.js");
-require("./room_menu.js");
-
-window_focus = true;
-running = false;
-window.onblur = function() { window_focus = false; }
-window.onfocus = function() { window_focus = true; }
-
-frame = 0;
-function titleAnimation(){
-  list = "─／｜＼";
-  if(window_focus){
-    document.title = "どどんとふ";
-    running = false;
-  }else{
-    frame = (frame + 1) % 4;
-    document.title = list[frame] + " どどんとふ";
-    setTimeout(titleAnimation, 300);
-  }
-}
-
-
-
-window.addEventListener('popstate', (e) =>  {
-  console.log(e);
-});
-var click = {x:0,y:0};
-
-var roominfos = [];
-
-var pageBuffer, diceRollBuffer, context;
-
-function playSound(buffer) {
-  if(ddf.roomState.playSound){
-    var source = context.createBufferSource(); // creates a sound source
-    source.buffer = buffer;                    // tell the source which sound to play
-    source.connect(context.destination);       // connect the source to the context's destination (the speakers)
-    source.start(0);                           // play the source now
-  }                                           // note: on older systems, may have to use deprecated noteOn(time);
-}
-
-$(() => {
-  window.AudioContext = window.AudioContext||window.webkitAudioContext;
-  context = new AudioContext();
-  var request = new XMLHttpRequest();
-  request.open('GET', "sound/page.mp3", true);
-  request.responseType = 'arraybuffer';
-  request.onload = function() {
-    context.decodeAudioData(request.response, function(buffer) {
-      pageBuffer = buffer;
-    });
-  }
-  request.send();
-  var request2 = new XMLHttpRequest();
-  request2.open('GET', "sound/diceRoll.mp3", true);
-  request2.responseType = 'arraybuffer';
-  request2.onload = function() {
-    context.decodeAudioData(request2.response, function(buffer) {
-      diceRollBuffer = buffer;
-    });
-  }
-  request2.send();
-  
-  ddf.dragOption = {
-    start: (event) =>  {
-        click.x = event.clientX - parseInt($(event.target).css("marginLeft")) / 2;
-        click.y = event.clientY - parseInt($(event.target).css("marginTop")) / 2;
-    },
-    drag: (event, ui) =>  {
-      // This is the parameter for scale()
-      var zoom = ddf.roomState.zoom;
-
-      var original = ui.originalPosition;
-
-      // jQuery will simply use the same object we alter here
-      ui.position = {
-          left: (event.clientX - click.x + original.left) / zoom,
-          top:  (event.clientY - click.y + original.top ) / zoom
-      };
-      if(ddf.roomState.viewStateInfo.isSnapMovablePiece){
-        if(ddf.roomState.mapData.isAlternately && ddf.roomState.mapData.gridInterval % 2 == 1){
-          if((Math.floor(ui.position.top / 50 / ddf.roomState.mapData.gridInterval) & 1)){
-            ui.position = {
-                left: ((Math.floor(ui.position.left / 25) | 1) ^ 1) * 25,
-                top: Math.floor(ui.position.top / 50) * 50
-            };
-          }else{
-            ui.position = {
-                left: (Math.floor(ui.position.left / 25) | 1) * 25,
-                top: Math.floor(ui.position.top / 50) * 50
-            };
-          }
-        }else{
-          ui.position = {
-              left: Math.floor(ui.position.left / 50) * 50,
-              top: Math.floor(ui.position.top / 50) * 50
-          };
-        }
-      }
-    },
-    stop: (event, ui) => {
-      character = ddf.characters[ui.helper.attr("id")];
-      if(character){
-        data = character.data;
-        data.x = ui.position.left / 50;
-        data.y = ui.position.top / 50;
-        ddf.moveCharacter(data.imgId, data.x, data.y);
-      }
-        console.log(ui);
-    }
-  };
-
-
-  /*共通コンポーネント向け*/
-  $(".draggable").draggable({
-    cancel: ".dragprev, .draggableObj",
-    stack: ".draggable"
-  });
-  $(".draggabletail").draggable({
-    cancel: ".dragprev, .draggableObj"
-  });
-
-  $(document).on('mouseover', ".mapMaskFrame.draggableObj", (e) => {
-    $(".mapMaskFrame.draggableObj").css('zIndex', 35);
-    $(e.currentTarget).css('zIndex', 36);
-  });
-  $(document).on('mouseover', ".magicRangeFrame", (e) => {
-    $(".magicRangeFrame").css('zIndex', 40);
-    $(e.currentTarget).css('zIndex', 41);
-  });
-  $(document).on('mouseover', ".mapMarkerFrame", (e) => {
-    $(".mapMarkerFrame").css('zIndex', 45);
-    $(e.currentTarget).css('zIndex', 46);
-  });
-  $(document).on('mouseover', ".cardFrame", (e) => {
-    $(".cardFrame").css('zIndex', 50);
-    $(e.currentTarget).css('zIndex', 51);
-  });
-  $(document).on('mouseover', ".characterFrame:not(.isHide)", (e) => {
-    $(".characterFrame:not(.isHide)").css('zIndex', 55);
-    $(e.currentTarget).css('zIndex', 56);
-  });
-  $(document).on('mouseover', ".chitFrame", (e) => {
-    $(".chitFrame").css('zIndex', 60);
-    $(e.currentTarget).css('zIndex', 61);
-  });
-  
-  $(".resizable").resizable({
-    ghost: true,
-    handles: 'n, e, s, w, ne, se, sw, nw'
-  });
-  $('.loader-inner').loaders();
-  $(document).on('click', "#diceResult *", (e) => {
-    $("#diceResult").empty();
-  });
-  $(document).on('click', "#characterCutIn img", (e) => {
-    $("#characterCutIn").empty();
-  });
-  
-  /*ページ移動の停止処理*/
-  window.onbeforeunload = (e) =>  {
-    e.returnValue = '他のページに移動しようとしています。\n移動しますか？';
-  };
-  
-  /*エントリーポイント*/
-  ddf.userState.room = -1;
-  ddf.userState.own = "\t"+ddf.util.getUniqueId();
-  getLoginInfo();
-  
-  /*待合室コマンド*/
-  $("#btn_version").on('click', (e) => {
-    $("#version_DodontoF").text(ddf.info.version);
-    $("#version_ddfjs").text(ddf.version);
-    $("#version_ddfcli").text(version);
-    $("#window_version").show().css("zIndex", 151);
-    $(".draggable:not(#window_version)").css("zIndex", 150);
-  });
-  
-  $("#version_close").on('click', (e) => {
-    $("#window_version").hide();    
-  });
-  
-  $("#btn_loginNumber").on('click', (e) => {
-    $("#window_loginNumber").show().css("zIndex", 151);
-    $(".draggable:not(#window_loginNumber)").css("zIndex", 150);
-  });
-  $("#window_loginNumber .btn").on('click', (e) =>  {
-    $("#window_loginNumber").hide();
-  });
-  
-  $("#btn_manual").on('click', (e) => {
-    window.open(ddf.base_url + "README.html");
-  });
-  
-  $("#btn_removePlayRoom").on('click', (e) => {
-    removePlayRoom(parseInt($("#playRoomNo").val().trim()));
-  });
-  
-
-  $("#btn_site").on('click', () => {
-    window.open("http://www.dodontof.com/");
-  });
-  
-  $("#btn_createPlayRoom").on('click', (e) => {
-    ddf.userState.room = -1;
-    $("#window_createPlayRoom").show().css("zIndex", 151);
-    $(".draggable:not(#window_createPlayRoom)").css("zIndex", 150);
-  });
-  $("#createPlayRoom_create").on('click', (e) => {
-    createPlayRoom();
-  });
-  $("#createPlayRoom_close").on('click', (e) => {
-    $("#window_createPlayRoom").hide();
-  });
-
-  $("#btn_login").on('click', (e) => {
-    checkRoomStatus(parseInt($("#playRoomNo").val()));
-  });
-
-  $("#playRoomInfos table").tablesorter();
-
-  var mousewheelevent = 'onwheel' in document ? 'wheel' : 'onmousewheel' in document ? 'mousewheel' : 'DOMMouseScroll';
-  $("#mapSurface").on(mousewheelevent,(e) => {
-      e.preventDefault();
-      var delta = e.originalEvent.deltaY ? -(e.originalEvent.deltaY) : e.originalEvent.wheelDelta ? e.originalEvent.wheelDelta : -(e.originalEvent.detail);
-      if (delta < 0){
-        setZoom(-0.1);
-      } else {
-        setZoom(0.1);
-      }
-  });
-  
-});
-
-ddf.safeDragDestoroy = () => {
-  try{
-    $(".draggableObj").draggable("destroy");
-  }catch(e){}
-}
-
-function setZoom(amount, relative = true){
-  if(relative){
-    ddf.roomState.zoom += amount;
-  }else{
-    ddf.roomState.zoom = amount;
-  }
-  ddf.roomState.zoom < 0.1 && (ddf.roomState.zoom = 0.1);
-  ddf.roomState.zoom > 3.0 && (ddf.roomState.zoom = 3.0);
-  $("#map").css("transform", "scale("+ddf.roomState.zoom+")");
-}
-
-function getDiceBotInfos(){
-  return ddf.getDiceBotInfos().then((r)=>{
-    ddf.patterns = {};
-    ddf.info.diceBotInfos = r;
-  });
-}
-
-function getLoginInfo(){
-  return ddf.getLoginInfo().then((r) => {
-    ddf.info = r;
-    $("#loginMessage").html(ddf.info.loginMessage);
-    total = 0;
-    str = "";
-    for(item of ddf.info.loginUserCountList){
-      total += item[1];
-      str += "No."+item[0]+"："+item[1]+"人<br>";
-    }
-    $("#window_loginNumber .body").html(str);
-    $("#btn_loginNumber").text("現状："+ddf.info.loginUserCountList.length+"／上限："+ddf.info.limitLoginCount+"人");
-    for(item of ddf.info.diceBotInfos){
-      $("#playRoomGameType").append($('<option value="'+item.gameType+'">'+item.name+'</option>'));
-    }
-    ddf.cmd.getPlayRoomInfo();
-    return r;
-  });
-}
-
-ddf.cmd.getPlayRoomInfo = () => {
-  promises = [];
-  for(i = 0;i * ddf.info.playRoomGetRangeMax < ddf.info.playRoomMaxNumber;i++){
-    promises.push(
-      ddf.getPlayRoomInfo(i * ddf.info.playRoomGetRangeMax, ddf.info.playRoomGetRangeMax * (i+1) - 1 > ddf.info.playRoomMaxNumber ? ddf.info.playRoomMaxNumber : ddf.info.playRoomGetRangeMax * (i+1) - 1)
-    );
-  }
-  callback = (r) => {
-    roominfo = r;
-    for(key in roominfo.playRoomStates){
-      room = roominfo.playRoomStates[key];
-      roominfos[parseInt(room.index.trim())] = room;
-      
-      var row = "<tr>";
-      row += `<td>${room.index}</td>`
-      row += `<td>${encode(room.playRoomName)}</td>`
-      row += `<td>${encode(ddf.util.getDiceBotName(room.gameType))}</td>`
-      row += `<td>${room.loginUsers.length}</td>`
-      row += `<td>${room.passwordLockState?"有り":"--"}</td>`;
-      row += `<td>${room.canVisit?"可":"--"}</td>`;
-      row += `<td>${room.lastUpdateTime?room.lastUpdateTime:""}</td>`;
-      row += "<td></td></tr>";
-      tr = $(row);
-      button = $("<button>削除</button>");
-      if(room.lastUpdateTime){
-        button.on('click', ((roomNumber) => {
-          return (e) => {
-            e.stopPropagation && e.stopPropagation();
-            removePlayRoom(roomNumber)
-          };
-        })(parseInt(room.index.trim()) ));
-      }else{
-        button.prop("disabled", true);
-      }      
-      tr.children("td:last").append(button);
-      $("#playRoomInfos tbody").append(tr);
-      tr.on('dblclick', ((roomNumber) => {return (e) => {
-        checkRoomStatus(roomNumber);
-      }})(parseInt(room.index)));
-      tr.on('click', ((roomNumber) => {return (e) => {
-        $("#playRoomNo").val(roomNumber);
-      }})(parseInt(room.index)));
-    }
-    $("#playRoomInfos table").trigger( 'update');
-    return r;
-  };
-
-  promises.reduce((current, next) =>  {
-    var p = current.then((v) =>  {
-      return next;
-    });
-    p.then(callback);
-    return p;
-  }, Promise.resolve());
-  
-    $("#loading").hide();
-};
-
-function createPlayRoom(){
-  ddf.createPlayRoom(
-    ddf.userState.room,
-    $("#playRoomName").val(),
-    $("#playRoomPassword").val(),
-    $("#playRoomGameType").val(),
-    true,
-    false,
-    ["雑談"],
-    {
-      isCardPickUpVisible:false,
-      isChatPaletteVisible:false,
-      isSnapMovablePiece:true,
-      isCardHandleLogVisible:true,
-      isCounterRemoconVisible:false,
-      isStandingGraphicVisible:true,
-      isRotateMarkerVisible:true,
-      isDiceVisible:true,
-      isAdjustImageSize:true,
-      isChatVisible:true,
-      isGridVisible:true,
-      isInitiativeListVisible:true,
-      isPositionVisible:true,
-      isCutInVisible:true,
-      isResourceWindowVisible:false
-    },
-    ""
-  ).then((r) => {
-    if(r.resultText == "OK"){
-      ddf.getPlayRoomInfo(r.playRoomIndex, r.playRoomIndex).then(
-        ((roomNumber) => {
-          return (r) => {
-            roominfos[roomNumber] = r.playRoomStates[0];
-            checkRoomStatus(roomNumber);
-          };
-        })(r.playRoomIndex)
-      );
-
-    }else{
-    }
-  });
-}
-
-function checkRoomStatus(roomNumber, password = null){
-  room = roominfos[roomNumber];
-  if(room){
-    if(room.lastUpdateTime==""){
-    /*ルーム未作成*/
-      ddf.userState.room = roomNumber;
-      $("#window_createPlayRoom").show().css("zIndex", 151);
-      $(".draggable:not(#window_createPlayRoom)").css("zIndex", 150);
-    }else if(room.passwordLockState && password == null){
-    /*パスワード付きルーム1回目*/
-    }else{
-    /*ログイン*/
-      return ddf.checkRoomStatus(roomNumber, password).then((r) => {
-        roominfo=r;
-        if(roominfo.isRoomExist){
-          ddf.userState.room = roominfo.roomNumber;
-          ddf.userState.name = $("#login_name").val();
-          ddf.userState.color = "000000";
-          ddf.sendChatMessage(0, "どどんとふ\t", "「"+ddf.userState.name+"」がログインしました。（htmlddf "+version+"）", "00aa00", true);
-          $("#main").hide();
-          history.pushState({roomNumber: roomNumber}, "room="+roomNumber, "index.html?room="+roomNumber);
-          $("#main2").show();
-          $("#chatname").val(ddf.userState.name);
-          ddf.userState.room = roominfo.roomNumber;
-          ddf.userState.lastUpdateTimes = {
-            effects: 0,
-            time: 0,
-            map: 0,
-            chatMessageDataLog: 0,
-            recordIndex: 0,
-            characters: 0,
-            playRoomInfo: 0,
-            record: 0
-          };
-          getDiceBotInfos();
-          ddf.characters = [];
-          ddf.roomState = {};
-          ddf.roomState.roomNumber = roomNumber;
-          ddf.roomState.zoom = 1;
-          ddf.roomState.roundTimeData = {};
-          ddf.roomState.ini_characters = {};
-          ddf.roomState.roundTimeData.counterNames = [];
-          ddf.userState.rIndex = 0;
-          var count = 0;
-          ddf.roomState.unread = [];
-          ddf.roomState.effects = [];
-          ddf.roomState.playSound = true;
-          ddf.roomState.chatChannelNames = roominfo.chatChannelNames;
-          for(tab of roominfo.chatChannelNames){
-            ddf.roomState.unread.push(0);
-            var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
-            obj.on("click", ((index) => {
-              return (e) => {
-                if(!$(e.currentTarget).hasClass("active")){
-                  setChatTab(index)
-                }
-              }
-            })(count++));
-            $("#tab").append(obj);
-            $("#log").append($("<div><p></p></div>"));
-          }
-          for(item of ddf.info.diceBotInfos){
-            if(/^[^:]*$/.test(item.gameType) && item.gameType != "BaseDiceBot"){
-              $("#dicebot").append($(`<option value="${encode(item.gameType)}">${encode(item.name)}</option>`));
-            }
-          }
-          setChatTab("0");
-          refresh();
-        }
-      });
-    }
-  }
-};
-
-function removePlayRoom(roomNumber, password = null){
-  room = roominfos[roomNumber];
-  if(room && room.lastUpdateTime){
-    if(room.passwordLockState && password == null){
-    
-    }else{
-      body = `No.${room.index}：${room.playRoomName}\nを削除しますか？`;
-      if(password != null || confirm(body)){
-        ddf.removePlayRoom(roomNumber, false, password);
-        $("#playRoomInfos tbody").empty();
-        ddf.cmd.getPlayRoomInfo();
-      }
-    }
-  }
-}
-
-function setChatTab(index){
-  ddf.userState.channel = index;
-  $("#tab p.active, #log div.active").removeClass('active');
-  $(`#tab p:eq(${index}), #log div:eq(${index})`).addClass('active');
-  ddf.roomState.unread[index] = 0;
-  $(`#tab p:eq(${index}) span`).text(0);
-}
-
-function refresh(){
-  ddf.refresh().then((r) => {
-    refreshData = r;
-    //console.log(refreshData);
-    refreshData.lastUpdateTimes && (ddf.userState.lastUpdateTimes = refreshData.lastUpdateTimes);
-    if(refreshData.viewStateInfo){
-      ddf.roomState.viewStateInfo = refreshData.viewStateInfo;
-    }
-    if(refreshData.gameType){
-      if($("#dicebot").children(`[value=${refreshData.gameType}]`).length==1){
-        $("#dicebot").val($(refreshData.gameType));
-      }else{
-        $("#dicebot").append($(`<option value="${encode(refreshData.gameType)}">${encode(refreshData.gameType)}</option>`));
-        $("#dicebot").val(refreshData.gameType);
-      }
-    }
-    if(refreshData.mapData) {
-      ddf.cmd.refresh_parseMapData(refreshData);
-    }
-    if(refreshData.characters){
-      refresh_parseCharacters(refreshData);
-    }
-    if(refreshData.roundTimeData){
-      refresh_parseRoundTimeData(refreshData);
-    }
-    if(refreshData.gameType){
-      ddf.roomState.gameType = refreshData.gameType;
-    }
-    if(refreshData.viewStateInfo){
-      refresh_parseViewStateInfo(refreshData);
-    }
-    if(refreshData.effects){
-      refresh_parseEffects(refreshData);
-    }
-    if(refreshData.chatChannelNames && !refreshData.isFirstChatRefresh){
-      $(`#tab > p:gt(${refreshData.chatChannelNames.length - 1}),#log > div:gt(${refreshData.chatChannelNames.length - 1})`).remove();
-      ddf.roomState.unread.splice(refreshData.chatChannelNames.length);
-      for(i = 0;i < refreshData.chatChannelNames.length;i++){
-        if(ddf.roomState.chatChannelNames.length <= i){
-          ddf.roomState.unread.push(0);
-          var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
-          obj.on("click", ((index) => {
-            return (e) => {
-              if(!$(e.currentTarget).hasClass("active")){
-                setChatTab(index)
-              }
-            }
-          })(i));
-          $("#tab").append(obj);
-          $("#log").append($("<div><p></p></div>"));
-        }else{
-          $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${encode(refreshData.chatChannelNames[i])}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
-        }
-      }
-      if($("#tab .active").length == 0){
-        setChatTab(0);
-      }
-      ddf.roomState.chatChannelNames = refreshData.chatChannelNames;
-    }
-    if(refreshData.chatMessageDataLog){
-      refresh_parseChatMessageDataLog(refreshData);
-    }
-    if(refreshData.record) {
-      ddf.cmd.refresh_parseRecordData(refreshData);
-    }
-    if(refreshData.gameType){
-      $("#dicebot").val(refreshData.gameType);
-    }
-    if(refreshData.loginUserInfo){
-      $("#btn_member").text(`ルームNo.${ddf.roomState.roomNumber}：${refreshData.loginUserInfo.length}名`);
-    }
-    r = refreshData = null;
-    if(ddf.userState.room != -1){
-      setTimeout(refresh, 1000);
-    }
-  });
-}
-
-function refresh_parseEffects(refreshData){
-  ddf.roomState.effects = refreshData.effects;
-}
-
-function refresh_parseChatMessageDataLog(refreshData){
-  let prevheight = $("#log .active")[0].scrollHeight - $("#log .active").height();
-  lastRandResult = false;
-  lastCutIn = false;
-  sound = false;
-  for(item of refreshData.chatMessageDataLog){
-    if(item[0] <= ddf.roomState.lastMessageTime){continue;}
-    sound = true;
-    if(!window_focus && !running){
-      titleAnimation();
-    }
-    ddf.roomState.lastMessageTime = item[0];
-    if(matches = /^(.*)@([^@]+)(@([^@]+))?$/.exec(item[1].message)){
-      item[1].message = matches[1];
-      item[1].senderName = matches[2];
-      item[1].state = matches[4];
-    }else if(matches = /^(.*)\t(.*)$/.exec(item[1].senderName)){
-      item[1].senderName = matches[1];
-      item[1].state = matches[2];
-    }
-    item[1].uniqueId != 'dummy' && (lastCutIn = [item[1].senderName, item[1].state]);
-    if(matches = /^###CutInCommand:([a-zA-Z]+)###(.+)$/.exec(item[1].message)){
-      switch(matches[1]){
-        case "getDiceBotInfos":
-            if(!refreshData.isFirstChatRefresh){
-              getDiceBotInfos();
-            }
-          continue;
-          break;
-        case "rollVisualDice":
-          param = JSON.parse(matches[2]);
-          $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(param.chatMessage).replace(/\n/, "<br>")}</p>`));
-          chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, param.chatMessage]);
-          $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
-          lastRandResult = [param.chatMessage, param.randResults];
-          continue;
-          break;
-      }
-    }else if(matches = /^###CutInMovie###(.+)$/.exec(item[1].message)){
-      param = JSON.parse(matches[1]);
-      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:【${encode(param.message)}】</p>`));
-      chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, param.chatMessage]);
-      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
-    }else{
-      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${encode(item[1].senderName)}:${encode(item[1].message).replace(/\n/, "<br>")}</p>`));
-      chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, item[1].message]);
-      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
-    }
-  }
-  if(refreshData.isFirstChatRefresh){
-    for(div of $("#log").children("div")){
-      div.scrollTop = $(div).children(":last").offset().top;
-    }
-    ddf.roomState.unread = ddf.roomState.unread.map(()=>{return 0;});
-  }else{
-    if(prevheight < $("#log .active").scrollTop()){
-      $("#log .active").scrollTop($("#log .active")[0].scrollHeight);
-    }
-    for(index in $("#tab").children("p")){
-      $("#tab").children("p").eq(index).children("span").text(ddf.roomState.unread[index]);
-    }
-  }
-  if(lastCutIn){
-    let found = false;
-    if(!found){
-      for(item of ddf.roomState.effects){
-        if(item.type = "standingGraphicInfos"){
-          if(lastCutIn[0] == item.name && lastCutIn[1] == item.state){
-            $("#characterCutIn").empty();
-            $("#characterCutIn").append($(`<img src="${ddf.base_url + item.source}" class="pos${item.leftIndex} ${item.motion} ${item.mirrored?"mirrored":""}">`));
-          }
-        }
-      }
-    }
-    if(!found){
-      for(id in ddf.characters){
-        character = ddf.characters[id].data;
-        if(character.name == lastCutIn[0]){
-            $("#characterCutIn").empty();
-          $("#characterCutIn").append($(`<img src="${ddf.base_url + character.imageName}" class="pos1">`));
-          found = true;
-          break;
-        }
-      }
-    }
-  }
-  if(lastRandResult){
-    playSound(diceRollBuffer);
-    $("#diceResult").empty();
-    for(item of lastRandResult[1]){
-      if([4,6,8,10,12,20].includes(item[1])){
-        $("#diceResult").append($(`<img src="${ddf.base_url}image/diceImage/${item[1]}_dice/${item[1]}_dice[${item[0]}].png" alt="${item[0]}">`));
-      }else{
-        $("#diceResult").append($(`<img src="${ddf.base_url}image/diceImage/unknown.png" alt="${item[0]}">`));
-      }
-    }
-    total = /\s([^\s]+)$/.exec(lastRandResult[0])[1];
-    $("#diceResult").append($(`<div class="total">${encode(total)}</div>`));
-  }else if(sound){
-    playSound(pageBuffer);
-  }
-}
-
-function refresh_parseViewStateInfo(refreshData){
-  for(key in refreshData.viewStateInfo){
-    switch(key){
-      case "isSnapMovablePiece":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_gridguide").addClass("checked");
-        }
-        break;
-      case "isAdjustImageSize":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_adjustcharacter").addClass("checked");
-          $("#characterCutIn").addClass("adjust");
-        }
-        break;
-      case "isCardHandleLogVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_cardlog").addClass("checked");
-        }
-        break;
-      case "isCardPickUpVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_cardpickup").addClass("checked");
-        }
-        break;
-      case "isCutInVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_displaycutin").addClass("checked");
-        }
-        break;
-      case "isGridVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_displaygridline").addClass("checked");
-        }
-        break;
-      case "isPositionVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_displaygridnum").addClass("checked");
-        }
-        break;
-      case "isStandingGraphicVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_displaycharacter").addClass("checked");
-
-          $("#characterCutIn").show();
-        }else{
-          $("#characterCutIn").hide();
-        }
-        break;
-      case "isRotateMarkerVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_rotate").addClass("checked");
-        }
-        break;
-      case "isChatVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_displaychat").addClass("checked");
-          
-          $("#window_chat .inner").show();
-        }else{
-          $("#window_chat .inner").hide();
-        }
-        break;
-      case "isDiceVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_displaydice").addClass("checked");
-          
-          $("#diceResult").show();
-        }else{
-          $("#diceResult").hide();
-        }
-        break;
-      case "isInitiativeListVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_displayinitiative").addClass("checked");
-          
-          $("#initiative").show();
-        }
-        break;
-      case "isResourceWindowVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_displayresource").addClass("checked");
-          
-          //$("#resource").show();
-          /*TODO*/
-        }
-        break;
-      case "isChatPaletteVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_displaychatpalette").addClass("checked");
-          
-          //$("#chatpalette").show();
-          /*TODO*/
-        }
-        break;
-      case "isCounterRemoconVisible":
-        if(refreshData.viewStateInfo[key]){
-          $("#btn_displaycounter").addClass("checked");
-          
-          //$("#remocon").show();
-          /*TODO*/
-        }
-        break;
-    }
-  }
-}
-
-ddf.cmd.refresh_parseRecordData = (refreshData) => {
-  ddf.safeDragDestoroy();
-  for(record of refreshData.record){
-    switch(record[1]){
-    case "addCharacter":
-    case "changeCharacter":
-      data = record[2][0];
-      character = ddf.characters[data.imgId];
-      if(!character){
-        return refresh_parseCharacters({characters: [data]});
-      }
-      obj = character.obj;
-      switch(data.type){
-        case "LogHorizonRange":
-          obj.css({
-            clipPath: `polygon(0 ${data.range*50+50}px, 0 ${data.range*50}px,${data.range*50}px 0,${data.range*50+50}px 0,${data.range*100+50}px ${data.range*50}px, ${data.range*100+50}px ${data.range*50+50}px, ${data.range*50+50}px ${data.range*100+50}px, ${data.range*50}px ${data.range*100+50}px)`,
-            left: data.x * 50,
-            top: data.y * 50,
-            marginLeft: (data.range * -50) * ddf.roomState.mapData.gridInterval,
-            marginTop:  (data.range * -50) * ddf.roomState.mapData.gridInterval,
-            width: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
-            height: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
-          });
-          obj.children("object").attr("data", `img/rangeLH.svg?size=${data.range}&color=${data.color}`);
-          obj.children("object").css({
-            width: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
-            height: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval
-          });
-          break;
-        case "magicRangeMarkerDD4th":
-          obj.animate({
-            left: data.x * 50,
-            top: data.y * 50
-          }, 300);
-          if(!data.isHide){
-            ddf.roomState.ini_characters[character.imgId] = ddf.characters[character.imgId];
-          }else{
-            ddf.roomState.ini_characters[character.imgId] = null;
-          }
-          obj.css({
-            backgroundColor: "rgb("+[data.color / 65536 & 0xFF, data.color / 256 & 0xFF, data.color & 0xFF].join()+")"
-          });
-          switch(data.rangeType){
-            case "closeBurstDD4th":
-              obj.addClass("rangeCenterMarker");
-              obj.css({
-                marginLeft: (data.feets * -10) * ddf.roomState.mapData.gridInterval,
-                marginTop:  (data.feets * -10) * ddf.roomState.mapData.gridInterval,
-                width: (data.feets * 20 + 50) * ddf.roomState.mapData.gridInterval,
-                height: (data.feets * 20 + 50) * ddf.roomState.mapData.gridInterval,
-              });
-              break;
-            case "blastDD4th":
-              obj.removeClass("rangeCenterMarker");
-              obj.css({
-                marginLeft: 0,
-                marginTop:  0,
-                width: (data.feets * 10) * ddf.roomState.mapData.gridInterval,
-                height: (data.feets * 10) * ddf.roomState.mapData.gridInterval,
-              });
-          }
-          break;
-      case "mapMask":
-        obj.children(".name").text(data.name);
-        obj.animate({
-          left: data.x * 50,
-          top: data.y * 50
-        }, 300);
-        colors = [data.color / 65536 & 0xFF, data.color / 256 & 0xFF, data.color & 0xFF];
-        sum = 255;
-        refColor = [sum - colors[0], sum - colors[1], sum - colors[2]];
-        obj.css({
-          left: data.x * 50,
-          top: data.y * 50,
-          width: data.width * 50,
-          height: data.height * 50,
-          opacity: data.alpha,
-          backgroundColor: "rgb("+colors+")"
-        });
-        obj.children(".name").css({
-          color: "rgb("+refColor+")"
-        });
-        if(data.draggable){
-          obj.addClass("draggableObj");
-        }else{
-          obj.removeClass("draggableObj");
-        }
-        break;
-      case "characterData":
-        obj.animate({
-          left: data.x * 50,
-          top: data.y * 50
-        }, 300);
-        obj.css({
-          width: data.size * 50,
-          height: data.size * 50
-        });
-        if(!data.isHide){
-          ddf.roomState.ini_characters[character.imgId] = ddf.characters[character.imgId];
-          obj.removeClass("isHide");
-        }else{
-          ddf.roomState.ini_characters[character.imgId] = null;
-          obj.addClass("isHide");
-        }
-        obj.children(".inner").css({
-          transform: "rotateZ("+data.rotation+"deg) "+(data.mirrored?" rotateY(180deg)":""),
-          backgroundImage: "url("+ddf.base_url+data.imageName+")"
-        });
-        obj.children(".name").text(data.name);
-        obj.children(".dogtag").text(data.dogTag);
-        break;
-      case "Memo":
-        title = data.message.split("\r")[0];
-        ar = data.message.split(/\t\|\t/);
-        if(ar.length > 1){
-          body = ar.map((v)=>{return `[${v.split("\r")[0]}]`}).join("<br>")
-        }else{
-          body = data.message.replace("\r", "<br>");
-        }
-        obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div>`);
-      }
-      character.data = data;
-      break;
-    case "removeCharacter":
-      data = record[2][0];
-      character = ddf.characters[data];
-      if(character){
-        character.obj && character.obj.remove();
-        character.row && character.row.remove();
-        ddf.characters[data[0]] = null;
-      }
-    }
-  }
-  $(".draggableObj").draggable(ddf.dragOption);
-};
-
-function refresh_parseCharacters(refreshData){
-  for(character of refreshData.characters){
-    switch(character.type){
-    case "Card":
-    case "CardTrushMount":
-    case "CardMount":
-      break;
-    case "LogHorizonRange":
-      obj = $(`<div class="magicRangeFrame draggableObj rangeCenterMarker" id="${character.imgId}"><object type="image/svg+xml" data="img/rangeLH.svg?size=${character.range}&color=${character.color}"></div>`);
-      $("#mapSurface").append(obj);
-      ddf.characters[character.imgId] = {
-        obj: obj,
-        data: character
-      };
-      obj.css({
-        clipPath: `polygon(0 ${character.range*50+50}px, 0 ${character.range*50}px,${character.range*50}px 0,${character.range*50+50}px 0,${character.range*100+50}px ${character.range*50}px, ${character.range*100+50}px ${character.range*50+50}px, ${character.range*50+50}px ${character.range*100+50}px, ${character.range*50}px ${character.range*100+50}px)`,
-        left: character.x * 50,
-        top: character.y * 50,
-        marginLeft: (character.range * -50) * ddf.roomState.mapData.gridInterval,
-        marginTop:  (character.range * -50) * ddf.roomState.mapData.gridInterval,
-        opacity: 0.5
-      });
-      obj.children("object").css({
-        width: (character.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
-        height: (character.range * 100 + 50) * ddf.roomState.mapData.gridInterval
-      });
-      break;
-    case "magicRangeMarkerDD4th":
-      obj = $(`<div class="magicRangeFrame draggableObj" id="${character.imgId}"></div>`);
-      $("#mapSurface").append(obj);
-      ddf.characters[character.imgId] = {
-        obj: obj,
-        data: character
-      };
-      if(!character.isHide){
-        ddf.roomState.ini_characters[character.imgId] = ddf.characters[character.imgId];
-      }
-      obj.css({
-        left: character.x * 50,
-        top: character.y * 50,
-        opacity: 0.5,
-        backgroundColor: "rgb("+[character.color / 65536 & 0xFF, character.color / 256 & 0xFF, character.color & 0xFF].join()+")"
-      });
-      switch(character.rangeType){
-        case "closeBurstDD4th":
-          obj.addClass("rangeCenterMarker");
-          obj.css({
-            marginLeft: (character.feets * -10) * ddf.roomState.mapData.gridInterval,
-            marginTop:  (character.feets * -10) * ddf.roomState.mapData.gridInterval,
-            width: (character.feets * 20 + 50) * ddf.roomState.mapData.gridInterval,
-            height: (character.feets * 20 + 50) * ddf.roomState.mapData.gridInterval,
-          });
-          break;
-        case "blastDD4th":
-          obj.removeClass("rangeCenterMarker");
-          obj.css({
-            marginLeft: 0,
-            marginTop:  0,
-            width: (character.feets * 10) * ddf.roomState.mapData.gridInterval,
-            height: (character.feets * 10) * ddf.roomState.mapData.gridInterval,
-          });
-      }
-      break;
-    case "mapMask":
-      obj = $(`<div class="mapMaskFrame" id="${character.imgId}"></div>`);
-      if(character.draggable){obj.addClass("draggableObj");}
-      obj.append($(`<div class="name">${encode(character.name)}</div>`));
-      ddf.characters[character.imgId] = {
-        obj: obj,
-        data: character
-      };
-      colors = [character.color / 65536 & 0xFF, character.color / 256 & 0xFF, character.color & 0xFF];
-      sum = 255;
-      refColor = [sum - colors[0], sum - colors[1], sum - colors[2]];
-      obj.css({
-        left: character.x * 50,
-        top: character.y * 50,
-        width: character.width * 50,
-        height: character.height * 50,
-        opacity: character.alpha,
-        backgroundColor: "rgb("+colors+")"
-      });
-      obj.children(".name").css({
-        color: "rgb("+refColor+")"
-      });
-      $("#mapSurface").append(obj);
-      break;
-    case "characterData":
-      obj = $(`<div class="characterFrame draggableObj" id="${character.imgId}"></div>`);
-      obj.append($(`<div class="inner"></div><div class="dogtag">${encode(character.dogTag)}</div><div class="name">${encode(character.name)}</div>`));
-      ddf.characters[character.imgId] = {
-        obj: obj,
-        data: character
-      };
-      if(!character.isHide){
-        ddf.roomState.ini_characters[character.imgId] = ddf.characters[character.imgId];
-      }else{
-        obj.addClass("isHide");
-      }
-      obj.css({
-        left: character.x * 50,
-        top: character.y * 50,
-        width: character.size * 50,
-        height: character.size * 50
-      });
-      obj.children(".inner").css({
-        transform: "rotateZ("+character.rotation+"deg) "+(character.mirrored?" rotateY(180deg)":""),
-        backgroundImage: "url("+ddf.base_url+character.imageName+")"
-      });
-              
-      $("#mapSurface").append(obj);
-      break;
-    case "Memo":
-      title = character.message.split("\r")[0];
-      ar = character.message.split(/\t\|\t/);
-      if(ar.length > 1){
-        body = ar.map((v)=>{return `[${v.split("\r")[0]}]`}).join("<br>")
-      }else{
-        body = character.message.replace("\r", "<br>");
-      }
-      obj = $(`<div class="draggableObj" id="${character.imgId}"><span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div></div>`);
-      $("#list_memo").append(obj);
-      ddf.characters[character.imgId] = {
-        obj: obj,
-        data: character
-      };
-      break;
-    }
-  }
-  $(".draggableObj").draggable(ddf.dragOption);
-}
-
-ddf.cmd.refresh_parseMapData = (refreshData) => {
-  ddf.roomState.mapData = refreshData.mapData;
-  switch(refreshData.mapData.mapType){
-    case "imageGraphic":
-    $("#mapimg").attr("src", ddf.base_url + refreshData.mapData.imageSource)
-    .css({
-      width: refreshData.mapData.xMax * 50,
-      height: refreshData.mapData.yMax * 50,
-    });
-    if(refreshData.mapData.mirrored){
-      $("#mapimg").addClass("mirrored");
-    }else{
-      $("#mapimg").removeClass("mirrored");
-    }
-    $("#map")
-    .css({
-      width: refreshData.mapData.xMax * 50,
-      height: refreshData.mapData.yMax * 50,
-    });
-    param = {
-      x: refreshData.mapData.xMax,
-      y: refreshData.mapData.yMax,
-      border: ddf.roomState.viewStateInfo.isGridVisible,
-      alt: refreshData.mapData.isAlternately,
-      num: ddf.roomState.viewStateInfo.isPositionVisible,
-      size: refreshData.mapData.gridInterval,
-      color: "rgb("+[refreshData.mapData.gridColor / 65536 & 0xFF,refreshData.mapData.gridColor / 256 & 0xFF,refreshData.mapData.gridColor & 0xFF].join()+")",
-      mapMarks: refreshData.mapData.mapMarks?refreshData.mapData.mapMarks.join("/"):"",
-      mapMarksAlpha: refreshData.mapData.mapMarksAlpha!=null?refreshData.mapData.mapMarksAlpha:1
-    };
-    $("#mapGrid").attr("data", "img/grid.svg?"+$.map(param, (v,k) => {return k+"="+v;}).join("&"));
-  }
-  if(refreshData.mapData.drawsImage && refreshData.mapData.drawsImage != ""){
-    $("#mapDraw").show();
-    $("#mapDraw").attr("src", ddf.base_url + refreshData.mapData.drawsImage);
-  }else{
-    $("#mapDraw").hide();
-  }
-  if(refreshData.mapData.draws){
-    $("#drawsPanel").attr("data", "img/draw.svg?width="+refreshData.mapData.xMax * 50+"&height=" + refreshData.mapData.yMax * 50 + "&list="+JSON.stringify(refreshData.mapData.draws));
-  }else{
-    $("#drawsPanel param").val("[]");
-  }
-  redraw = [];
-  for(item in ddf.characters){
-    if(ddf.characters[item].data.type == "magicRangeMarkerDD4th"){
-      redraw.push([0, "changeCharacter", [ddf.characters[item].data], "dummy\t"]);
-    }
-  }
-  ddf.cmd.refresh_parseRecordData({record: redraw});
-};
-
-function refresh_parseRoundTimeData(refreshData){
-  if(JSON.stringify(refreshData.roundTimeData.counterNames) != JSON.stringify(ddf.roomState.roundTimeData.counterNames)){
-    $("#initiative table thead tr").empty();
-    $("#initiative table thead tr").append($("<th><p>順番</p></th>"));
-    $("#initiative table thead tr").append($("<th><p>イニシアティブ</p></th>"));
-    $("#initiative table thead tr").append($("<th><p>修正値</p></th>"));
-    $("#initiative table thead tr").append($("<th><p>名前</p></th>"));
-    for(counter of refreshData.roundTimeData.counterNames){
-      $("#initiative table thead tr").append($(`<th><p>${encode(counter.replace(/^\*/, ""))}</p></th>`));
-    }
-    $("#initiative table thead tr").append($("<th><p>その他</p></th>"));
-    
-    $("#initiative table tbody").empty();
-    ddf.roomState.ini_characters = ddf.util.hashSort(ddf.roomState.ini_characters, (obj) => {return obj.data.initiative});
-    for(key in ddf.roomState.ini_characters){
-      var character = ddf.roomState.ini_characters[key];
-      var tmp = "<tr>";
-      tmp+= `<td>${(character.data.initiative==refreshData.roundTimeData.initiative?"●":"")}</td>`;
-      tmp+= `<td>${(character.data.initiative|0)}</td>`;
-      tmp+= `<td>${(character.data.initiative*100 % 100)}</td>`;
-      tmp+= `<td>${encode(character.data.name)}</td>`;
-      for(counter of refreshData.roundTimeData.counterNames){
-        character.data.counters == null && (character.data.counters = {});
-        character.data.statusAlias == null && (character.data.statusAlias = {});
-        character.data.counters[counter]==undefined && (character.data.counters[counter] = 0);
-        if(/^\*/.test(counter)){
-          tmp+= `<td>${(character.data.counters[counter]!=0?"●":"")}</td>`;
-        }else{
-          tmp+= `<td>${(character.data.counters[counter])}</td>`;
-        }
-      }
-      tmp+= `<td>${encode(character.data.info)}</td>`;
-      tmp+= "</tr>";
-      character.row = $(tmp);
-      $("#initiative table tbody").append(
-        character.row
-      );
-    }
-  }else{
-      for(key in ddf.roomState.ini_characters){
-        var character = ddf.roomState.ini_characters[key];
-        character.row.children("td:eq(0)").text(character.data.initiative==refreshData.roundTimeData.initiative?"●":"");
-      }
-    }
-  $("#round").text(refreshData.roundTimeData.round);
-  $("#now_ini").text(refreshData.roundTimeData.initiative);
-
-  ddf.roomState.roundTimeData = refreshData.roundTimeData;
-}
-
-ddf.cmd.sendChatMessage = (channel, senderName, state, gameType, message, color, isNeedResult = true) => {
-  ddf.roomState.gameType = gameType;
-  if(message.trim()==""){return false;}
-  if(!(pattern = ddf.patterns[ddf.roomState.gameType])){
-    dicebot = ddf.info.diceBotInfos.find((r) => {return r.gameType == ddf.roomState.gameType});
-    pattern = [].concat(
-      ddf.info.diceBotInfos.find((r) => {return r.gameType == "BaseDiceBot"}).prefixs,
-      dicebot?dicebot.prefixs:[],
-    ).map((r) => {return new RegExp("^((\\d+)\\s+)?(S?"+r+"[^\\s]*)", "i");});
-    ddf.patterns[ddf.roomState.gameType] = pattern;
-  }
-  var match;
-  if(!!pattern.find((r) => {return !!(match = r.exec(message));})){
-    //DiceBotMessage
-    ddf.userState.name = senderName;
-    return ddf.sendDiceBotChatMessage(channel, senderName, state, match[2]?match[2]:0, match[3], color, ddf.roomState.gameType, isNeedResult);
-  }else{
-    //ChatMessage
-    if(/^###CutInCommand:/.test(message)){
-      message = "Wrong Message -> " + message;
-    }
-    ddf.userState.name = senderName;
-    return ddf.sendChatMessage(channel, senderName + "\t"+ state, message, color);
-  }
-};
-
-function initiativeNext(){
-}
-function initiativeBack(){
-}
-function initiativeReset(){
-  return ddf.changeRoundTime();
-}
-},{"../../package.json":4,"./.config.json":5,"./contextMenu/.loading.js":7,"./room_menu.js":14,"./screenshot.js":15,"./window/.loading.js":16}],14:[function(require,module,exports){
-$(() => {
-  /*プレイルームメニュー*/
-  $("#btn_save").on("click", (e) => {
-  });
-  $("#btn_load").on("click", (e) => {
-  });
-  $("#btn_saveall").on("click", (e) => {
-  });
-  $("#btn_loadall").on("click", (e) => {
-  });
-  /*$("#btn_savechatlog, #btn_saveChatLog2").on("click", (e) => {
-  });*/
-  $("#btn_startrecord").on("click", (e) => {
-  });
-  $("#btn_endrecord").on("click", (e) => {
-  });
-  $("#btn_cancelrecord").on("click", (e) => {
-  });
-  $("#btn_logout, #btn_logout2").on("click", (e) => {
-    ddf.logout().then((r) => {
-      ddf.userState.room = -1;
-      location.href = "index.html"
-    });
-  });
-
-  $("#btn_displaychat").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isChatVisible = !ddf.roomState.viewStateInfo.isChatVisible;
-    $(e.currentTarget).toggleClass("checked");
-    
-    $("#window_chat .inner").toggle();
-  });
-  $("#btn_displaydice").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isDiceVisible = !ddf.roomState.viewStateInfo.isDiceVisible;
-    $(e.currentTarget).toggleClass("checked");
-    
-    $("#diceResult").toggle();
-  });
-  $("#btn_displayinitiative").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isInitiativeListVisible = !ddf.roomState.viewStateInfo.isInitiativeListVisible;
-    $(e.currentTarget).toggleClass("checked");
-    $("#initiative").toggle();
-  });
-  $("#btn_displayresource").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isResourceWindowVisible = !ddf.roomState.viewStateInfo.isResourceWindowVisible;
-    $(e.currentTarget).toggleClass("checked");
-    
-    //$("#resource").toggle();
-    /*TODO*/
-  });
-  $("#btn_displaychatpalette").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isChatPaletteVisible = !ddf.roomState.viewStateInfo.isChatPaletteVisible;
-    $(e.currentTarget).toggleClass("checked");
-    
-    //$("#chatpalette").toggle();
-    /*TODO*/
-  });
-  $("#btn_displaycounter").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isCounterRemoconVisible = !ddf.roomState.viewStateInfo.isCounterRemoconVisible;
-    $(e.currentTarget).toggleClass("checked");
-    
-    //$("#remocon").toggle();
-    /*TODO*/
-  });
-  $("#btn_displaycharacter").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isCutInVisible = !ddf.roomState.viewStateInfo.isCutInVisible;
-    $(e.currentTarget).toggleClass("checked");
-    $("#characterCutIn").toggle();
-  });
-  $("#btn_displaycutin").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isStandingGraphicVisible = !ddf.roomState.viewStateInfo.isStandingGraphicVisible;
-    $(e.currentTarget).toggleClass("checked");
-  });
-  $("#btn_displaygridnum").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isPositionVisible = !ddf.roomState.viewStateInfo.isPositionVisible;
-    $(e.currentTarget).toggleClass("checked");
-    ddf.cmd.refresh_parseMapData({mapData: ddf.roomState.mapData});
-  });
-  $("#btn_displaygridline").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isGridVisible = !ddf.roomState.viewStateInfo.isGridVisible;
-    $(e.currentTarget).toggleClass("checked");
-    ddf.cmd.refresh_parseMapData({mapData: ddf.roomState.mapData});
-  });
-  $("#btn_gridguide").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isSnapMovablePiece = !ddf.roomState.viewStateInfo.isSnapMovablePiece;
-    $(e.currentTarget).toggleClass("checked");
-  });
-  $("#btn_adjustcharacter").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isAdjustImageSize = !ddf.roomState.viewStateInfo.isAdjustImageSize;
-    $(e.currentTarget).toggleClass("checked");
-    $("#characterCutIn").toggleClass("adjust");
-  });
-  $("#btn_chatfont").on("click", (e) => {
-  });
-  $("#btn_resetwindow").on("click", (e) => {
-  });
-  $("#btn_resetdisplay").on("click", (e) => {
-  });
-
-  /*$("#btn_addCharacter").on("click", (e) => {
-  });*/
-  $("#btn_ragedd3").on("click", (e) => {
-  });
-  /*$("#btn_rangedd4").on("click", (e) => {
-  });*/
-  /*$("#btn_rangelh").on("click", (e) => {
-  });*/
-  $("#btn_rangemg").on("click", (e) => {
-  });
-  $("#btn_magictimer").on("click", (e) => {
-  });
-  $("#btn_createchit").on("click", (e) => {
-  });
-  /*$("#btn_graveyard, #btn_graveyard2").on("click", (e) => {
-  });*/
-  $("#btn_waitroom").on("click", (e) => {
-  });
-  $("#btn_rotate").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isRotateMarkerVisible = !ddf.roomState.viewStateInfo.isRotateMarkerVisible;
-    $(e.currentTarget).toggleClass("checked");
-    
-    /*TODO*/
-  });
-
-  $("#btn_cardpickup").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isCardPickUpVisible = !ddf.roomState.viewStateInfo.isCardPickUpVisible;
-    $(e.currentTarget).toggleClass("checked");
-  });
-  $("#btn_cardlog").on("click", (e) => {
-    ddf.roomState.viewStateInfo.isCardHandleLogVisible = !ddf.roomState.viewStateInfo.isCardHandleLogVisible;
-    $(e.currentTarget).toggleClass("checked");
-  });
-  $("#btn_cardchange").on("click", (e) => {
-  });
-  $("#btn_cardreset").on("click", (e) => {
-  });
-
-  /*$("#btn_mapchange").on("click", (e) => {
-  });*/
-  $("#btn_maptile").on("click", (e) => {
-  });
-  /*$("#btn_mapmask").on("click", (e) => {
-  });*/
-  $("#btn_mapmodify").on("click", (e) => {
-  });
-  $("#btn_mapsave").on("click", (e) => {
-    ddf.saveMap().then((r)=>{
-      if(r.result == "OK"){
-        a = $(`<a href="${ddf.base_url+r.saveFileName.replace("./", '')}" download="">.</a>`);
-        $(document.body).append(a);
-        a[0].click();
-        a[0].remove();
-      }
-    });
-  });
-  $("#btn_mapchange").on("click", (e) => {
-  });
-
-  /*$("#btn_imageupload").on("click", (e) => {
-  });*/
-  $("#btn_camera").on("click", (e) => {
-  });
-  $("#btn_imagetagedit").on("click", (e) => {
-  });
-  /*$("#btn_imagedelete").on("click", (e) => {
-  });*/
-
-  var version = require('../../package.json').version;
-  $("#btn_version2").on("click", (e) => {
-    $("#version_DodontoF").text(ddf.info.version);
-    $("#version_ddfjs").text(ddf.version);
-    $("#version_ddfcli").text(version);
-    $("#window_version").show().css("zIndex", 151);
-    $(".draggable:not(#window_version)").css("zIndex", 150);
-  });
-  $("#btn_manual2").on("click", (e) => {
-    window.open(ddf.base_url + "README.html");
-  });
-  $("#btn_tutorial").on("click", (e) => {
-  });
-  $("#btn_site2").on("click", (e) => {
-    window.open("http://www.dodontof.com/");
-  });
-
-
-  $("#btn_zoomin").on("click", () => {
-    setZoom(0.1);
-  });
-  $("#btn_zoomout").on("click", () => {
-    setZoom(-0.1);
-  });
-
-  $("#btn_screenshot").on("click", generate);
-});
-
-
-function setZoom(amount, relative = true){
-  if(relative){
-    ddf.roomState.zoom += amount;
-  }else{
-    ddf.roomState.zoom = amount;
-  }
-  ddf.roomState.zoom < 0.1 && (ddf.roomState.zoom = 0.1);
-  ddf.roomState.zoom > 3.0 && (ddf.roomState.zoom = 3.0);
-  $("#map").css("transform", "scale("+ddf.roomState.zoom+")");
-}
-},{"../../package.json":4}],15:[function(require,module,exports){
-(function (exports) {
-    function urlsToAbsolute(nodeList) {
-        if (!nodeList.length) {
-            return [];
-        }
-        var attrName = 'href';
-        if (nodeList[0].__proto__ === HTMLImageElement.prototype 
-        || nodeList[0].__proto__ === HTMLScriptElement.prototype) {
-            attrName = 'src';
-        }
-        nodeList = [].map.call(nodeList, function (el, i) {
-            var attr = el.getAttribute(attrName);
-            if (!attr) {
-                return;
-            }
-            var absURL = /^(https?|data):/i.test(attr);
-            if (absURL) {
-                return el;
-            } else {
-                return el;
-            }
-        });
-        return nodeList;
-    }
-
-    function screenshotPage() {
-        urlsToAbsolute(document.images);
-        urlsToAbsolute(document.querySelectorAll("link[rel='stylesheet']"));
-        var screenshot = document.documentElement.cloneNode(true);
-        var b = document.createElement('base');
-        b.href = document.location.protocol + '//' + location.host;
-        var head = screenshot.querySelector('head');
-        head.insertBefore(b, head.firstChild);
-        screenshot.style.pointerEvents = 'none';
-        screenshot.style.overflow = 'hidden';
-        screenshot.style.webkitUserSelect = 'none';
-        screenshot.style.mozUserSelect = 'none';
-        screenshot.style.msUserSelect = 'none';
-        screenshot.style.oUserSelect = 'none';
-        screenshot.style.userSelect = 'none';
-        screenshot.dataset.scrollX = window.scrollX;
-        screenshot.dataset.scrollY = window.scrollY;
-        var script = document.createElement('script');
-        script.textContent = '(' + addOnPageLoad_.toString() + ')();';
-        screenshot.querySelector('body').appendChild(script);
-        var blob = new Blob([screenshot.outerHTML], {
-            type: 'text/html'
-        });
-        return blob;
-    }
-
-    function addOnPageLoad_() {
-        window.addEventListener('DOMContentLoaded', function (e) {
-            var scrollX = document.documentElement.dataset.scrollX || 0;
-            var scrollY = document.documentElement.dataset.scrollY || 0;
-            window.scrollTo(scrollX, scrollY);
-        });
-    }
-
-    function generate() {
-        window.URL = window.URL || window.webkitURL;
-        window.open(window.URL.createObjectURL(screenshotPage()));
-    }
-    exports.screenshotPage = screenshotPage;
-    exports.generate = generate;
-})(window);
-},{}],16:[function(require,module,exports){
-$(() => {
-  require("./upload.js");
-  require("./graveyard.js");
-  require("./imageDelete.js");
-  require("./mapChange.js");
-  require("./mapMask.js");
-  require("./chat.js");
-  require("./help.js");
-  require("./memo.js");
-  require("./magicRangeDD4th.js");
-  require("./magicRangeLH.js");
-  require("./saveChatLog.js");
-  require("./addCharacter.js");
-});
-},{"./addCharacter.js":17,"./chat.js":18,"./graveyard.js":19,"./help.js":20,"./imageDelete.js":21,"./magicRangeDD4th.js":22,"./magicRangeLH.js":23,"./mapChange.js":24,"./mapMask.js":25,"./memo.js":26,"./saveChatLog.js":27,"./upload.js":28}],17:[function(require,module,exports){
-$("#btn_addCharacter").on("click", (e) => {
-  addCharacter_show("0");
-});
-
-ddf.cmd.addCharacter_show = (imgId) => {
-  $("#window_addCharacter_sub").hide();
-
-  ddf.getImageTagsAndImageList().then((r) => {
-    tagList = ["キャラクター画像"];
-    ddf.images = r;
-    for(item of ddf.images.imageList){
-      if(ddf.images.tagInfos[item]){
-        for(tag of ddf.images.tagInfos[item].tags){
-          if(tag == ""){continue;}
-          tagList.includes(tag) || tagList.push(tag);
-        }
-      }
-    }
-    tagList.push("（全て）");
-
-    $("#addCharacter_tagbox").empty();
-    for(item of tagList){
-      $("#addCharacter_tagbox").append($(`<option>${encode(item)}</option>`));
-    }
-      $("#addCharacter_tagbox").append($(`<option>${encode(item)}</option>`));
-    addCharacter_setTag(tagList[0]);
-  });
-
-  if((character = ddf.characters[imgId])){
-    character = character.data;
-
-    $("#window_addCharacter .title").text("キャラクター変更");
-    $("#addCharacter_send").text("変更");
-  }else{
-    character = {
-      imgId: imgId,
-      name: "",
-      dogTag: "",
-      size: 1,
-      url: "",
-      draggable: true,
-      imageName: "./image/defaultImageSet/pawn/pawnBlack.png",
-      images: ["./image/defaultImageSet/pawn/pawnBlack.png"],
-      info: "",
-      initiative: 0,
-      isHide: false,
-      mirrored: false,
-      rotation: 0,
-      statusAlias: {},
-      type: "characterData",
-      x: 0,
-      y: 0
-    };
-
-    $("#window_addCharacter .title").text("キャラクター追加");
-    $("#addCharacter_send").text("追加");
-  }
-
-  $("#addCharacter_imgId").val(character.imgId);
-  $("#addCharacter_name").val(character.name);
-  $("#addCharacter_dogTag").val(character.dogTag);
-  $("#addCharacter_size").val(character.size);
-  $("#addCharacter_url").val(character.url);
-  $("#addCharacter_info").val(character.info);
-  $("#addCharacter_imageName").val(character.imageName);
-  $("#addCharacter_image").css("backgroundImage", `url(${ddf.base_url + character.imageName})`);
-  $("#addCharacter_mirrored").prop("checked", character.mirrored);
-  if(character.mirrored){
-    $("#addCharacter_image").addClass("mirrored");
-  }else{
-    $("#addCharacter_image").removeClass("mirrored");
-  }
-
-  $("#addCharacter_counters").empty();
-  character.counters == null && (character.counters = {});
-
-  thead = $("<tr></tr>");
-  tbody = $("<tr></tr>");
-  
-  thead.append($(`<th>イニシアティブ</th>`));
-  tbody.append($(`<td><input id="addCharacter_initiative" type="number" value="${character.initiative|0}"></td>`));
-  thead.append($(`<th>修正値</th>`));
-  tbody.append($(`<td><input id="addCharacter_initiative2" type="number" value="${character.initiative * 100 % 100 | 0}" min="-9" max="90"></td>`));
-  count = 0;
-  for(item of ddf.roomState.roundTimeData.counterNames){
-    character.counters[item]==undefined && (character.counters[item] = 0)
-    if(!!(match = /^\*(.*)/.exec(item))){
-      thead.append($(`<th>${match[1]}</th>`));
-      tbody.append($(`<td><input name="addCharacter_counters[${count++}]" type="checkbox" value="1" ${character.counters[item]!=0?"checked":""}></td>`));
-    }else{
-      thead.append($(`<th>${item}</th>`));
-      tbody.append($(`<td><input name="addCharacter_counters[${count++}]" type="number" value="${character.counters[item]}"></td>`));
-    }
-  }
-  $("#addCharacter_counters").append(thead);
-  $("#addCharacter_counters").append(tbody);
-
-  $("#window_addCharacter").show().css("zIndex", 151);
-  $(".draggable:not(#window_addCharacter)").css("zIndex", 150);
-};
-
-$("#addCharacter_close, #addCharacter_close2").on("click", (e) => {
-  $("#window_addCharacter").hide();
-});
-
-$("#addCharacter_sub_close").on("click", (e) => {
-  $("#window_addCharacter_sub").hide();
-});
-
-$("#addCharacter_tagbox").on('change', (e) => {
-  addCharacter_setTag($("#addCharacter_tagbox").val());
-});
-
-function addCharacter_setTag(tag){
-  $("#addCharacter_imagearea").empty();
-  let password = $("#addCharacter_password").val();
-  for(item of ddf.images.imageList){
-    if(ddf.images.tagInfos[item]){
-      if((tag == "（全て）" || ddf.images.tagInfos[item].tags.includes(tag)) && (ddf.images.tagInfos[item].password == "" || ddf.images.tagInfos[item].password == password)){
-        $("#addCharacter_imagearea").append($(`<div><img src="${ddf.base_url + item}" /></div>`));
-      }
-    }else if(tag == "（全て）"){
-      $("#addCharacter_imagearea").append($(`<div><img src="${ddf.base_url + item}" /></div>`));
-    }
-  }
-}
-$(document).on('click', '#addCharacter_imagearea div img', (e) => {
-  let img = $(e.currentTarget).attr("src");
-  $("#addCharacter_imageName").val(img.replace(ddf.base_url, ""));
-  $("#addCharacter_image").css("backgroundImage", `url(${img})`);
-});
-
-$("#addCharacter_mirrored").on('click', (e) => {
-  if($("#addCharacter_mirrored").prop("checked")){
-    $("#addCharacter_image").addClass("mirrored");
-  }else{
-    $("#addCharacter_image").removeClass("mirrored");
-  }
-});
-
-$("#addCharacter_btnpassword").on('click', (e) => {
-  $("#addCharacter_btnpassword").hide();
-  $("#addCharacter_password").show().focus();
-});
-
-$("#addCharacter_password").on('focusout', (e) => {
-  $("#addCharacter_btnpassword").show();
-  $("#addCharacter_password").hide();
-  imageDelete_setTag($("#addCharacter_tagbox").val());
-}).on('keydown', (e) => {
-  if(e.keyCode == 13){
-    $("#addCharacter_password").blur();
-  }
-});
-
-$("#addCharacter_send").on('click', (e) => {
-
-  if((character = ddf.characters[$("#addCharacter_imgId").val()])){
-
-    character.data.name = $("#addCharacter_name").val();
-    character.data.dogTag = $("#addCharacter_dogTag").val();
-    character.data.size = $("#addCharacter_size").val();
-    character.data.url = $("#addCharacter_url").val();
-    character.data.info = $("#addCharacter_info").val();
-    character.data.mirrored = $("#addCharacter_mirrored").prop("checked");
-    character.data.imageName = $("#addCharacter_imageName").val();
-    character.data.initiative = parseInt($("#addCharacter_initiative").val()) + ($("#addCharacter_initiative2").val() / 100);
-    character.data.isHide = $("#addCharacter_isHide").prop("checked");
-    count = 0;
-    for(item of ddf.roomState.roundTimeData.counterNames){
-      obj = $(`[name=addCharacter_counters\\[${count++}\\]]`);
-      if(obj.attr("type")=="checkbox"){
-        character.data.counters[item] = obj.prop("checked");
-      }else{
-        character.data.counters[item] = obj.val();
-      }
-    }
-
-    ddf.changeCharacter(character.data).then((r) => {
-      ddf.cmd.refresh_parseRecordData({record: [[0, "changeCharacter", [character.data], "dummy\t"]]});
-      $("#window_addCharacter").hide();
-    });
-  }else{
-    $("#addCharacter_sub_multiple").prop("checked", false);
-    $("#addCharacter_sub_name").text($("#addCharacter_name").val());
-    $("#addCharacter_sub_character").css("backgroundImage", $("#addCharacter_image").css("backgroundImage"));
-    $("#window_addCharacter_sub").show();
-    $("#window_addCharacter").hide();
-  }
-});
-
-var click = {};
-$("#window_addCharacter_sub .characterFrame").draggable({
-  start: (event) =>  {
-    click.x = event.clientX;
-    click.y = event.clientY;
-  },
-  helper: () => {
-    let obj = $("#window_addCharacter_sub .characterFrame").clone();
-    obj.css("width", $("#addCharacter_size").val() * 50 + "px");
-    obj.css("height", $("#addCharacter_size").val() * 50 + "px");
-    obj.appendTo("#mapSurface");
-    return obj;
-  },
-  drag: (event, ui) =>  {
-      // This is the parameter for scale()
-      var zoom = ddf.roomState.zoom;
-
-      var original = ui.originalPosition;
-
-      // jQuery will simply use the same object we alter here
-      ui.position = {
-          left: (event.clientX - click.x + original.left) / zoom,
-          top:  (event.clientY - click.y + original.top ) / zoom
-      };
-      if(ddf.roomState.viewStateInfo.isSnapMovablePiece){
-        if(ddf.roomState.mapData.isAlternately && ddf.roomState.mapData.gridInterval % 2 == 1){
-          if((Math.floor(ui.position.top / 50 / ddf.roomState.mapData.gridInterval) & 1)){
-            ui.position = {
-                left: ((Math.floor(ui.position.left / 25) | 1) ^ 1) * 25,
-                top: Math.floor(ui.position.top / 50) * 50
-            };
-          }else{
-            ui.position = {
-                left: (Math.floor(ui.position.left / 25) | 1) * 25,
-                top: Math.floor(ui.position.top / 50) * 50
-            };
-          }
-        }else{
-          ui.position = {
-              left: Math.floor(ui.position.left / 50) * 50,
-              top: Math.floor(ui.position.top / 50) * 50
-          };
-        }
-      }
-    },
-    stop: (event, ui) => {
-      character = {
-        counters: {},
-        imgId: $("#addCharacter_imgId").val(),
-        name: $("#addCharacter_name").val(),
-        dogTag: $("#addCharacter_dogTag").val(),
-        size: $("#addCharacter_size").val(),
-        url: $("#addCharacter_url").val(),
-        draggable: true,
-        imageName: $("#addCharacter_imageName").val(),
-        images: [$("#addCharacter_imageName").val()],
-        info: $("#addCharacter_info").val(),
-        initiative: parseInt($("#addCharacter_initiative").val())+($("#addCharacter_initiative2").val() / 100),
-        isHide: $("#addCharacter_isHide").prop("checked"),
-        mirrored: $("#addCharacter_mirrored").prop("checked"),
-        rotation: 0,
-        statusAlias: {},
-        type: "characterData",
-        x: ui.position.left / 50,
-        y: ui.position.top / 50
-      };
-      count = 0;
-      for(item of ddf.roomState.roundTimeData.counterNames){
-        obj = $(`[name=addCharacter_counters\\[${count++}\\]]`);
-        if(obj.attr("type")=="checkbox"){
-          character.counters[item] = obj.prop("checked");
-        }else{
-          character.counters[item] = obj.val();
-        }
-      }
-      ddf.addCharacter(character);
-      if($("#addCharacter_sub_multiple").prop("checked")){
-        match = /^(.+)(_(\d+))?$/.exec($("#addCharacter_name").val());
-        basename = match[1];
-        index = match[3]!=null?parseInt(match[3]):0;
-        reg = new RegExp(basename+"_(\\d+)");
-        for(item in ddf.characters){
-          if(v = reg.exec(ddf.characters[item].data.name)){
-            index = Math.max(index, parseInt(v[1]))
-          }
-        }
-        $("#addCharacter_name").val(basename+"_"+(index + 1));
-        $("#addCharacter_dogTag").val(index + 1);
-        $("#addCharacter_sub_name").text(basename+"_"+(index + 1));
-      }else{
-        $("#window_addCharacter_sub").hide();
-      }
-    }
-});
 },{}],18:[function(require,module,exports){
+$(()=>{require("./map.js"),require("./characterData.js"),require("./mapMask.js"),require("./memo.js"),require("./magicRange.js")});
 
-$("#btn_private").on('click', (e) => {
-});
-/*$("#btn_help").on('click', (e) => {
-});*/
-$("#btn_diceBotTable").on('click', (e) => {
-});
-$("#btn_novel").on('click', (e) => {
-});
-$("#btn_chatDelete").on('click', (e) => {
-  if(confirm('チャットログを全て削除します。よろしいですか？') && confirm('削除したログは復旧できませんが、本当によろしいですか？')){
-    ddf.deleteChatLog().then((r) => {
-      ddf.sendChatMessage(0, "どどんとふ\t", "全チャットログ削除が正常に終了しました。", "00aa00", true);
-    });      
-  }
-});
-$("#btn_chatFont").on('click', (e) => {
-});
-$("#btn_mute").on('click', (e) => {
-  ddf.roomState.playSound = !ddf.roomState.playSound;
-  if(ddf.roomState.playSound){
-    $("#btn_mute img").attr("src", "image/icons/sound.png");
-    $("#btn_mute .helptext").text("音再生あり");
-  }else{
-    $("#btn_mute img").attr("src", "image/icons/sound_mute.png");
-    $("#btn_mute .helptext").text("音再生なし");
-  }
-});
-$("#btn_vote").on('click', (e) => {
-});
-$("#btn_alarm").on('click', (e) => {
-});
-$("#btn_cutIinList").on('click', (e) => {
-});
-$("#btn_easyUpload").on('click', (e) => {
-});
-$("#btn_talk").on('click', (e) => {
-});
+},{"./characterData.js":19,"./magicRange.js":20,"./map.js":21,"./mapMask.js":22,"./memo.js":23}],19:[function(require,module,exports){
+$.contextMenu({zIndex:150,selector:"#mapSurface .characterFrame",items:{edit:{name:"キャラクターの変更",callback:function(a,r,e,t){ddf.cmd.addCharacter_show(r.$trigger.attr("id"),!0)}},delete:{name:"キャラクターの削除",callback:function(a,r,e,t){ddf.removeCharacter(r.$trigger.attr("id"),!0),character=ddf.characters[r.$trigger.attr("id")],character&&(ddf.safeDragDestoroy(),character.obj&&character.obj.remove(),character.row&&character.row.remove(),delete ddf.characters[r.$trigger.attr("id")],ddf.roomState.ini_characters[r.$trigger.attr("id")]&&delete ddf.characters[r.$trigger.attr("id")],$(".draggableObj").draggable(ddf.dragOption))}},copy:{name:"キャラクターの複製",callback:function(a,r,e,t){character=ddf.characters[r.$trigger.attr("id")],basename=character.data.name.replace(/_\d+$/,""),index=0,reg=new RegExp(basename+"_(\\d+)");for(item in ddf.characters)(v=reg.exec(ddf.characters[item].data.name))&&(index=Math.max(index,parseInt(v[1])));data=$.extend(!0,{},character.data),data.name=basename+"_"+(index+1),data.dogTag=index+1,data.imgId=0,ddf.addCharacter(data).then(a=>{ddf.cmd.initiative_sort(!0)})}},url:{name:"データ参照先URLを開く",visible:function(a,r){return r.$trigger&&ddf.characters[r.$trigger.attr("id")]&&""!=ddf.characters[r.$trigger.attr("id")].data.url},callback:function(a,r,e,t){character=ddf.characters[r.$trigger.attr("id")],window.open(character.data.url)}}}});
 
-$("#btn_chatsend").on('click', (e) => {
-  ddf.cmd.sendChatMessage(ddf.userState.channel, $("#chatname").val(), "", $("#dicebot").val(), $("#chattext").val(), ddf.userState.color)
-  $("#chattext").val("");
-});
-},{}],19:[function(require,module,exports){
-$("#btn_graveyard, #btn_graveyard2").on("click", (e) => {
-  getGraveyardCharacterData();
-  $("#window_graveyard").show().css("zIndex", 151);
-  $(".draggable:not(#window_graveyard)").css("zIndex", 150);
-});
-
-$("#graveyard_close, #graveyard_close2").on("click", (e) => {
-  $("#window_graveyard").hide();
-});
-$("#graveyard_resurrect").on("click", (e) => {
-  ddf.resurrectCharacter($("#graveyard_characters").val());
-  $("#graveyard_characters")[0].remove($("#graveyard_characters")[0].selectedIndex);
-});
-$("#graveyard_clear").on("click", (e) => {
-  ddf.clearGraveyard().then((r) => {
-    getGraveyardCharacterData();
-  });
-});
-$("#graveyard_reload").on("click", (e) => {
-  getGraveyardCharacterData();
-});
-
-
-function getGraveyardCharacterData(){
-  return ddf.getGraveyardCharacterData().then((r) => {
-    $("#graveyard_characters").empty();
-
-    for(item of r){
-      type = item.type;
-      name = item.name;
-      switch(item.type){
-        case "mapMask":
-          type = "マップマスク";
-          break;
-        case "characterData":
-          type = "キャラクター";
-          break;
-        case "magicRangeMarker":
-          type = "魔法範囲";
-          break;
-        case "LogHorizonRange":
-          type = "ログホライズン攻撃範囲";
-          break;
-        case "MetalicGuardianDamageRange":
-          type = "メタリックガーディアン攻撃範囲";
-          break;
-        case "MagicTimer":
-          type = "魔法タイマー";
-          break;
-        case "chit":
-          name = ""
-          type = "チット";
-          break;
-        case "Memo":
-          type = "共有メモ";
-          name = item.message.split("\r")[0];
-          break;
-        case "diceSymbol":
-          type = "ダイスシンボル";
-          name = `[${item.ownerName}]のダイス`;
-          break;
-        case "magicRangeMarkerDD4th":
-          type = "魔法範囲D&D4版";
-          break;
-      }
-      $("#graveyard_characters").append($(`<option value="${item.imgId}">${encode(name)}[${type}]</option>`));
-    }
-  });
-}
 },{}],20:[function(require,module,exports){
+$.contextMenu({zIndex:150,selector:".magicRangeFrame",items:{edit:{name:"魔法範囲の変更",callback:function(a,r,e,t){switch(character=ddf.characters[r.$trigger.attr("id")],character.data.type){case"LogHorizonRange":ddf.cmd.magicRangeLH_show(r.$trigger.attr("id"));break;case"magicRangeMarkerDD4th":ddf.cmd.magicRangeDD4th_show(r.$trigger.attr("id"))}}},delete:{name:"魔法範囲の削除",callback:function(a,r,e,t){ddf.removeCharacter(r.$trigger.attr("id"),!0),character=ddf.characters[r.$trigger.attr("id")],character&&(ddf.safeDragDestoroy(),character.obj&&character.obj.remove(),delete ddf.characters[r.$trigger.attr("id")],ddf.roomState.ini_characters[r.$trigger.attr("id")]&&delete ddf.roomState.ini_characters[r.$trigger.attr("id")],$(".draggableObj").draggable(ddf.dragOption))}}}});
 
-$("#btn_help").on('click', (e) => {
-  dicebot = ddf.info.diceBotInfos.find((item) => {return item.gameType == $("#dicebot").val()});
-  baseDicebot = ddf.info.diceBotInfos.find((item) => {return item.gameType == "BaseDiceBot"});
-  $("#help_text").text(`${baseDicebot.info}\n==【${dicebot.name}専用】=======================\n${dicebot.info}`);
-  $("#window_help").show().css("zIndex", 151);
-  $(".draggable:not(#window_help)").css("zIndex", 150);
-});
-
-$("#help_close").on('click', (e) => {
-  $("#window_help").hide();
-});
 },{}],21:[function(require,module,exports){
-$("#btn_imagedelete").on('click', (e) => {
-  $("#window_imageDelete").show().css("zIndex", 151);
-  $(".draggable:not(#window_imageDelete)").css("zIndex", 150);
+$.contextMenu({zIndex:150,selector:"#mapSurface",items:{addCharacter:{name:"キャラクター追加",callback:function(a,d,c,e){ddf.cmd.addCharacter_show("0")}},addMagicRangeDD3:{name:"魔法範囲追加(DD3版)",disabled:!0,callback:function(a,d,c,e){}},addMagicRangeDD4:{name:"魔法範囲追加(DD4版)",callback:function(a,d,c,e){ddf.cmd.magicRangeDD4th_show("0")}},addMagicRangeLH:{name:"ログホライズン用範囲",callback:function(a,d,c,e){ddf.cmd.magicRangeLH_show("0")}},addMagicTimer:{name:"魔法タイマー追加",disabled:!0,callback:function(a,d,c,e){}},addMapMask:{name:"マップマスク追加",callback:function(a,d,c,e){ddf.mapMask_show("")}},addMapMarker:{name:"マップマーカー追加",disabled:!0,callback:function(a,d,c,e){}},sep1:"---------",addDiceSymbol:{name:"ダイスシンボル追加",disabled:!0,callback:function(a,d,c,e){}},sep2:"---------",addCardHolder:{name:"手札置き場の作成",disabled:!0,callback:function(a,d,c,e){}},addMessageCard:{name:"メッセージカードの追加",disabled:!0,callback:function(a,d,c,e){}},sep3:"---------",resetWindow:{name:"ウィンドウ配置初期化",disabled:!0,callback:function(a,d,c,e){}}}});
 
-  ddf.getImageTagsAndImageList().then((r) => {
-    tagList = ["（全て）"];
-    ddf.images = r;
-    for(item of ddf.images.imageList){
-      if(ddf.images.tagInfos[item]){
-        for(tag of ddf.images.tagInfos[item].tags){
-          if(tag == ""){continue;}
-          tagList.includes(tag) || tagList.push(tag);
-        }
-      }
-    }
-
-    $("#imageDelete_tagbox").empty();
-    for(item of tagList){
-      $("#imageDelete_tagbox").append($(`<option>${encode(item)}</option>`));
-    }
-    imageDelete_setTag(tagList[0]);
-  });
-});
-
-$("#imageDelete_tagbox").on('change', (e) => {
-  imageDelete_setTag($("#imageDelete_tagbox").val());
-});
-
-$("#imageDelete_close, #imageDelete_close2").on('click', (e) => {
-  $("#window_imageDelete").hide();
-  $("#imageDelete_password").val("");
-});
-
-function imageDelete_setTag(tag){
-  $("#imageDelete_imagearea").empty();
-  let password = $("#imageDelete_password").val();
-  for(item of ddf.images.imageList){
-    if(ddf.images.tagInfos[item]){
-      if((tag == "（全て）" || ddf.images.tagInfos[item].tags.includes(tag)) && (ddf.images.tagInfos[item].password == "" || ddf.images.tagInfos[item].password == password)){
-        $("#imageDelete_imagearea").append($(`<div><img src="${ddf.base_url + item}" /><input type="checkbox" value="${item}"></div>`));
-      }
-    }else if(tag == "（全て）"){
-      $("#imageDelete_imagearea").append($(`<div><img src="${ddf.base_url + item}" /><input type="checkbox" value="${item}"></div>`));
-    }
-  }
-}
-
-$("#imageDelete_btnpassword").on('click', (e) => {
-  $("#imageDelete_btnpassword").hide();
-  $("#imageDelete_password").show().focus();
-});
-
-$("#imageDelete_password").on('focusout', (e) => {
-  $("#imageDelete_btnpassword").show();
-  $("#imageDelete_password").hide();
-  imageDelete_setTag($("#imageDelete_tagbox").val());
-}).on('keydown', (e) => {
-  if(e.keyCode == 13){
-    $("#imageDelete_password").blur();
-  }
-});
-
-$("button#imageDelete_delete").on('click', (e) => {
-  imageList = [];
-  for(obj of $("#imageDelete_imagearea :checked")){
-    imageList.push(obj.value);
-    ddf.images.imageList.splice(ddf.images.imageList.indexOf(obj.value), 1);
-  }
-  ddf.deleteImage(imageList).then((r) => {
-    imageDelete_setTag($("#imageDelete_tagbox").val());
-    $("#imageDelete_result").text(r.resultText);
-  });
-});
 },{}],22:[function(require,module,exports){
-$("#btn_rangedd4").on("click", (e) => {
-  ddf.cmd.magicRangeDD4th_show("");
-});
+$.contextMenu({zIndex:150,selector:".mapMaskFrame.draggableObj",items:{edit:{name:"マップマスクの変更",callback:function(a,r,e,t){ddf.mapMask_show(r.$trigger.attr("id"))}},fix:{name:"マップマスクの固定",callback:function(a,r,e,t){ddf.safeDragDestoroy(),character=ddf.characters[r.$trigger.attr("id")],character.data.draggable=!1,ddf.changeCharacter(character.data),character.obj.removeClass("draggableObj"),$(".draggableObj").draggable(ddf.dragOption)}},delete:{name:"マップマスクの削除",callback:function(a,r,e,t){ddf.removeCharacter(r.$trigger.attr("id"),!0),character=ddf.characters[r.$trigger.attr("id")],character&&(ddf.safeDragDestoroy(),character.obj&&character.obj.remove(),delete ddf.characters[r.$trigger.attr("id")],$(".draggableObj").draggable(ddf.dragOption))}}}}),$.contextMenu({selector:".mapMaskFrame:not(.draggableObj)",items:{delete:{name:"マップマスクの削除",callback:function(a,r,e,t){ddf.removeCharacter(r.$trigger.attr("id"),!0),character=ddf.characters[r.$trigger.attr("id")],character&&(ddf.safeDragDestoroy(),character.obj&&character.obj.remove(),delete ddf.characters[r.$trigger.attr("id")],$(".draggableObj").draggable(ddf.dragOption))}}}});
 
-$("#magicRangeDD4th_close, #magicRangeDD4th_close2").on('click', (e) => {
-  $("#window_magicRangeDD4th").hide();
-});
+},{}],23:[function(require,module,exports){
+$.contextMenu({zIndex:150,selector:"#list_memo > div",items:{edit:{name:"共有メモの変更",callback:function(e,r,a,t){ddf.cmd.openMemo(r.$trigger.attr("id"))}},delete:{name:"共有メモの削除",callback:function(e,r,a,t){ddf.removeCharacter(r.$trigger.attr("id"),!0),character=ddf.characters[r.$trigger.attr("id")],character&&(ddf.safeDragDestoroy(),character.obj&&character.obj.remove(),delete ddf.characters[r.$trigger.attr("id")],$(".draggableObj").draggable(ddf.dragOption))}}}});
 
-sp_param = require("../.option.spectrum.json");
-sp_param.change = (c) => {
-  $("#magicRangeDD4th_color").val(c.toHex());
-};
-$("#magicRangeDD4th_color2").spectrum(sp_param);
+},{}],24:[function(require,module,exports){
+function titleAnimation(){list="─／｜＼",window_focus?(document.title="どどんとふ",running=!1):(frame=(frame+1)%4,document.title=list[frame]+" どどんとふ",setTimeout(titleAnimation,300))}function playSound(e){if(ddf.roomState.playSound){var a=context.createBufferSource();a.buffer=e,a.connect(context.destination),a.start(0)}}function setZoom(e,a=!0){a?ddf.roomState.zoom+=e:ddf.roomState.zoom=e,ddf.roomState.zoom<.1&&(ddf.roomState.zoom=.1),ddf.roomState.zoom>3&&(ddf.roomState.zoom=3),$("#map").css("transform","scale("+ddf.roomState.zoom+")")}function getDiceBotInfos(){return ddf.getDiceBotInfos().then(e=>{ddf.patterns={},ddf.info.diceBotInfos=e})}function getLoginInfo(){return ddf.getLoginInfo().then(e=>{ddf.info=e,$("#loginMessage").html(ddf.info.loginMessage),total=0,str="";for(item of ddf.info.loginUserCountList)total+=item[1],str+="No."+item[0]+"："+item[1]+"人<br>";$("#window_loginNumber .body").html(str),$("#btn_loginNumber").text("現状："+ddf.info.loginUserCountList.length+"／上限："+ddf.info.limitLoginCount+"人");for(item of ddf.info.diceBotInfos)$("#playRoomGameType").append($('<option value="'+item.gameType+'">'+item.name+"</option>"));return store.get("userState")?(ddf.userState=store.get("userState"),ddf.userState.room=-1,ddf.userState.backgroundColor="FFFFFF"):(ddf.userState={room:-1,own:"\t"+ddf.util.getUniqueId(),name:0==ddf.info.defaultUserNames.length?"ななしさん":ddf.info.defaultUserNames[Math.random()*ddf.info.defaultUserNames.length|0],fontSize:10,chatColor:"000000",backgroundColor:"FFFFFF",showTime:!1,chatPalette:[]},saveUserState()),$("#login_name").val(ddf.userState.name),ddf.cmd.getPlayRoomInfo(),e})}function getPlayRoomInfo(){for(promises=[],i=0;i*ddf.info.playRoomGetRangeMax<ddf.info.playRoomMaxNumber;i++)promises.push(ddf.getPlayRoomInfo(i*ddf.info.playRoomGetRangeMax,ddf.info.playRoomGetRangeMax*(i+1)-1>ddf.info.playRoomMaxNumber?ddf.info.playRoomMaxNumber:ddf.info.playRoomGetRangeMax*(i+1)-1));callback=(e=>{roominfo=e;for(key in roominfo.playRoomStates){room=roominfo.playRoomStates[key],ddf.roomInfos[parseInt(room.index.trim())]=room;var a="<tr>";a+=`<td>${room.index}</td>`,a+=`<td>${encode(room.playRoomName)}</td>`,a+=`<td>${encode(ddf.util.getDiceBotName(room.gameType))}</td>`,a+=`<td>${room.loginUsers.length}</td>`,a+=`<td>${room.passwordLockState?"有り":"--"}</td>`,a+=`<td>${room.canVisit?"可":"--"}</td>`,a+=`<td>${room.lastUpdateTime?room.lastUpdateTime:""}</td>`,a+="<td></td></tr>",tr=$(a),button=$("<button>削除</button>"),room.lastUpdateTime?button.on("click",(e=>a=>{a.stopPropagation&&a.stopPropagation(),removePlayRoom(e)})(parseInt(room.index.trim()))):button.prop("disabled",!0),tr.children("td:last").append(button),$("#playddf.roomInfos tbody").append(tr),tr.on("dblclick",(e=>a=>{checkRoomStatus(e)})(parseInt(room.index))),tr.on("click",(e=>a=>{$("#playRoomNo").val(e)})(parseInt(room.index))),$("#playRoomInfos table tbody").append(tr)}return $("#playddf.roomInfos table").trigger("update"),e}),promises.reduce((e,a)=>{var t=e.then(e=>a);return t.then(callback),t},Promise.resolve()),$("#loading").hide()}function createPlayRoom(){ddf.createPlayRoom(ddf.userState.room,$("#playRoomName").val(),$("#playRoomPassword").val(),$("#playRoomGameType").val(),!0,!1,["雑談"],{isCardPickUpVisible:!1,isChatPaletteVisible:!1,isSnapMovablePiece:!0,isCardHandleLogVisible:!0,isCounterRemoconVisible:!1,isStandingGraphicVisible:!0,isRotateMarkerVisible:!0,isDiceVisible:!0,isAdjustImageSize:!0,isChatVisible:!0,isGridVisible:!0,isInitiativeListVisible:!0,isPositionVisible:!0,isCutInVisible:!0,isResourceWindowVisible:!1},"").then(e=>{"OK"==e.resultText&&ddf.getPlayRoomInfo(e.playRoomIndex,e.playRoomIndex).then((e=>a=>{ddf.roomInfos[e]=a.playRoomStates[0],checkRoomStatus(e)})(e.playRoomIndex))})}function checkRoomStatus(e,a=null,t=null){if(room=ddf.roomInfos[e],room)if(""==room.lastUpdateTime)ddf.userState.room=e,$("#window_createPlayRoom").show().css("zIndex",151),$(".draggable:not(#window_createPlayRoom)").css("zIndex",150);else{if(!(room.passwordLockState&&null==t||room.canVisit&&null==a))return ddf.checkRoomStatus(e,t).then(a=>{if(roominfo=a,roominfo.isRoomExist){if(ddf.userState.room=roominfo.roomNumber,ddf.userState.name=$("#login_name").val(),saveUserState(),ddf.sendChatMessage(0,"どどんとふ\t","「"+ddf.userState.name+"」がログインしました。（htmlddf "+version+"）","00aa00",!0),$("#main").hide(),$("#main2").show(),$("#chatname").val(ddf.userState.name),ddf.userState.room=roominfo.roomNumber,ddf.userState.lastUpdateTimes={effects:0,time:0,map:0,chatMessageDataLog:0,recordIndex:0,characters:0,playRoomInfo:0,record:0},ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber])for(item in ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber])palette=ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber][item],palette&&$("#chatPalette_tabs").append($(`<p id="${palette.tabName}">${/^id/.test(palette.tabName)?$("#chatPalette_tabs p").length+1:palette.tabName}</p>`));else item={tabName:"id"+ddf.util.getUniqueId(),text:"",name:"",color:16777215},ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber]=[],ddf.userState.chatPalette[ddf.base_url+roominfo.roomNumber][item.tabName]=item,$("#chatPalette_tabs").append($(`<p id="${item.tabName}">1</p>`)),ddf.cmd.saveUserState();$("#chatPalette_tabs > p:eq(0)").click(),getDiceBotInfos(),ddf.characters=[],ddf.roomState={},ddf.roomState.roomNumber=e,ddf.roomState.zoom=1,ddf.roomState.roundTimeData={},ddf.roomState.ini_characters=[],ddf.roomState.roundTimeData.counterNames=[],ddf.userState.rIndex=0;var t=0;ddf.roomState.unread=[],ddf.roomState.effects=[],ddf.roomState.playSound=!0,ddf.roomState.chatChannelNames=roominfo.chatChannelNames,ddf.roomState.viewStateInfo={isCardPickUpVisible:!1,isChatPaletteVisible:!1,isSnapMovablePiece:!0,isCardHandleLogVisible:!0,isCounterRemoconVisible:!1,isStandingGraphicVisible:!0,isRotateMarkerVisible:!0,isDiceVisible:!0,isAdjustImageSize:!0,isChatVisible:!0,isGridVisible:!0,isInitiativeListVisible:!0,isPositionVisible:!0,isCutInVisible:!0,isResourceWindowVisible:!1};for(tab of roominfo.chatChannelNames){ddf.roomState.unread.push(0);var r=$(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);r.on("click",(e=>a=>{$(a.currentTarget).hasClass("active")||setChatTab(e)})(t++)),$("#tab").append(r),$("#log").append($("<div><p></p></div>"))}for(item of ddf.info.diceBotInfos)/^[^:]*$/.test(item.gameType)&&"BaseDiceBot"!=item.gameType&&$("#dicebot").append($(`<option value="${encode(item.gameType)}">${encode(item.name)}</option>`));$("#log > div, #chattext").css({backgroundColor:"#"+ddf.userState.backgroundColor,fontSize:ddf.userState.fontSize+"pt"}),setChatTab("0"),refresh()}});ddf.cmd.loginCheck_show(e)}}function removePlayRoom(e,a=null){room=ddf.roomInfos[e],room&&room.lastUpdateTime&&(room.passwordLockState&&null==a||(body=`No.${room.index}：${room.playRoomName}\nを削除しますか？`,(null!=a||confirm(body))&&ddf.removePlayRoom(e,!1,a).then(e=>{$("#playddf.roomInfos tbody").empty(),ddf.cmd.getPlayRoomInfo()})))}function setChatTab(e){ddf.userState.channel=e,$("#tab p.active, #log div.active").removeClass("active"),$(`#tab p:eq(${e}), #log div:eq(${e})`).addClass("active"),ddf.roomState.unread[e]=0,$(`#tab p:eq(${e}) span`).text(0)}function refresh(){ddf.refresh().then(e=>{if(refreshData=e,refreshData.lastUpdateTimes&&(ddf.userState.lastUpdateTimes=refreshData.lastUpdateTimes),refreshData.viewStateInfo&&(ddf.roomState.viewStateInfo=refreshData.viewStateInfo),refreshData.gameType&&(1==$("#dicebot").children(`[value=${refreshData.gameType}]`).length?$("#dicebot").val($(refreshData.gameType)):($("#dicebot").append($(`<option value="${encode(refreshData.gameType)}">${encode(refreshData.gameType)}</option>`)),$("#dicebot").val(refreshData.gameType))),refreshData.mapData&&ddf.cmd.refresh_parseMapData(refreshData),refreshData.characters&&refresh_parseCharacters(refreshData),refreshData.roundTimeData&&refresh_parseRoundTimeData(refreshData),refreshData.gameType&&(ddf.roomState.gameType=refreshData.gameType),refreshData.viewStateInfo&&refresh_parseViewStateInfo(refreshData),refreshData.effects&&refresh_parseEffects(refreshData),refreshData.chatChannelNames&&!refreshData.isFirstChatRefresh){for($(`#tab > p:gt(${refreshData.chatChannelNames.length-1}),#log > div:gt(${refreshData.chatChannelNames.length-1})`).remove(),ddf.roomState.unread.splice(refreshData.chatChannelNames.length),i=0;i<refreshData.chatChannelNames.length;i++)if(ddf.roomState.chatChannelNames.length<=i){ddf.roomState.unread.push(0);var a=$(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);a.on("click",(e=>a=>{$(a.currentTarget).hasClass("active")||setChatTab(e)})(i)),$("#tab").append(a),$("#log").append($("<div><p></p></div>"))}else $(`#tab:eq(${refreshData.chatChannelNames-1})`).html(`${encode(refreshData.chatChannelNames[i])}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);0==$("#tab .active").length&&setChatTab(0),ddf.roomState.chatChannelNames=refreshData.chatChannelNames}refreshData.chatMessageDataLog&&refresh_parseChatMessageDataLog(refreshData),refreshData.record&&ddf.cmd.refresh_parseRecordData(refreshData),refreshData.gameType&&$("#dicebot").val(refreshData.gameType),refreshData.playRoomName&&(ddf.roomState.playRoomName=refreshData.playRoomName),refreshData.loginUserInfo&&(ddf.roomState.loginUserInfo=refreshData.loginUserInfo,$("#btn_member").text(`ルームNo.${ddf.roomState.roomNumber}：${refreshData.loginUserInfo.length}名`)),e=refreshData=null,-1!=ddf.userState.room&&setTimeout(refresh,1e3)})}function refresh_parseEffects(e){ddf.roomState.effects=e.effects,ddf.cmd.effectList_create()}function refresh_parseChatMessageDataLog(e){let a=$("#log .active")[0].scrollHeight-$("#log .active").height();lastRandResult=!1,lastCutIn=!1,sound=!1;for(item of e.chatMessageDataLog)if(!(item[0]<=ddf.roomState.lastMessageTime))if(sound=!0,window_focus||running||titleAnimation(),ddf.roomState.lastMessageTime=item[0],(matches=/^(.*)@([^@]+)@([^@]+)$/.exec(item[1].message))?(item[1].message=matches[1],item[1].senderName=matches[2],item[1].state=matches[3]):(matches=/^(.*)@([^@]+)$/.exec(item[1].message))?(item[1].message=matches[1],item[1].senderName=matches[2]):(matches=/^(.*)\t(.*)$/.exec(item[1].senderName))&&(item[1].senderName=matches[1],item[1].state=matches[2]),"dummy"!=item[1].uniqueId&&(lastCutIn=[item[1].senderName,item[1].state]),matches=/^###CutInCommand:([a-zA-Z]+)###(.+)$/.exec(item[1].message))switch(matches[1]){case"getDiceBotInfos":e.isFirstChatRefresh||getDiceBotInfos();continue;case"rollVisualDice":param=JSON.parse(matches[2]),$(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(1e3*item[0]),"HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(param.chatMessage).replace(/\n/,"<br>")}</p>`)),chatlog.push([item[1].channel,ddf.roomState.chatChannelNames[item[1].channel],item[0],"#"+item[1].color,item[1].senderName,param.chatMessage]),$(`#log div:eq(${item[1].channel})`).hasClass("active")||ddf.roomState.unread[item[1].channel]++,lastRandResult=[param.chatMessage,param.randResults];continue}else(matches=/^###CutInMovie###(.+)$/.exec(item[1].message))?(param=JSON.parse(matches[1]),$(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(1e3*item[0]),"HH:MM")+"：</span>":""}${encode(item[1].senderName)}:【${encode(param.message)}】</p>`)),chatlog.push([item[1].channel,ddf.roomState.chatChannelNames[item[1].channel],item[0],"#"+item[1].color,item[1].senderName,param.chatMessage]),$(`#log div:eq(${item[1].channel})`).hasClass("active")||ddf.roomState.unread[item[1].channel]++):($(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(1e3*item[0]),"HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(item[1].message).replace(/\n/,"<br>")}</p>`)),chatlog.push([item[1].channel,ddf.roomState.chatChannelNames[item[1].channel],item[0],"#"+item[1].color,item[1].senderName,item[1].message]),$(`#log div:eq(${item[1].channel})`).hasClass("active")||ddf.roomState.unread[item[1].channel]++);if(e.isFirstChatRefresh){for(div of $("#log").children("div"))div.scrollTop=$(div).children(":last").offset().top;ddf.roomState.unread=ddf.roomState.unread.map(()=>0)}else{a<$("#log .active").scrollTop()&&$("#log .active").scrollTop($("#log .active")[0].scrollHeight);for(index in $("#tab").children("p"))$("#tab").children("p").eq(index).children("span").text(ddf.roomState.unread[index])}if(lastCutIn){let e=!1;if(!e)for(item of ddf.roomState.effects)(item.type="standingGraphicInfos")&&lastCutIn[0]==item.name&&lastCutIn[1]==item.state&&($("#characterCutIn").empty(),$("#characterCutIn").append($(`<img src="${ddf.base_url+item.source}" class="pos${item.leftIndex} ${item.motion} ${item.mirrored?"mirrored":""}">`)));if(!e)for(id in ddf.characters)if(character=ddf.characters[id].data,character.name==lastCutIn[0]){$("#characterCutIn").empty(),$("#characterCutIn").append($(`<img src="${ddf.base_url+character.imageName}" class="pos1">`)),e=!0;break}}if(lastRandResult){playSound(diceRollBuffer),$("#diceResult").empty();for(item of lastRandResult[1])[4,6,8,10,12,20].includes(item[1])?$("#diceResult").append($(`<img src="${ddf.base_url}img/diceImage/${item[1]}_dice/${item[1]}_dice[${item[0]}].png" alt="${item[0]}">`)):$("#diceResult").append($(`<img src="${ddf.base_url}img/diceImage/unknown.png" alt="${item[0]}">`));total=/\s([^\s]+)$/.exec(lastRandResult[0])[1],$("#diceResult").append($(`<div class="total">${encode(total)}</div>`))}else sound&&playSound(pageBuffer)}function refresh_parseViewStateInfo(e){for(key in e.viewStateInfo)switch(key){case"isSnapMovablePiece":e.viewStateInfo[key]&&$("#btn_gridguide").addClass("checked");break;case"isAdjustImageSize":e.viewStateInfo[key]&&($("#btn_adjustcharacter").addClass("checked"),$("#characterCutIn").addClass("adjust"));break;case"isCardHandleLogVisible":e.viewStateInfo[key]&&$("#btn_cardlog").addClass("checked");break;case"isCardPickUpVisible":e.viewStateInfo[key]&&$("#btn_cardpickup").addClass("checked");break;case"isCutInVisible":e.viewStateInfo[key]&&$("#btn_displaycutin").addClass("checked");break;case"isGridVisible":e.viewStateInfo[key]&&$("#btn_displaygridline").addClass("checked");break;case"isPositionVisible":e.viewStateInfo[key]&&$("#btn_displaygridnum").addClass("checked");break;case"isStandingGraphicVisible":e.viewStateInfo[key]?($("#btn_displaycharacter").addClass("checked"),$("#characterCutIn").show()):$("#characterCutIn").hide();break;case"isRotateMarkerVisible":e.viewStateInfo[key]&&$("#btn_rotate").addClass("checked");break;case"isChatVisible":e.viewStateInfo[key]?($("#btn_displaychat").addClass("checked"),$("#window_chat .inner").show()):$("#window_chat .inner").hide();break;case"isDiceVisible":e.viewStateInfo[key]?($("#btn_displaydice").addClass("checked"),$("#diceResult").show()):$("#diceResult").hide();break;case"isInitiativeListVisible":e.viewStateInfo[key]&&($("#btn_displayinitiative").addClass("checked"),$("#initiative").show());break;case"isResourceWindowVisible":e.viewStateInfo[key]&&$("#btn_displayresource").addClass("checked");break;case"isChatPaletteVisible":e.viewStateInfo[key]&&($("#btn_displaychatpalette").addClass("checked"),$("#window_chatPalette").show());break;case"isCounterRemoconVisible":e.viewStateInfo[key]&&$("#btn_displaycounter").addClass("checked")}}function refresh_parseRecordData(e){ddf.safeDragDestoroy(),iniChanged=!1,force=!1;for(record of e.record)switch(record[1]){case"addCharacter":force=!0;case"changeCharacter":if(data=record[2][0],character=ddf.characters[data.imgId],!character)return refresh_parseCharacters({characters:[data]});switch(obj=character.obj,data.type){case"LogHorizonRange":obj.css({clipPath:`polygon(0 ${50*data.range+50}px, 0 ${50*data.range}px,${50*data.range}px 0,${50*data.range+50}px 0,${100*data.range+50}px ${50*data.range}px, ${100*data.range+50}px ${50*data.range+50}px, ${50*data.range+50}px ${100*data.range+50}px, ${50*data.range}px ${100*data.range+50}px)`,left:50*data.x,top:50*data.y,marginLeft:-50*data.range*ddf.roomState.mapData.gridInterval,marginTop:-50*data.range*ddf.roomState.mapData.gridInterval,width:(100*data.range+50)*ddf.roomState.mapData.gridInterval,height:(100*data.range+50)*ddf.roomState.mapData.gridInterval}),obj.children("object").attr("data",`img/rangeLH.svg?size=${data.range}&color=${data.color}`),obj.children("object").css({width:(100*data.range+50)*ddf.roomState.mapData.gridInterval,height:(100*data.range+50)*ddf.roomState.mapData.gridInterval});break;case"magicRangeMarkerDD4th":switch(iniChanged=!0,obj.animate({left:50*data.x,top:50*data.y},300),data.isHide?(character.row&&character.row.remove(),delete ddf.roomState.ini_characters[character.data.imgId]):ddf.roomState.ini_characters[character.data.imgId]=ddf.characters[character.data.imgId],obj.css({backgroundColor:"rgb("+[data.color/65536&255,data.color/256&255,255&data.color].join()+")"}),data.rangeType){case"closeBurstDD4th":obj.addClass("rangeCenterMarker"),obj.css({marginLeft:-10*data.feets*ddf.roomState.mapData.gridInterval,marginTop:-10*data.feets*ddf.roomState.mapData.gridInterval,width:(20*data.feets+50)*ddf.roomState.mapData.gridInterval,height:(20*data.feets+50)*ddf.roomState.mapData.gridInterval});break;case"blastDD4th":obj.removeClass("rangeCenterMarker"),obj.css({marginLeft:0,marginTop:0,width:10*data.feets*ddf.roomState.mapData.gridInterval,height:10*data.feets*ddf.roomState.mapData.gridInterval})}break;case"mapMask":obj.children(".name").text(data.name),obj.animate({left:50*data.x,top:50*data.y},300),colors=[data.color/65536&255,data.color/256&255,255&data.color],sum=255,refColor=[sum-colors[0],sum-colors[1],sum-colors[2]],obj.css({left:50*data.x,top:50*data.y,width:50*data.width,height:50*data.height,opacity:data.alpha,backgroundColor:"rgb("+colors+")"}),obj.children(".name").css({color:"rgb("+refColor+")"}),data.draggable?obj.addClass("draggableObj"):obj.removeClass("draggableObj");break;case"characterData":iniChanged=!0,obj.animate({left:50*data.x,top:50*data.y},300),obj.css({width:50*data.size,height:50*data.size}),data.isHide?(character.row&&character.row.remove(),delete ddf.roomState.ini_characters[character.data.imgId],obj.addClass("isHide")):(ddf.roomState.ini_characters[character.data.imgId]=ddf.characters[character.data.imgId],obj.removeClass("isHide")),obj.children(".inner").css({transform:"rotateZ("+data.rotation+"deg) "+(data.mirrored?" rotateY(180deg)":""),backgroundImage:"url("+ddf.base_url+data.imageName+")"}),obj.children(".name").text(data.name),obj.children(".dogtag").text(data.dogTag);break;case"Memo":title=data.message.split("\r")[0],ar=data.message.split(/\t\|\t/),ar.length>1?body=ar.map(e=>`[${e.split("\r")[0]}]`).join("<br>"):body=data.message.replace("\r","<br>"),obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}img/memo2.png"><div>${encode(body)}</div>`)}character.data=data;break;case"removeCharacter":iniChanged=!0,data=record[2][0],character=ddf.characters[data],character&&(character.obj&&character.obj.remove(),character.row&&character.row.remove(),delete ddf.characters[data[0]],ddf.roomState.ini_characters[data[0]]&&delete ddf.roomState.ini_characters[data[0]])}iniChanged&&ddf.cmd.initiative_sort(force),$(".draggableObj").draggable(ddf.dragOption)}function refresh_parseCharacters(e){for(character of e.characters)switch(character.type){case"Card":case"CardTrushMount":case"CardMount":break;case"LogHorizonRange":obj=$(`<div class="magicRangeFrame draggableObj rangeCenterMarker" id="${character.imgId}"><object type="image/svg+xml" data="img/rangeLH.svg?size=${character.range}&color=${character.color}"></div>`),$("#mapSurface").append(obj),ddf.characters[character.imgId]={obj:obj,data:character},obj.css({clipPath:`polygon(0 ${50*character.range+50}px, 0 ${50*character.range}px,${50*character.range}px 0,${50*character.range+50}px 0,${100*character.range+50}px ${50*character.range}px, ${100*character.range+50}px ${50*character.range+50}px, ${50*character.range+50}px ${100*character.range+50}px, ${50*character.range}px ${100*character.range+50}px)`,left:50*character.x,top:50*character.y,marginLeft:-50*character.range*ddf.roomState.mapData.gridInterval,marginTop:-50*character.range*ddf.roomState.mapData.gridInterval,opacity:.5}),obj.children("object").css({width:(100*character.range+50)*ddf.roomState.mapData.gridInterval,height:(100*character.range+50)*ddf.roomState.mapData.gridInterval});break;case"magicRangeMarkerDD4th":switch(obj=$(`<div class="magicRangeFrame draggableObj" id="${character.imgId}"></div>`),$("#mapSurface").append(obj),ddf.characters[character.imgId]={obj:obj,data:character},character.isHide||(ddf.roomState.ini_characters[character.imgId]=ddf.characters[character.imgId]),obj.css({left:50*character.x,top:50*character.y,opacity:.5,backgroundColor:"rgb("+[character.color/65536&255,character.color/256&255,255&character.color].join()+")"}),character.rangeType){case"closeBurstDD4th":obj.addClass("rangeCenterMarker"),obj.css({marginLeft:-10*character.feets*ddf.roomState.mapData.gridInterval,marginTop:-10*character.feets*ddf.roomState.mapData.gridInterval,width:(20*character.feets+50)*ddf.roomState.mapData.gridInterval,height:(20*character.feets+50)*ddf.roomState.mapData.gridInterval});break;case"blastDD4th":obj.removeClass("rangeCenterMarker"),obj.css({marginLeft:0,marginTop:0,width:10*character.feets*ddf.roomState.mapData.gridInterval,height:10*character.feets*ddf.roomState.mapData.gridInterval})}break;case"mapMask":obj=$(`<div class="mapMaskFrame" id="${character.imgId}"></div>`),character.draggable&&obj.addClass("draggableObj"),obj.append($(`<div class="name">${encode(character.name)}</div>`)),ddf.characters[character.imgId]={obj:obj,data:character},colors=[character.color/65536&255,character.color/256&255,255&character.color],sum=255,refColor=[sum-colors[0],sum-colors[1],sum-colors[2]],obj.css({left:50*character.x,top:50*character.y,width:50*character.width,height:50*character.height,opacity:character.alpha,backgroundColor:"rgb("+colors+")"}),obj.children(".name").css({color:"rgb("+refColor+")"}),$("#mapSurface").append(obj);break;case"characterData":obj=$(`<div class="characterFrame draggableObj" id="${character.imgId}"></div>`),obj.append($(`<div class="inner"></div><div class="dogtag">${encode(character.dogTag)}</div><div class="name">${encode(character.name)}</div>`)),ddf.characters[character.imgId]={obj:obj,data:character},character.isHide?obj.addClass("isHide"):ddf.roomState.ini_characters[character.imgId]=ddf.characters[character.imgId],obj.css({left:50*character.x,top:50*character.y,width:50*character.size,height:50*character.size}),obj.children(".inner").css({transform:"rotateZ("+character.rotation+"deg) "+(character.mirrored?" rotateY(180deg)":""),backgroundImage:"url("+ddf.base_url+character.imageName+")"}),$("#mapSurface").append(obj);break;case"Memo":title=character.message.split("\r")[0],ar=character.message.split(/\t\|\t/),ar.length>1?body=ar.map(e=>`[${e.split("\r")[0]}]`).join("<br>"):body=character.message.replace("\r","<br>"),obj=$(`<div class="draggableObj" id="${character.imgId}"><span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div></div>`),$("#list_memo").append(obj),ddf.characters[character.imgId]={obj:obj,data:character}}$(".draggableObj").draggable(ddf.dragOption)}function refresh_parseMapData(e){switch(ddf.roomState.mapData=e.mapData,e.mapData.mapType){case"imageGraphic":$("#mapimg").attr("src",ddf.base_url+e.mapData.imageSource).css({width:50*e.mapData.xMax,height:50*e.mapData.yMax}),e.mapData.mirrored?$("#mapimg").addClass("mirrored"):$("#mapimg").removeClass("mirrored"),$("#map").css({width:50*e.mapData.xMax,height:50*e.mapData.yMax}),param={x:e.mapData.xMax,y:e.mapData.yMax,border:ddf.roomState.viewStateInfo.isGridVisible,alt:e.mapData.isAlternately,num:ddf.roomState.viewStateInfo.isPositionVisible,size:e.mapData.gridInterval,color:"rgb("+[e.mapData.gridColor/65536&255,e.mapData.gridColor/256&255,255&e.mapData.gridColor].join()+")",mapMarks:e.mapData.mapMarks?e.mapData.mapMarks.join("/"):"",mapMarksAlpha:null!=e.mapData.mapMarksAlpha?e.mapData.mapMarksAlpha:1},$("#mapGrid").attr("data","img/grid.svg?"+$.map(param,(e,a)=>a+"="+e).join("&"))}e.mapData.drawsImage&&""!=e.mapData.drawsImage?($("#mapDraw").show(),$("#mapDraw").attr("src",ddf.base_url+e.mapData.drawsImage)):$("#mapDraw").hide(),e.mapData.draws?$("#drawsPanel").attr("data","img/draw.svg?width="+50*e.mapData.xMax+"&height="+50*e.mapData.yMax+"&list="+JSON.stringify(e.mapData.draws)):$("#drawsPanel param").val("[]"),redraw=[];for(item in ddf.characters)"magicRangeMarkerDD4th"==ddf.characters[item].data.type&&redraw.push([0,"changeCharacter",[ddf.characters[item].data],"dummy\t"]);ddf.cmd.refresh_parseRecordData({record:redraw})}function refresh_parseRoundTimeData(e,a=!1){if(a||JSON.stringify(e.roundTimeData.counterNames)!=JSON.stringify(ddf.roomState.roundTimeData.counterNames)){$("#initiative table thead tr").empty(),$("#initiative table thead tr").append($("<th><p>順番</p></th>")),$("#initiative table thead tr").append($("<th><p>イニシアティブ</p></th>")),$("#initiative table thead tr").append($("<th><p>修正値</p></th>")),$("#initiative table thead tr").append($("<th><p>名前</p></th>"));for(counter of e.roundTimeData.counterNames)$("#initiative table thead tr").append($(`<th><p>${encode(counter.replace(/^\*/,""))}</p></th>`));$("#initiative table thead tr").append($("<th><p>その他</p></th>")),$("#initiative table tbody").empty(),ddf.roomState.ini_characters=ddf.util.hashSort(ddf.roomState.ini_characters,e=>e.data.initiative);for(key in ddf.roomState.ini_characters){var t=`<tr id="${(r=ddf.roomState.ini_characters[key]).data.imgId}">`;t+=`<td>${r.data.initiative==e.roundTimeData.initiative?"●":""}</td>`,r.data.initiative<0&&r.data.initiative%1>=-.1?(t+=`<td><input class="initiative" type="number" value="${Math.ceil(r.data.initiative)}"></td>`,t+=`<td><input class="initiative2" type="number" value="${Math.round(100*r.data.initiative%100)}" min="-10" max="89"></td>`):r.data.initiative<0?(t+=`<td><input class="initiative" type="number" value="${Math.floor(r.data.initiative)}"></td>`,t+=`<td><input class="initiative2" type="number" value="${Math.round(100*r.data.initiative%100)+100}" min="-10" max="89"></td>`):r.data.initiative%1>=.9?(t+=`<td><input class="initiative" type="number" value="${Math.ceil(r.data.initiative)}"></td>`,t+=`<td><input class="initiative2" type="number" value="${Math.round(100*r.data.initiative%100-100)}" min="-10" max="89"></td>`):(t+=`<td><input class="initiative" type="number" value="${Math.floor(r.data.initiative)}"></td>`,t+=`<td><input class="initiative2" type="number" value="${Math.round(100*r.data.initiative%100)}" min="-10" max="89"></td>`),t+=`<td>${encode(r.data.name)}</td>`,count=0;for(counter of e.roundTimeData.counterNames)null==r.data.counters&&(r.data.counters={}),null==r.data.statusAlias&&(r.data.statusAlias={}),void 0==r.data.counters[counter]&&(r.data.counters[counter]=0),/^\*/.test(counter)?r.data.statusAlias&&r.data.statusAlias[counter]?t+=`<td><input class="v${count}" type="checkbox" ${0!=r.data.counters[counter]?"checked":""}>${r.data.statusAlias[counter]?r.data.statusAlias[counter]:""}</td>`:t+=`<td><input class="v${count}" type="checkbox" ${0!=r.data.counters[counter]?"checked":""}></td>`:t+=`<td><input class="v${count}" type="number" value="${r.data.counters[counter]}"></td>`,count++;t+=`<td><input value="${encode(r.data.info)}" class="info"></td>`,t+="</tr>",r.row=$(t),$("#initiative table tbody tr").length>0?$("#initiative table tbody tr:eq(0)").before(r.row):$("#initiative table tbody").append(r.row)}}else{ddf.roomState.ini_characters=ddf.util.hashSort(ddf.roomState.ini_characters,e=>e.data.initiative);for(key in ddf.roomState.ini_characters){var r=ddf.roomState.ini_characters[key];void 0!=r&&(r.row.children("td:eq(0)").text(r.data.initiative==e.roundTimeData.initiative?"●":""),$("#initiative table tbody tr:eq(0)").before(r.row))}}$("#round").text(e.roundTimeData.round),$("#now_ini").text(e.roundTimeData.initiative),ddf.roomState.roundTimeData=e.roundTimeData}function sendChatMessage(e,a,t,r,o,d,i=!0){if(ddf.roomState.gameType=r,""==o.trim())return!1;(pattern=ddf.patterns[ddf.roomState.gameType])||(dicebot=ddf.info.diceBotInfos.find(e=>e.gameType==ddf.roomState.gameType),pattern=[].concat(ddf.info.diceBotInfos.find(e=>"BaseDiceBot"==e.gameType).prefixs,dicebot?dicebot.prefixs:[]).map(e=>new RegExp("^((\\d+)\\s+)?(S?"+e+"[^\\s]*)","i")),ddf.patterns[ddf.roomState.gameType]=pattern);var s;return pattern.find(e=>!!(s=e.exec(o)))?(ddf.userState.name=a,saveUserState(),ddf.sendDiceBotChatMessage(e,a,t,s[2]?s[2]:0,s[3],d,ddf.roomState.gameType,i)):(/^###CutInCommand:/.test(o)&&(o="Wrong Message -> "+o),ddf.userState.name=a,saveUserState(),ddf.sendChatMessage(e,a+"\t"+t,o,d))}function saveUserState(){chatPalette={};for(item in ddf.userState.chatPalette){chatPalette[item]={};for(item2 in ddf.userState.chatPalette[item])ddf.userState.chatPalette[item][item2]&&(chatPalette[item][item2]=ddf.userState.chatPalette[item][item2])}store.set("userState",{name:ddf.userState.name,own:ddf.userState.own,chatColor:ddf.userState.chatColor,showTime:ddf.userState.showTime,chatPalette:chatPalette,fontSize:ddf.userState.fontSize})}function clearUserState(){store.clearAll()}ddf.cmd={},chatlog=[];var version=require("../../package.json").version,store=require("store"),screenshot=require("./screenshot.js").generate,lang="Japanese";require("./contextMenu/.loading.js"),require("./window/.loading.js"),require("./room_menu.js"),window_focus=!0,running=!1,window.onblur=function(){window_focus=!1},window.onfocus=function(){window_focus=!0},frame=0,window.addEventListener("popstate",e=>{});var click={x:0,y:0};ddf.roomInfos=[];var pageBuffer,diceRollBuffer,context;$(()=>{ddf.base_url=config.base_url,window.AudioContext=window.AudioContext||window.webkitAudioContext,context=new AudioContext;var e=new XMLHttpRequest;e.open("GET","sound/page.mp3",!0),e.responseType="arraybuffer",e.onload=function(){context.decodeAudioData(e.response,function(e){pageBuffer=e})},e.send();var a=new XMLHttpRequest;a.open("GET","sound/diceRoll.mp3",!0),a.responseType="arraybuffer",a.onload=function(){context.decodeAudioData(a.response,function(e){diceRollBuffer=e})},a.send(),ddf.dragOption={start:e=>{click.x=e.clientX-parseInt($(e.target).css("marginLeft"))/2,click.y=e.clientY-parseInt($(e.target).css("marginTop"))/2},drag:(e,a)=>{var t=ddf.roomState.zoom,r=a.originalPosition;a.position={left:(e.clientX-click.x+r.left)/t,top:(e.clientY-click.y+r.top)/t},ddf.roomState.viewStateInfo.isSnapMovablePiece&&(ddf.roomState.mapData.isAlternately&&ddf.roomState.mapData.gridInterval%2==1?1&Math.floor(a.position.top/50/ddf.roomState.mapData.gridInterval)?a.position={left:25*(1^(1|Math.floor(a.position.left/25))),top:50*Math.floor(a.position.top/50)}:a.position={left:25*(1|Math.floor(a.position.left/25)),top:50*Math.floor(a.position.top/50)}:a.position={left:50*Math.floor(a.position.left/50),top:50*Math.floor(a.position.top/50)})},stop:(e,a)=>{character=ddf.characters[a.helper.attr("id")],character&&(data=character.data,data.x=a.position.left/50,data.y=a.position.top/50,ddf.moveCharacter(data.imgId,data.x,data.y)),console.log(a)}},$(".draggable").draggable({cancel:".dragprev, .draggableObj",stack:".draggable"}),$(".draggabletail").draggable({cancel:".dragprev, .draggableObj"}),$(document).on("mouseover",".mapMaskFrame.draggableObj",e=>{$(".mapMaskFrame.draggableObj").css("zIndex",35),$(e.currentTarget).css("zIndex",36)}),$(document).on("mouseover",".magicRangeFrame",e=>{$(".magicRangeFrame").css("zIndex",40),$(e.currentTarget).css("zIndex",41)}),$(document).on("mouseover",".mapMarkerFrame",e=>{$(".mapMarkerFrame").css("zIndex",45),$(e.currentTarget).css("zIndex",46)}),$(document).on("mouseover",".cardFrame",e=>{$(".cardFrame").css("zIndex",50),$(e.currentTarget).css("zIndex",51)}),$(document).on("mouseover",".characterFrame:not(.isHide)",e=>{$(".characterFrame:not(.isHide)").css("zIndex",55),$(e.currentTarget).css("zIndex",56)}),$(document).on("mouseover",".chitFrame",e=>{$(".chitFrame").css("zIndex",60),$(e.currentTarget).css("zIndex",61)}),$(".resizable").resizable({ghost:!0,handles:"n, e, s, w, ne, se, sw, nw"}),$(".loader-inner").loaders(),$(document).on("click","#diceResult *",e=>{$("#diceResult").empty()}),$(document).on("click","#characterCutIn img",e=>{$("#characterCutIn").empty()}),window.onbeforeunload=(e=>{e.returnValue="他のページに移動しようとしています。\n移動しますか？"}),getLoginInfo(),$("#btn_loginNumber").on("click",e=>{$("#window_loginNumber").show().css("zIndex",151),$(".draggable:not(#window_loginNumber)").css("zIndex",150)}),$("#window_loginNumber .btn").on("click",e=>{$("#window_loginNumber").hide()}),$("#btn_manual, #btn_manual2").on("click",e=>{window.open(ddf.base_url+"README.html")}),$("#btn_site, #btn_site2").on("click",()=>{window.open("http://www.dodontof.com/")}),$("#btn_removePlayRoom").on("click",e=>{removePlayRoom(parseInt($("#playRoomNo").val().trim()))}),$("#btn_createPlayRoom").on("click",e=>{ddf.userState.room=-1,$("#window_createPlayRoom").show().css("zIndex",151),$(".draggable:not(#window_createPlayRoom)").css("zIndex",150)}),$("#createPlayRoom_create").on("click",e=>{createPlayRoom()}),$("#createPlayRoom_close").on("click",e=>{$("#window_createPlayRoom").hide()}),$("#btn_login").on("click",e=>{checkRoomStatus(parseInt($("#playRoomNo").val()))}),$("#playddf.roomInfos table").tablesorter();var t="onwheel"in document?"wheel":"onmousewheel"in document?"mousewheel":"DOMMouseScroll";$("#mapSurface").on(t,e=>{e.preventDefault();(e.originalEvent.deltaY?-e.originalEvent.deltaY:e.originalEvent.wheelDelta?e.originalEvent.wheelDelta:-e.originalEvent.detail)<0?ddf.cmd.setZoom(-.1):ddf.cmd.setZoom(.1)})}),ddf.safeDragDestoroy=(()=>{try{$(".draggableObj").draggable("destroy")}catch(e){}}),ddf.cmd.setZoom=setZoom,ddf.cmd.getPlayRoomInfo=getPlayRoomInfo,ddf.cmd.checkRoomStatus=checkRoomStatus,ddf.cmd.removePlayRoom=removePlayRoom,ddf.cmd.refresh_parseRecordData=refresh_parseRecordData,ddf.cmd.refresh_parseMapData=refresh_parseMapData,ddf.cmd.refresh_parseRoundTimeData=refresh_parseRoundTimeData,ddf.cmd.sendChatMessage=sendChatMessage,ddf.cmd.saveUserState=saveUserState,ddf.cmd.clearUserState=clearUserState;
 
-ddf.cmd.magicRangeDD4th_show = (imgId, x = 0, y = 0) => {
-  if(character = ddf.characters[imgId]){
-    character = character.data;
-    $("#window_magicRangeDD4th .title").text("魔法範囲変更（Ｄ＆Ｄ４版）");
-    $("#magicRangeDD4th_send").text("変更");
-  }else{
-    index = 0;
-    reg = /^(\d+)$/;
-    for(item in ddf.characters){
-      if(v = reg.exec(ddf.characters[item].data.name)){
-        index = Math.max(index, parseInt(v[1]))
-      }
-    }
-    character = {
-      type: "magicRangeMarkerDD4th",
-      name: index + 1,
-      rangeType: "closeBurstDD4th",
-      feets: 15,
-      color: 0,
-      timeRange: 1,
-      info: "",
-      isHide: false,
-      size: 0,
-      x: x,
-      y: y,
-      counters: {},
-      statusAlias: {},
-      createRound: 1,
-      draggable: true,
-      imageName: "",
-      imgId: "0",
-      initiative: 1,
-      rotation: 0,
-      size: 0
-    };
-    $("#window_magicRangeDD4th .title").text("魔法範囲作成（Ｄ＆Ｄ４版）");
-    $("#magicRangeDD4th_send").text("追加");
-  }
-  $("#magicRangeDD4th_imgId").val(character.imgId);
-  $("#magicRangeDD4th_name").val(character.name);
-  $("#magicRangeDD4th_rangeType").val(character.rangeType);
-  $("#magicRangeDD4th_feets").val(character.feets / 5);
-  color = new tinycolor("rgb("+[character.color / 65536 & 0xFF,character.color / 256 & 0xFF,character.color & 0xFF]+")").toHex();
-  $("#magicRangeDD4th_color").val(color);
-  $("#magicRangeDD4th_color2").spectrum("set", "#"+color);
-  $("#magicRangeDD4th_timeRange").val(character.timeRange);
-  $("#magicRangeDD4th_info").val(character.info);
-  $("#magicRangeDD4th_isHide").prop("checked", !character.isHide);
+},{"../../package.json":16,"./contextMenu/.loading.js":18,"./room_menu.js":25,"./screenshot.js":26,"./window/.loading.js":27,"store":4}],25:[function(require,module,exports){
+$(()=>{$("#btn_save").on("click",e=>{}),$("#btn_load").on("click",e=>{}),$("#btn_saveall").on("click",e=>{}),$("#btn_loadall").on("click",e=>{}),$("#btn_startrecord").on("click",e=>{}),$("#btn_endrecord").on("click",e=>{}),$("#btn_cancelrecord").on("click",e=>{}),$("#btn_logout, #btn_logout2").on("click",e=>{ddf.logout().then(e=>{ddf.userState.room=-1,location.href="index.html"})}),$("#btn_displaychat").on("click",e=>{ddf.roomState.viewStateInfo.isChatVisible=!ddf.roomState.viewStateInfo.isChatVisible,$(e.currentTarget).toggleClass("checked"),$("#window_chat .inner").toggle()}),$("#btn_displaydice").on("click",e=>{ddf.roomState.viewStateInfo.isDiceVisible=!ddf.roomState.viewStateInfo.isDiceVisible,$(e.currentTarget).toggleClass("checked"),$("#diceResult").toggle()}),$("#btn_displayinitiative").on("click",e=>{ddf.roomState.viewStateInfo.isInitiativeListVisible=!ddf.roomState.viewStateInfo.isInitiativeListVisible,$(e.currentTarget).toggleClass("checked"),$("#initiative").toggle()}),$("#btn_displayresource").on("click",e=>{ddf.roomState.viewStateInfo.isResourceWindowVisible=!ddf.roomState.viewStateInfo.isResourceWindowVisible,$(e.currentTarget).toggleClass("checked")}),$("#btn_displaychatpalette").on("click",e=>{ddf.roomState.viewStateInfo.isChatPaletteVisible=!ddf.roomState.viewStateInfo.isChatPaletteVisible,$(e.currentTarget).toggleClass("checked"),$("#window_chatPalette").toggle()}),$("#btn_displaycounter").on("click",e=>{ddf.roomState.viewStateInfo.isCounterRemoconVisible=!ddf.roomState.viewStateInfo.isCounterRemoconVisible,$(e.currentTarget).toggleClass("checked")}),$("#btn_displaycharacter").on("click",e=>{ddf.roomState.viewStateInfo.isCutInVisible=!ddf.roomState.viewStateInfo.isCutInVisible,$(e.currentTarget).toggleClass("checked"),$("#characterCutIn").toggle()}),$("#btn_displaycutin").on("click",e=>{ddf.roomState.viewStateInfo.isStandingGraphicVisible=!ddf.roomState.viewStateInfo.isStandingGraphicVisible,$(e.currentTarget).toggleClass("checked")}),$("#btn_displaygridnum").on("click",e=>{ddf.roomState.viewStateInfo.isPositionVisible=!ddf.roomState.viewStateInfo.isPositionVisible,$(e.currentTarget).toggleClass("checked"),ddf.cmd.refresh_parseMapData({mapData:ddf.roomState.mapData})}),$("#btn_displaygridline").on("click",e=>{ddf.roomState.viewStateInfo.isGridVisible=!ddf.roomState.viewStateInfo.isGridVisible,$(e.currentTarget).toggleClass("checked"),ddf.cmd.refresh_parseMapData({mapData:ddf.roomState.mapData})}),$("#btn_gridguide").on("click",e=>{ddf.roomState.viewStateInfo.isSnapMovablePiece=!ddf.roomState.viewStateInfo.isSnapMovablePiece,$(e.currentTarget).toggleClass("checked")}),$("#btn_adjustcharacter").on("click",e=>{ddf.roomState.viewStateInfo.isAdjustImageSize=!ddf.roomState.viewStateInfo.isAdjustImageSize,$(e.currentTarget).toggleClass("checked"),$("#characterCutIn").toggleClass("adjust")}),$("#btn_chatfont").on("click",e=>{}),$("#btn_resetwindow").on("click",e=>{}),$("#btn_resetdisplay").on("click",e=>{}),$("#btn_ragedd3").on("click",e=>{}),$("#btn_rangemg").on("click",e=>{}),$("#btn_magictimer").on("click",e=>{}),$("#btn_createchit").on("click",e=>{}),$("#btn_waitroom").on("click",e=>{}),$("#btn_rotate").on("click",e=>{ddf.roomState.viewStateInfo.isRotateMarkerVisible=!ddf.roomState.viewStateInfo.isRotateMarkerVisible,$(e.currentTarget).toggleClass("checked")}),$("#btn_cardpickup").on("click",e=>{ddf.roomState.viewStateInfo.isCardPickUpVisible=!ddf.roomState.viewStateInfo.isCardPickUpVisible,$(e.currentTarget).toggleClass("checked")}),$("#btn_cardlog").on("click",e=>{ddf.roomState.viewStateInfo.isCardHandleLogVisible=!ddf.roomState.viewStateInfo.isCardHandleLogVisible,$(e.currentTarget).toggleClass("checked")}),$("#btn_cardchange").on("click",e=>{}),$("#btn_cardreset").on("click",e=>{}),$("#btn_maptile").on("click",e=>{}),$("#btn_mapmodify").on("click",e=>{}),$("#btn_mapsave").on("click",e=>{ddf.saveMap().then(e=>{"OK"==e.result&&(a=$(`<a href="${ddf.base_url+e.saveFileName.replace("./","")}" download="">.</a>`),$(document.body).append(a),a[0].click(),a[0].remove())})}),$("#btn_mapchange").on("click",e=>{}),$("#btn_camera").on("click",e=>{}),$("#btn_imagetagedit").on("click",e=>{}),$("#btn_zoomin").on("click",()=>{ddf.cmd.setZoom(.1)}),$("#btn_zoomout").on("click",()=>{ddf.cmd.setZoom(-.1)}),$("#btn_screenshot").on("click",generate)});
 
-  $("#window_magicRangeDD4th").show().css("zIndex", 151);
-  $(".draggable:not(#window_magicRangeDD4th)").css("zIndex", 150);
-};
+},{}],26:[function(require,module,exports){
+!function(e){function t(e){if(!e.length)return[];var t="href";return e[0].__proto__!==HTMLImageElement.prototype&&e[0].__proto__!==HTMLScriptElement.prototype||(t="src"),e=[].map.call(e,function(e,n){var o=e.getAttribute(t);if(o){/^(https?|data):/i.test(o);return e}})}function n(){t(document.images),t(document.querySelectorAll("link[rel='stylesheet']"));var e=document.documentElement.cloneNode(!0),n=document.createElement("base");n.href=document.location.protocol+"//"+location.host;var o=e.querySelector("head");o.insertBefore(n,o.firstChild),e.style.pointerEvents="none",e.style.overflow="hidden",e.style.webkitUserSelect="none",e.style.mozUserSelect="none",e.style.msUserSelect="none",e.style.oUserSelect="none",e.style.userSelect="none",e.dataset.scrollX=window.scrollX,e.dataset.scrollY=window.scrollY;var r=document.createElement("script");r.textContent="("+function(){window.addEventListener("DOMContentLoaded",function(e){var t=document.documentElement.dataset.scrollX||0,n=document.documentElement.dataset.scrollY||0;window.scrollTo(t,n)})}.toString()+")();",e.querySelector("body").appendChild(r);return new Blob([e.outerHTML],{type:"text/html"})}e.screenshotPage=n,e.generate=function(){window.URL=window.URL||window.webkitURL,window.open(window.URL.createObjectURL(n()))}}(window);
 
-$("#magicRangeDD4th_send").on('click', (e) => {
-  if(character = ddf.characters[$("#magicRangeDD4th_imgId").val()]){
-
-    character.data.name = $("#magicRangeDD4th_name").val();
-    character.data.rangeType = $("#magicRangeDD4th_rangeType").val();
-    character.data.feets = $("#magicRangeDD4th_feets").val() * 5;
-    character.data.color = parseInt("0x"+$("#magicRangeDD4th_color").val());
-    character.data.timeRange = $("#magicRangeDD4th_timeRange").val();
-    character.data.info = $("#magicRangeDD4th_info").val();
-    character.data.isHide = !$("#magicRangeDD4th_isHide").prop("checked");
-
-    ddf.changeCharacter(character.data).then((r) => {
-      ddf.cmd.refresh_parseRecordData({record: [[0, "changeCharacter", [character.data], "dummy\t"]]});
-      $("#window_magicRangeDD4th").hide();
-    });
-  }else{
-
-    character = {
-      type: "magicRangeMarkerDD4th",
-      /*name: index + 1,
-      rangeType: "closeBurstDD4th",
-      feets: 15,
-      color: 0,
-      timeRange: 1,
-      info: "",
-      isHide: false,*/
-      size: 0,
-      x: 1,
-      y: 1,
-      counters: {},
-      statusAlias: {},
-      createRound: 1,
-      draggable: true,
-      imageName: "",
-      imgId: "0",
-      initiative: 1,
-      rotation: 0,
-      size: 0
-    };
-    character.name = $("#magicRangeDD4th_name").val();
-    character.rangeType = $("#magicRangeDD4th_rangeType").val();
-    character.feets = $("#magicRangeDD4th_feets").val() * 5;
-    character.color = parseInt("0x"+$("#magicRangeDD4th_color").val());
-    character.timeRange = $("#magicRangeDD4th_timeRange").val();
-    character.info = $("#magicRangeDD4th_info").val();
-    character.isHide = !$("#magicRangeDD4th_isHide").prop("checked");
-
-    ddf.addCharacter(character).then((r) => {
-      $("#window_magicRangeDD4th").hide();
-    });
-  }
-});
-
-},{"../.option.spectrum.json":6}],23:[function(require,module,exports){
-$("#btn_rangelh").on("click", (e) => {
-  ddf.cmd.magicRangeLH_show("");
-});
-
-$("#magicRangeLH_close, #magicRangeLH_close2").on('click', (e) => {
-  $("#window_magicRangeLH").hide();
-});
-
-sp_param = require("../.option.spectrum.json");
-sp_param.change = (c) => {
-  $("#magicRangeLH_color").val(c.toHex());
-};
-$("#magicRangeLH_color2").spectrum(sp_param);
-
-ddf.cmd.magicRangeLH_show = (imgId, x = 0, y = 0) => {
-  if(character = ddf.characters[imgId]){
-    character = character.data;
-    $("#window_magicRangeLH .title").text("攻撃範囲変更");
-    $("#magicRangeLH_send").text("変更");
-  }else{
-    index = 0;
-    reg = /^(\d+)$/;
-    for(item in ddf.characters){
-      if(v = reg.exec(ddf.characters[item].data.name)){
-        index = Math.max(index, parseInt(v[1]))
-      }
-    }
-    character = {
-      type: "LogHorizonRange",
-      name: index + 1,
-      range: 1,
-      color: 0,
-      size: 0,
-      x: x,
-      y: y,
-      draggable: true,
-      imageName: "",
-      imgId: "0",
-      rotation: 0,
-      size: 0
-    };
-    $("#window_magicRangeLH .title").text("攻撃範囲追加");
-    $("#magicRangeLH_send").text("追加");
-  }
-  $("#magicRangeLH_imgId").val(character.imgId);
-  $("#magicRangeLH_name").val(character.name);
-  $("#magicRangeLH_range").val(character.range);
-  color = new tinycolor("rgb("+[character.color / 65536 & 0xFF,character.color / 256 & 0xFF,character.color & 0xFF]+")").toHex();
-  $("#magicRangeLH_color").val(color);
-  $("#magicRangeLH_color2").spectrum("set", "#"+color);
-
-  $("#window_magicRangeLH").show().css("zIndex", 151);
-  $(".draggable:not(#window_magicRangeLH)").css("zIndex", 150);
-};
-
-$("#magicRangeLH_send").on('click', (e) => {
-  if(character = ddf.characters[$("#magicRangeLH_imgId").val()]){
-
-    character.data.name = $("#magicRangeLH_name").val();
-    character.data.range = $("#magicRangeLH_range").val();
-    character.data.color = parseInt("0x"+$("#magicRangeLH_color").val());
-
-    ddf.changeCharacter(character.data).then((r) => {
-      ddf.cmd.refresh_parseRecordData({record: [[0, "changeCharacter", [character.data], "dummy\t"]]});
-      $("#window_magicRangeLH").hide();
-    });
-  }else{
-
-    character = {
-      type: "LogHorizonRange",
-      size: 0,
-      x: 1,
-      y: 1,
-      draggable: true,
-      imageName: "",
-      imgId: "0",
-      rotation: 0,
-      size: 0
-    };
-    character.name = $("#magicRangeLH_name").val();
-    character.range = $("#magicRangeLH_range").val();
-    character.color = parseInt("0x"+$("#magicRangeLH_color").val());
-
-    ddf.addCharacter(character).then((r) => {
-      $("#window_magicRangeLH").hide();
-    });
-  }
-});
-
-},{"../.option.spectrum.json":6}],24:[function(require,module,exports){
-$("#btn_mapchange").on("click", (e) => {
-  mapChange_show();
-});
-
-$("#window_mapChange input").on('change', mapChange_previewUpdate);
-sp_param = require("../.option.spectrum.json");
-sp_param.change = (c) => {
-  $("#mapChange_color").val(c.toHex());
-  mapChange_previewUpdate();
-};
-$("#mapChange_color2").spectrum(sp_param);
-
-function mapChange_show(){
-  $("#window_mapChange").show().css("zIndex", 151);
-  $(".draggable:not(#window_mapChange)").css("zIndex", 150);
-
-  color = new tinycolor("rgb("+[ddf.roomState.mapData.gridColor / 65536 & 0xFF,ddf.roomState.mapData.gridColor / 256 & 0xFF,ddf.roomState.mapData.gridColor & 0xFF]+")").toHex();
-  $("#mapChange_width").val(ddf.roomState.mapData.xMax);
-  $("#mapChange_height").val(ddf.roomState.mapData.yMax);
-  $("#mapChange_isAlternately").prop("checked", ddf.roomState.mapData.isAlternately);
-  //ddf.roomState.mapData.mirrored
-  $("#mapChange_gridInterval").val(ddf.roomState.mapData.gridInterval);
-  $("#mapChange_color").val(color);
-  $("#mapChange_color2").spectrum("set", "#"+color);
-  switch(ddf.roomState.mapData.mapType){
-    case "imageGraphic":
-      $("#mapChange_imageSource").val(ddf.roomState.mapData.imageSource);
-      if($("#mapChange_imageSource").val() == "image/whiteBack.png"){
-        $("#mapChange_blank").prop("checked", true);
-      }else{
-        $("#mapChange_blank").prop("checked", false);
-      }
-      $("#mapChange_mirrored").prop("checked", ddf.roomState.mapData.mirrored);
-  }
-
-  mapChange_previewUpdate();
-}
-
-function mapChange_previewUpdate(){
-  param = {
-      x: $("#mapChange_width").val(),
-      y: $("#mapChange_height").val(),
-      border: true,
-      alt: $("#mapChange_isAlternately").prop("checked"),
-      num: true,
-      size: $("#mapChange_gridInterval").val(),
-      color: "#"+$("#mapChange_color").val()
-  };
-  zoom = Math.min(1, 7.26 / param.y,8 / param.x);
-  $("#mapChange_preview").css("transform", `scale(${zoom})`);
-  $("#mapChange_grid, #mapChange_map").css({width: param.x * 50, height: param.y * 50});
-  $("#mapChange_grid").attr("data", "img/grid.svg?"+$.map(param, (v,k) => {return k+"="+v;}).join("&"));
-  $("#mapChange_map").attr("src", ddf.base_url + ($("#mapChange_blank").prop("checked")?"image/whiteBack.png":$("#mapChange_imageSource").val()));
-  if($("#mapChange_mirrored").prop("checked")){
-    $("#mapChange_map").addClass("mirrored");
-  }else{
-    $("#mapChange_map").removeClass("mirrored");
-  }
-}
-
-$("#mapChange_close, #mapChange_close2").on("click", (e) => {
-  $("#mapChange_image").show();
-  $("#mapChange_imageSelect").hide();
-  $("#window_mapChange").hide();
-});
-
-$("#mapChange_imageChange").on('click', (e) => {
-  $("#mapChange_image").hide();
-  $("#mapChange_imageSelect").show();
-
-  
-  ddf.getImageTagsAndImageList().then((r) => {
-    tagList = ["（全て）"];
-    ddf.images = r;
-    for(item of ddf.images.imageList){
-      if(ddf.images.tagInfos[item]){
-        for(tag of ddf.images.tagInfos[item].tags){
-          if(tag == ""){continue;}
-          tagList.includes(tag) || tagList.push(tag);
-        }
-      }
-    }
-
-    $("#mapChange_tagbox").empty();
-    for(item of tagList){
-      $("#mapChange_tagbox").append($(`<option>${encode(item)}</option>`));
-    }
-    mapChange_setTag(tagList[0]);
-  });
-});
-
-$("#mapChange_tagbox").on('change', (e) => {
-  mapChange_setTag($("#mapChange_tagbox").val());
-});
-
-function mapChange_setTag(tag){
-  $("#mapChange_imagearea").empty();
-  let password = $("#mapChange_password").val();
-  for(item of ddf.images.imageList){
-    if(ddf.images.tagInfos[item]){
-      if((tag == "（全て）" || ddf.images.tagInfos[item].tags.includes(tag)) && (ddf.images.tagInfos[item].password == "" || ddf.images.tagInfos[item].password == password)){
-        $("#mapChange_imagearea").append($(`<div><img src="${ddf.base_url + item}" /></div>`));
-      }
-    }else if(tag == "（全て）"){
-      $("#mapChange_imagearea").append($(`<div><img src="${ddf.base_url + item}" /></div>`));
-    }
-  }
-}
-$(document).on('click', '#mapChange_imagearea div img', (e) => {
-  let img = $(e.currentTarget).attr("src");
-  $("#mapChange_imageSource").val(img.replace(ddf.base_url, ""));
-  $("#mapChange_blank").prop("checked", false);
-  $("#mapChange_mirrored").prop("checked", $("#mapChange_mirrored2").prop("checked"));
-  mapChange_previewUpdate();
-});
-
-$("#mapChange_btnpassword").on('click', (e) => {
-  $("#mapChange_btnpassword").hide();
-  $("#mapChange_password").show().focus();
-});
-
-$("#mapChange_password").on('focusout', (e) => {
-  $("#mapChange_btnpassword").show();
-  $("#mapChange_password").hide();
-  imageDelete_setTag($("#mapChange_tagbox").val());
-}).on('keydown', (e) => {
-  if(e.keyCode == 13){
-    $("#mapChange_password").blur();
-  }
-});
-
-$("#mapChange_send").on('click', (e) => {
-  ddf.changeMap(
-    "imageGraphic",
-    $("#mapChange_blank").prop("checked")?"image/whiteBack.png":$("#mapChange_imageSource").val(),
-    $("#mapChange_width").val(),
-    $("#mapChange_height").val(),
-    $("#mapChange_gridInterval").val(),
-    $("#mapChange_isAlternately").prop("checked"),
-    $("#mapChange_mirrored").prop("checked"),
-    parseInt("0x"+$("#mapChange_color").val()),
-    ddf.roomState.mapData.mapMarksAlpha,
-    ddf.roomState.mapData.mapMarks).then((r) => {
-    $("#mapChange_image").show();
-    $("#mapChange_imageSelect").hide();
-    $("#window_mapChange").hide();
-  });
-});
-},{"../.option.spectrum.json":6}],25:[function(require,module,exports){
-$("#btn_mapmask").on("click", (e) => {
-  ddf.mapMask_show("");
-});
-
-$("#window_mapMask .slider").slider({min: 0,max: 1, step:0.05, stop: (e, ui) => {
-    $("#mapMask_alpha").val(ui.value);
-    mapMask_previewUpdate();
-  }
-});
-
-$("#window_mapMask input").on('change', mapMask_previewUpdate);
-sp_param = require("../.option.spectrum.json");
-sp_param.change = (c) => {
-  $("#mapMask_color").val(c.toHex());
-  mapMask_previewUpdate();
-};
-$("#mapMask_color2").spectrum(sp_param);
-
-ddf.mapMask_show = (imageId) => {
-  $("#window_mapMask").show().css("zIndex", 151);
-  $(".draggable:not(#window_mapMask)").css("zIndex", 150);
-
-  var character;
-  if(ddf.characters[imageId] != null){
-    character = ddf.characters[imageId].data;
-    $("#mapMask_change").show();
-    $("#mapMask_create").hide();
-    $("#mapMask_preview").addClass("edit");
-    $("#mapMask_title").text("マスク変更");
-  }else{
-    index = 0;
-    reg = /^(\d+)$/;
-    for(item in ddf.characters){
-      if(v = reg.exec(ddf.characters[item].data.name)){
-        index = Math.max(index, parseInt(v[1]))
-      }
-    }
-
-    character = {
-      type: "mapMask",
-      name: index + 1,
-      width: 3,
-      height: 3,
-      color: 0,
-      alpha: 1,
-      imgId: "",
-      draggable: true,
-      rotation: 0,
-      x: 0,
-      y: 0
-    }
-
-    $("#mapMask_change").hide();
-    $("#mapMask_create").show();
-    $("#mapMask_preview").removeClass("edit");
-    $("#mapMask_title").text("マスク作成");
-  }
-
-  $("#mapMask_alpha").val(character.alpha);
-  $("#window_mapMask .slider").slider("value", character.alpha);
-  $("#mapMask_imageId").val(character.imgId);
-  $("#mapMask_name").val(character.name);
-
-  color = new tinycolor("rgb("+[character.color / 65536 & 0xFF,character.color / 256 & 0xFF,character.color & 0xFF]+")").toHex();
-  $("#mapMask_width").val(character.width);
-  $("#mapMask_height").val(character.height);
-  $("#mapMask_color").val(color);
-  $("#mapMask_color2").spectrum("set", "#"+color);
-
-  mapMask_previewUpdate();
-}
-
-function mapMask_previewUpdate(){
-  zoom = Math.min(1, 4.6 / $("#mapMask_width").val(),4.8 / $("#mapMask_height").val());
-  $("#mapMask_preview").css("transform", `scale(${zoom})`);
-  $("#mapMask_preview").css({
-    width: $("#mapMask_width").val() * 50,
-    height: $("#mapMask_height").val() * 50,
-    opacity: $("#mapMask_alpha").val(),
-    backgroundColor: "#"+$("#mapMask_color").val()
-  });
-}
-
-$("#mapMask_close, #mapMask_close2").on("click", (e) => {
-  $("#window_mapMask").hide();
-});
-
-var click = {
-  x:0,
-  y:0
-};
-
-$("#mapMask_preview").draggable({
-  start: (event) =>  {
-    click.x = event.clientX;
-    click.y = event.clientY;
-  },
-  helper: () => {
-    let obj = $("#mapMask_preview").clone();
-    obj.appendTo("#mapSurface");
-    return obj;
-  },
-  drag: (event, ui) =>  {
-      // This is the parameter for scale()
-      var zoom = ddf.roomState.zoom;
-
-      var original = ui.originalPosition;
-
-      // jQuery will simply use the same object we alter here
-      ui.position = {
-          left: (event.clientX - click.x + original.left) / zoom,
-          top:  (event.clientY - click.y + original.top ) / zoom
-      };
-      if(ddf.roomState.viewStateInfo.isSnapMovablePiece){
-        if(ddf.roomState.mapData.isAlternately && ddf.roomState.mapData.gridInterval % 2 == 1){
-          if((Math.floor(ui.position.top / 50 / ddf.roomState.mapData.gridInterval) & 1)){
-            ui.position = {
-                left: ((Math.floor(ui.position.left / 25) | 1) ^ 1) * 25,
-                top: Math.floor(ui.position.top / 50) * 50
-            };
-          }else{
-            ui.position = {
-                left: (Math.floor(ui.position.left / 25) | 1) * 25,
-                top: Math.floor(ui.position.top / 50) * 50
-            };
-          }
-        }else{
-          ui.position = {
-              left: Math.floor(ui.position.left / 50) * 50,
-              top: Math.floor(ui.position.top / 50) * 50
-          };
-        }
-      }
-    },
-    stop: (event, ui) => {
-      character = {
-        type: "mapMask",
-        name: $("#mapMask_name").val(),
-        width: $("#mapMask_width").val(),
-        height: $("#mapMask_height").val(),
-        color: parseInt("0x"+$("#mapMask_color").val()),
-        alpha: $("#mapMask_alpha").val(),
-        imgId: "",
-        draggable: true,
-        rotation: 0,
-        x: ui.position.left / 50,
-        y: ui.position.top / 50
-      };
-      ddf.addCharacter(character);
-      if($("#mapMask_multiple").prop("checked")){
-        $("#mapMask_name").val(parseInt($("#mapMask_name").val()) + 1)
-      }else{
-        $("#window_mapMask").hide();
-      }
-    },
-    cancel: ".edit"
-});
-
-
-$("#mapMask_send").on('click', (e) => {
-  imageId = $("#mapMask_imageId").val();
-  character = ddf.characters[imageId].data;
-
-  character.name = $("#mapMask_name").val();
-  character.color = parseInt("0x"+$("#mapMask_color").val());
-  character.width = $("#mapMask_width").val();
-  character.height = $("#mapMask_height").val();
-  character.alpha = $("#mapMask_alpha").val();
-
-  ddf.changeCharacter(character).then((r) => {
-    ddf.characters[imageId].data = character;
-    ddf.cmd.refresh_parseRecordData({record: [[0, "changeCharacter", [character], "dummy\t"]]});
-    $("#window_mapMask").hide();
-  });
-});
-},{"../.option.spectrum.json":6}],26:[function(require,module,exports){
-
-$("#btn_memo").on('click', (e) => {
-  ddf.cmd.openMemo("");
-});
-
-$("#memo_close, #memo_close2").on('click', (e) => {
-  $("#window_memo").hide();
-});
-
-ddf.cmd.openMemo = (imgId) => {
-  $("#memo_imgId").val(imgId);
-  if(!(character = ddf.characters[$("#memo_imgId").val()])){
-    character = {
-      color: 0xFFFFFF,
-      draggable: true,
-      height: 1,
-      width: 1,
-      rotation: 0,
-      x: 0,
-      y: 0,
-      type: "Memo",
-      isPaint: true,
-      imgId: "",
-      message: ""
-    };
-    $("#window_memo .title").text("共有メモ");
-    $("#memo_send").text("追加");
-  }else{
-    character = character.data;
-    $("#window_memo .title").text("共有メモ変更");
-    $("#memo_send").text("変更");
-  }
-
-  $("#memo_tab, #memo_edit").empty();
-  count = 0;
-  for(item of character.message.split("\t|\t")){
-    tab = $(`<div class="tab">${encode(item.split("\r")[0])}</div>`);
-    obj = $(`<textarea>${encode(item)}</textarea>`);
-    del = $(`<img src="image/icons/cancel.png">`);
-    del.on('click', ((tab, obj)=>{return (e)=>{
-      tab.remove();
-      obj.remove();
-    }})(tab, obj));
-    tab.append(del);
-    tab.on('click', ((obj) => {return (e) => {
-      if(!$(this).hasClass("active")){
-        $("#memo_tab .active, #memo_edit .active").removeClass("active");
-        $(obj).addClass("active");
-        $(this).addClass("active");
-      }
-    }})(obj));
-    $("#memo_tab").append(tab);
-    $("#memo_edit").append(obj);
-    count++;
-  }
-  $("#memo_tab .tab:eq(0), #memo_edit textarea:eq(0)").addClass("active");
-  $("#window_memo").show().css("zIndex", 151);
-  $(".draggable:not(#window_memo)").css("zIndex", 150);
-};
-
-$("#memo_send").on('click', (e) => {
-  arr = $.map($("#memo_edit textarea"),(v)=>{return $(v).val().replace("\n","\r");});
-  message = arr.join("\t|\t")
-  if(character = ddf.characters[$("#memo_imgId").val()]){
-    character.data.message = message;
-    ddf.changeCharacter(character.data).then((r) => {
-        title = character.data.message.split("\r")[0];
-        ar = character.data.message.split(/\t\|\t/);
-        if(ar.length > 1){
-          body = ar.map((v)=>{return `[${v.split("\r")[0]}]`}).join("<br>")
-        }else{
-          body = character.data.message.replace("\r", "<br>");
-        }
-        character.obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div>`);
-    });
-  }else{
-    character = {
-      color: 0xFFFFFF,
-      draggable: true,
-      height: 1,
-      width: 1,
-      rotation: 0,
-      x: 0,
-      y: 0,
-      type: "Memo",
-      isPaint: true,
-      imgId: "0",
-      message: message
-    }
-    ddf.addCharacter(character);
-  }
-  $("#window_memo").hide();
-});
-
-$("#memo_addTab").on('click', (e) => {
-  count = $("#memo_tab .tab").length;
-  tab = $(`<div class="tab active">${count + 1}</div>`);
-  obj = $(`<textarea class="active"></textarea>`);
-  del = $(`<img src="image/icons/cancel.png">`);
-  del.on('click', ((tab, obj)=>{return (e)=>{
-    tab.remove();
-    obj.remove();
-  }})(tab, obj));
-  tab.append(del);
-  tab.on('click', ((obj) => {return (e) => {
-    if(!$(this).hasClass("active")){
-      $("#memo_tab .active, #memo_edit .active").removeClass("active");
-        $(obj).addClass("active");
-        $(this).addClass("active");
-    }
-  }})(obj));
-  $("#memo_tab .active, #memo_edit .active").removeClass("active");
-  $("#memo_tab").append(tab);
-  $("#memo_edit").append(obj);
-});
-
-$(document).on('keyup', "#memo_edit textarea", (e) => {
-  $("#memo_tab .active").text(encode($("#memo_edit .active").val().split("\n")[0]));
-});
 },{}],27:[function(require,module,exports){
+$(()=>{require("./version.js"),require("./loginCheck.js"),require("./saveChatLog.js"),require("./chatPalette.js"),require("./graveyard.js"),require("./addCharacter.js"),require("./magicRangeDD4th.js"),require("./magicRangeLH.js"),require("./mapMask.js"),require("./mapChange.js"),require("./upload.js"),require("./imageDelete.js"),require("./playRoomInfo.js"),require("./memo.js"),require("./initiative.js"),require("./chat.js"),require("./help.js"),require("./chatFont.js"),require("./characterCutin.js")});
+
+},{"./addCharacter.js":28,"./characterCutin.js":29,"./chat.js":30,"./chatFont.js":31,"./chatPalette.js":32,"./graveyard.js":33,"./help.js":34,"./imageDelete.js":35,"./initiative.js":36,"./loginCheck.js":37,"./magicRangeDD4th.js":38,"./magicRangeLH.js":39,"./mapChange.js":40,"./mapMask.js":41,"./memo.js":42,"./playRoomInfo.js":43,"./saveChatLog.js":44,"./upload.js":45,"./version.js":46}],28:[function(require,module,exports){
+function addCharacter_show(a){$("#window_addCharacter_sub").hide(),ddf.getImageTagsAndImageList().then(a=>{tagList=["キャラクター画像"],ddf.images=a;for(item of ddf.images.imageList)if(ddf.images.tagInfos[item])for(tag of ddf.images.tagInfos[item].tags)""!=tag&&(tagList.includes(tag)||tagList.push(tag));tagList.push("（全て）"),$("#addCharacter_tagbox").empty();for(item of tagList)$("#addCharacter_tagbox").append($(`<option>${encode(item)}</option>`));$("#addCharacter_tagbox").append($(`<option>${encode(item)}</option>`)),addCharacter_setTag(tagList[0])}),(character=ddf.characters[a])?(character=character.data,$("#window_addCharacter .title").text("キャラクター変更"),$("#addCharacter_send").text("変更")):(character={imgId:a,name:"",dogTag:"",size:1,url:"",draggable:!0,imageName:"./image/defaultImageSet/pawn/pawnBlack.png",images:["./image/defaultImageSet/pawn/pawnBlack.png"],info:"",initiative:0,isHide:!1,mirrored:!1,rotation:0,statusAlias:{},type:"characterData",x:0,y:0},$("#window_addCharacter .title").text("キャラクター追加"),$("#addCharacter_send").text("追加")),$("#addCharacter_imgId").val(character.imgId),$("#addCharacter_name").val(character.name),$("#addCharacter_dogTag").val(character.dogTag),$("#addCharacter_size").val(character.size),$("#addCharacter_url").val(character.url),$("#addCharacter_info").val(character.info),$("#addCharacter_imageName").val(character.imageName),$("#addCharacter_image").css("backgroundImage",`url(${ddf.base_url+character.imageName})`),$("#addCharacter_mirrored").prop("checked",character.mirrored),character.mirrored?$("#addCharacter_image").addClass("mirrored"):$("#addCharacter_image").removeClass("mirrored"),$("#addCharacter_counters").empty(),null==character.counters&&(character.counters={}),thead=$("<tr></tr>"),tbody=$("<tr></tr>"),thead.append($("<th>イニシアティブ</th>")),tbody.append($(`<td><input id="addCharacter_initiative" type="number" value="${0|character.initiative}"></td>`)),thead.append($("<th>修正値</th>")),tbody.append($(`<td><input id="addCharacter_initiative2" type="number" value="${100*character.initiative%100|0}" min="-9" max="90"></td>`)),count=0;for(item of ddf.roomState.roundTimeData.counterNames)void 0==character.counters[item]&&(character.counters[item]=0),(match=/^\*(.*)/.exec(item))?(thead.append($(`<th>${match[1]}</th>`)),tbody.append($(`<td><input name="addCharacter_counters[${count++}]" type="checkbox" value="1" ${0!=character.counters[item]?"checked":""}></td>`))):(thead.append($(`<th>${item}</th>`)),tbody.append($(`<td><input name="addCharacter_counters[${count++}]" type="number" value="${character.counters[item]}"></td>`)));$("#addCharacter_counters").append(thead),$("#addCharacter_counters").append(tbody),$("#window_addCharacter").show().css("zIndex",151),$(".draggable:not(#window_addCharacter)").css("zIndex",150)}function addCharacter_setTag(a){$("#addCharacter_imagearea").empty();let e=$("#addCharacter_password").val();for(item of ddf.images.imageList)ddf.images.tagInfos[item]?"（全て）"!=a&&!ddf.images.tagInfos[item].tags.includes(a)||""!=ddf.images.tagInfos[item].password&&ddf.images.tagInfos[item].password!=e||$("#addCharacter_imagearea").append($(`<div><img src="${ddf.base_url+item}" /></div>`)):"（全て）"==a&&$("#addCharacter_imagearea").append($(`<div><img src="${ddf.base_url+item}" /></div>`))}$("#btn_createcharacter").on("click",a=>{addCharacter_show("0")}),ddf.cmd.addCharacter_show=addCharacter_show,$("#addCharacter_close, #addCharacter_close2").on("click",a=>{$("#window_addCharacter").hide()}),$("#addCharacter_sub_close").on("click",a=>{$("#window_addCharacter_sub").hide()}),$("#addCharacter_tagbox").on("change",a=>{addCharacter_setTag($("#addCharacter_tagbox").val())}),$(document).on("click","#addCharacter_imagearea div img",a=>{let e=$(a.currentTarget).attr("src");$("#addCharacter_imageName").val(e.replace(ddf.base_url,"")),$("#addCharacter_image").css("backgroundImage",`url(${e})`)}),$("#addCharacter_mirrored").on("click",a=>{$("#addCharacter_mirrored").prop("checked")?$("#addCharacter_image").addClass("mirrored"):$("#addCharacter_image").removeClass("mirrored")}),$("#addCharacter_btnpassword").on("click",a=>{$("#addCharacter_btnpassword").hide(),$("#addCharacter_password").show().focus()}),$("#addCharacter_password").on("focusout",a=>{$("#addCharacter_btnpassword").show(),$("#addCharacter_password").hide(),imageDelete_setTag($("#addCharacter_tagbox").val())}).on("keydown",a=>{13==a.keyCode&&$("#addCharacter_password").blur()}),$("#addCharacter_send").on("click",a=>{if(character=ddf.characters[$("#addCharacter_imgId").val()]){character.data.name=$("#addCharacter_name").val(),character.data.dogTag=$("#addCharacter_dogTag").val(),character.data.size=$("#addCharacter_size").val(),character.data.url=$("#addCharacter_url").val(),character.data.info=$("#addCharacter_info").val(),character.data.mirrored=$("#addCharacter_mirrored").prop("checked"),character.data.imageName=$("#addCharacter_imageName").val(),character.data.initiative=parseInt($("#addCharacter_initiative").val())+$("#addCharacter_initiative2").val()/100,character.data.isHide=$("#addCharacter_isHide").prop("checked"),count=0;for(item of ddf.roomState.roundTimeData.counterNames)obj=$(`[name=addCharacter_counters\\[${count++}\\]]`),"checkbox"==obj.attr("type")?character.data.counters[item]=obj.prop("checked"):character.data.counters[item]=obj.val();ddf.changeCharacter(character.data).then(a=>{ddf.cmd.refresh_parseRecordData({record:[[0,"changeCharacter",[character.data],"dummy\t"]]}),$("#window_addCharacter").hide()})}else $("#addCharacter_sub_multiple").prop("checked",!1),$("#addCharacter_sub_name").text($("#addCharacter_name").val()),$("#addCharacter_sub_character").css("backgroundImage",$("#addCharacter_image").css("backgroundImage")),$("#window_addCharacter_sub").show(),$("#window_addCharacter").hide()});var click={};$("#window_addCharacter_sub .characterFrame").draggable({start:a=>{click.x=a.clientX,click.y=a.clientY},helper:()=>{let a=$("#window_addCharacter_sub .characterFrame").clone();return a.css("width",50*$("#addCharacter_size").val()+"px"),a.css("height",50*$("#addCharacter_size").val()+"px"),a.appendTo("#mapSurface"),a},drag:(a,e)=>{var r=ddf.roomState.zoom,t=e.originalPosition;e.position={left:(a.clientX-click.x+t.left)/r,top:(a.clientY-click.y+t.top)/r},ddf.roomState.viewStateInfo.isSnapMovablePiece&&(ddf.roomState.mapData.isAlternately&&ddf.roomState.mapData.gridInterval%2==1?1&Math.floor(e.position.top/50/ddf.roomState.mapData.gridInterval)?e.position={left:25*(1^(1|Math.floor(e.position.left/25))),top:50*Math.floor(e.position.top/50)}:e.position={left:25*(1|Math.floor(e.position.left/25)),top:50*Math.floor(e.position.top/50)}:e.position={left:50*Math.floor(e.position.left/50),top:50*Math.floor(e.position.top/50)})},stop:(a,e)=>{character={counters:{},imgId:$("#addCharacter_imgId").val(),name:$("#addCharacter_name").val(),dogTag:$("#addCharacter_dogTag").val(),size:$("#addCharacter_size").val(),url:$("#addCharacter_url").val(),draggable:!0,imageName:$("#addCharacter_imageName").val(),images:[$("#addCharacter_imageName").val()],info:$("#addCharacter_info").val(),initiative:parseInt($("#addCharacter_initiative").val())+$("#addCharacter_initiative2").val()/100,isHide:$("#addCharacter_isHide").prop("checked"),mirrored:$("#addCharacter_mirrored").prop("checked"),rotation:0,statusAlias:{},type:"characterData",x:e.position.left/50,y:e.position.top/50},count=0;for(item of ddf.roomState.roundTimeData.counterNames)obj=$(`[name=addCharacter_counters\\[${count++}\\]]`),"checkbox"==obj.attr("type")?character.counters[item]=obj.prop("checked"):character.counters[item]=obj.val();if(ddf.addCharacter(character).then(a=>{ddf.cmd.initiative_sort(!0)}),$("#addCharacter_sub_multiple").prop("checked")){basename=$("#addCharacter_name").val().replace(/_\d+$/,""),reg=new RegExp(basename+"_(\\d+)"),index=0,(v=reg.exec($("#addCharacter_name").val()))&&(index=Math.max(index,parseInt(v[1])));for(item in ddf.characters)(v=reg.exec(ddf.characters[item].data.name))&&(index=Math.max(index,parseInt(v[1])));$("#addCharacter_name").val(basename+"_"+(index+1)),$("#addCharacter_dogTag").val(index+1),$("#addCharacter_sub_name").text(basename+"_"+(index+1))}else $("#window_addCharacter_sub").hide()}});
+
+},{}],29:[function(require,module,exports){
+function effectList_create(){$("#window_characterCutin table tbody tr:gt(0)").remove();for(item of ddf.roomState.effects)item.name&&(tr="<tr>",tr+=`<td><button class="change" value="${item.effectId}"oid="${item.effectId}">変更</button></td>`,tr+=`<td>${encode(item.name)}</td>`,tr+=`<td>${encode(item.state)}</td>`,tr+=`<td>${encode(item.leftIndex)}</td>`,tr+=`<td><p>${encode(item.source)}</p></td>`,tr+=`<td><button class="delete" value="${item.effectId}" oid="${item.effectId}">削除</button></td>`,tr+="</tr>",$("#window_characterCutin table tbody").append($(tr)))}function characterCutin_show(e){ddf.getImageTagsAndImageList().then(e=>{tagList=["キャラクター画像"],ddf.images=e;for(item of ddf.images.imageList)if(ddf.images.tagInfos[item])for(tag of ddf.images.tagInfos[item].tags)""!=tag&&(tagList.includes(tag)||tagList.push(tag));tagList.push("（全て）"),$("#characterCutin_create_tagbox").empty();for(item of tagList)$("#characterCutin_create_tagbox").append($(`<option>${encode(item)}</option>`));$("#characterCutin_create_tagbox").append($(`<option>${encode(item)}</option>`)),characterCutin_create_setTag(tagList[0])}),effect=ddf.roomState.effects.find(t=>t.effectId==e),effect?($("#window_characterCutin_create .title").text("立ち絵追加"),$("#characterCutin_create_send").text("追加")):(effect={effectId:"0",name:"",state:"",leftIndex:1,source:"",type:"standingGraphicInfos",motion:"",mirrored:!1},$("#window_characterCutin_create .title").text("立ち絵変更"),$("#characterCutin_create_send").text("変更")),$("#characterCutin_create_effectId").val(effect.effectId),$("#characterCutin_create_name").val(effect.name),$("#characterCutin_create_state").val(effect.state),$("#characterCutin_create_leftIndex").val(effect.leftIndex),$("#window_characterCutin_create .slider").slider("value",effect.leftIndex),$("#characterCutin_create_motion").val(effect.motion),$("#characterCutin_create_imageName").val(effect.source),$("#characterCutin_create_image").css("backgroundImage",`url(${ddf.base_url+effect.source})`),$("#characterCutin_create_mirrored").prop("checked",effect.mirrored),$("#window_characterCutin_create").show().css("zIndex",151),$(".draggable:not(#window_characterCutin_create)").css("zIndex",150)}function characterCutin_create_setTag(e){$("#characterCutin_create_imagearea").empty();let t=$("#characterCutin_create_password").val();for(item of ddf.images.imageList)ddf.images.tagInfos[item]?"（全て）"!=e&&!ddf.images.tagInfos[item].tags.includes(e)||""!=ddf.images.tagInfos[item].password&&ddf.images.tagInfos[item].password!=t||$("#characterCutin_create_imagearea").append($(`<div><img src="${ddf.base_url+item}" /></div>`)):"（全て）"==e&&$("#characterCutin_create_imagearea").append($(`<div><img src="${ddf.base_url+item}" /></div>`))}$("#window_characterCutin_create .slider").slider({min:1,max:12,step:1,stop:(e,t)=>{$("#characterCutin_create_leftIndex").val(t.value)}}),ddf.cmd.effectList_create=effectList_create,$("#btn_characterList").on("click",e=>{$("#window_characterCutin").show().css("zIndex",151),$(".draggable:not(#window_characterCutin)").css("zIndex",150)}),$(document).on("click","#window_characterCutin button.change",e=>{characterCutin_show($(e.target).attr("oid"))}),$(document).on("click","#window_characterCutin button.delete",e=>{confirm("立ち絵を削除してよろしいですか？")&&ddf.removeEffect([$(e.target).attr("oid")])}),$("#characterCutin_create").on("click",e=>{characterCutin_show("0")}),$("#characterCutin_close, #characterCutin_close2").on("click",e=>{$("#window_characterCutin").hide()}),$("#characterCutin_create_close, #characterCutin_create_close2").on("click",e=>{$("#window_characterCutin_create").hide()}),$("#characterCutin_create_tagbox").on("change",e=>{characterCutin_create_setTag($("#characterCutin_create_tagbox").val())}),$(document).on("click","#characterCutin_create_imagearea div img",e=>{let t=$(e.currentTarget).attr("src");$("#characterCutin_create_imageName").val(t.replace(ddf.base_url,"")),$("#characterCutin_create_image").css("backgroundImage",`url(${t})`)}),$("#characterCutin_create_mirrored").on("click",e=>{$("#characterCutin_create_mirrored").prop("checked")?$("#characterCutin_create_image").addClass("mirrored"):$("#characterCutin_create_image").removeClass("mirrored")}),$("#characterCutin_create_btnpassword").on("click",e=>{$("#characterCutin_create_btnpassword").hide(),$("#characterCutin_create_password").show().focus()}),$("#characterCutin_create_password").on("focusout",e=>{$("#characterCutin_create_btnpassword").show(),$("#characterCutin_create_password").hide(),imageDelete_setTag($("#characterCutin_create_tagbox").val())}).on("keydown",e=>{13==e.keyCode&&$("#characterCutin_create_password").blur()}),$("#characterCutin_create_send").on("click",e=>{effect=ddf.roomState.effects.find(e=>e.effectId==$("#characterCutin_create_effectId").val()),effect?(effect.effectId=$("#characterCutin_create_effectId").val(),effect.source=$("#characterCutin_create_imageName").val(),effect.name=$("#characterCutin_create_name").val(),effect.state=$("#characterCutin_create_state").val(),effect.leftIndex=$("#characterCutin_create_leftIndex").val(),effect.motiron=$("#characterCutin_create_motion").val(),effect.mirrored=$("#characterCutin_create_mirrored").prop("checked"),ddf.changeEffectCharacter(effect.effectId,effect.name,effect.state,effect.motion,effect.source,effect.mirroed,effect.leftIndex).then(e=>{$("#window_characterCutin_create").hide()})):(effect={type:"standingGraphicInfos"},effect.effectId=$("#characterCutin_create_effectId").val(),effect.source=$("#characterCutin_create_imageName").val(),effect.name=$("#characterCutin_create_name").val(),effect.state=$("#characterCutin_create_state").val(),effect.leftIndex=$("#characterCutin_create_leftIndex").val(),effect.motiron=$("#characterCutin_create_motion").val(),effect.mirrored=$("#characterCutin_create_mirrored").prop("checked"),ddf.addEffectCharacter(effect.name,effect.state,effect.motion,effect.source,effect.mirroed,effect.leftIndex))});
+
+},{}],30:[function(require,module,exports){
+$("#btn_private").on("click",t=>{}),$("#btn_diceBotTable").on("click",t=>{}),$("#btn_novel").on("click",t=>{}),$("#btn_chatDelete").on("click",t=>{confirm("チャットログを全て削除します。よろしいですか？")&&confirm("削除したログは復旧できませんが、本当によろしいですか？")&&ddf.deleteChatLog().then(t=>{ddf.sendChatMessage(0,"どどんとふ\t","全チャットログ削除が正常に終了しました。","00aa00",!0)})}),$("#btn_chatFont").on("click",t=>{}),$("#btn_mute").on("click",t=>{ddf.roomState.playSound=!ddf.roomState.playSound,ddf.roomState.playSound?($("#btn_mute img").attr("src","image/icons/sound.png"),$("#btn_mute .helptext").text("音再生あり")):($("#btn_mute img").attr("src","image/icons/sound_mute.png"),$("#btn_mute .helptext").text("音再生なし"))}),$("#btn_vote").on("click",t=>{}),$("#btn_alarm").on("click",t=>{}),$("#btn_easyUpload").on("click",t=>{}),$("#btn_talk").on("click",t=>{}),$("#btn_chatsend").on("click",t=>{ddf.cmd.sendChatMessage(ddf.userState.channel,$("#chatname").val(),"",$("#dicebot").val(),$("#chattext").val(),ddf.userState.chatColor),$("#chattext").val("")});
+
+},{}],31:[function(require,module,exports){
+$("#btn_chatFont").on("click",t=>{$("#chatFont_chatColor").val(ddf.userState.chatColor),$("#chatFont_chatColor2").spectrum("set","#"+ddf.userState.chatColor),$("#chatFont_backgroundColor").val(ddf.userState.backgroundColor),$("#chatFont_backgroundColor2").spectrum("set","#"+ddf.userState.backgroundColor),$("#chatFont_fontSize").val(ddf.userState.fontSize),$("#chatFont_showTime").prop("checked",ddf.userState.showTime),$("#window_chatFont").show().css("zIndex",151),$(".draggable:not(#window_chatFont)").css("zIndex",150)}),$("#chatFont_close, #chatFont_close2").on("click",t=>{$("#window_chatFont").hide()}),sp_param=require("../.option.spectrum.json"),sp_param.change=(t=>{$("#chatFont_chatColor").val(t.toHex())}),$("#chatFont_chatColor2").spectrum(sp_param),sp_param2=require("../.option.spectrum.json"),sp_param2.change=(t=>{$("#chatFont_backgroundColor").val(t.toHex())}),$("#chatFont_backgroundColor2").spectrum(sp_param2),$("#chatFont_send").on("click",t=>{ddf.userState.chatColor=$("#chatFont_chatColor").val(),ddf.userState.backgroundColor=$("#chatFont_backgroundColor").val(),ddf.userState.fontSize=$("#chatFont_fontSize").val(),ddf.userState.showTime=$("#chatFont_showTime").prop("checked"),ddf.cmd.saveUserState(),$("#log > div, #chattext").css({backgroundColor:"#"+ddf.userState.backgroundColor,fontSize:ddf.userState.fontSize+"pt"}),$("#window_chatFont").hide()});
+
+},{"../.option.spectrum.json":17}],32:[function(require,module,exports){
 (function (Buffer){
-$("#btn_savechatlog, #btn_savelog2").on("click", (e) => {
-  saveChatLog_show();
-});
+function parseParams(t,e,a){for(list={},reg=/(\/\/|／／)\s*([^＝=\s]*)\s*(=|＝)\s*([^\n\s]*)\s*/g;v=reg.exec(a);)list[v[2]]=v[4];for(item in ddf.characters)if(ddf.characters[item].data.name==e){for(item2 of ddf.roomState.roundTimeData.counterNames)"*"!=item2[0]&&(list[item2]=((t,e)=>a=>ddf.characters[t].data.counters[e])(item,item2));break}for(depth=0;/{[^}]+}/.test(t)&&depth++<10;)t=t.replace(/{([^}]+)}/g,(t,e)=>null==list[e]?t:list[e]instanceof Function?list[e]():list[e]);return t}function chatPalette_import_uploadfiles(t){for(file of t)new Promise((t,e)=>{let a=new FileReader;a.onload=t,/^(plain\/text|appilication\/json|)$/.test(file.type)&&a.readAsText(file)}).then(t=>{console.log(t);let e=JSON.parse(t.target.result);if("ChatPalette2"==e.saveDataTypeName&&e.saveData)for(item of e.saveData.tabInfos)""==item.tabName&&(item.tabName="id"+ddf.util.getUniqueId()),ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][item.tabName]={tabName:item.tabName,text:item.lines.join("\n"),name:item.name,color:item.color},$("#chatPalette_tabs").append($(`<p id="${item.tabName}">${/^id/.test(item.tabName)?$("#chatPalette_tabs p").length+1:item.tabName}</p>`));ddf.cmd.saveUserState()});$("#window_chatPalette_import").hide()}sp_param=require("../.option.spectrum.json"),sp_param.change=(t=>{$("#chatPalette_color").val(t.toHex()),id=$("#chatPalette_tabs .active").attr("id"),ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][id].color=parseInt("0x"+t.toHex()),ddf.cmd.saveUserState()}),$("#chatPalette_color2").spectrum(sp_param),$("#chatPalette_edit").on("click",t=>{"編集"==$("#chatPalette_edit").text()?($("#chatPalette_text").show(),$("#chatPalette_main").hide(),$("#chatPalette_edit").text("編集終了")):($("#chatPalette_main").html(`<p>${encode($("#chatPalette_text").val()).replace(/\n/g,"</p><p>")}</p>`),ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][$("#chatPalette_tabs .active").attr("id")].text=$("#chatPalette_text").val(),ddf.cmd.saveUserState(),$("#chatPalette_text").hide(),$("#chatPalette_main").show(),$("#chatPalette_edit").text("編集"))}),$(document).on("click","#chatPalette_main p",t=>{$("#chatPalette_chattext").val(parseParams($(t.target).text(),$("#chatPalette_senderName").val(),$("#chatPalette_text").val()))}),$("#chatPalette_save").on("click",t=>{tab=[];for(item in ddf.userState.chatPalette[ddf.base_url+ddf.userState.room])palette=ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][item],palette&&tab.push({lines:palette.text.split("\n"),name:palette.name,tabName:palette.tabName,color:palette.color});data=JSON.stringify({saveData:{tabInfos:tab},saveDataTypeName:"ChatPalette2"});let e=new Buffer(data),d=`ChatPalette_${ddf.base_url+ddf.userState.room}.cpd`;a=$(`<a href="data://text/html;base64,${e.toString("base64")}" download="${d}">.</a>`),$(document.body).append(a),a[0].click(),a.remove()}),$("#chatPalette_load").on("click",t=>{$("#window_chatPalette_import").show().css("zIndex",151),$(".draggable:not(#window_chatPalette_import)").css("zIndex",150)}),$form=$("#chatPalette_import_droparea"),(t=>{$("#chatPalette_import_droparea ~ .overwrap").on("dragenter",()=>{t.addClass("is-dragover")}),t.on("drag dragstart dragend dragover dragenter dragleave drop",t=>{t.preventDefault(),t.stopPropagation()}).on("dragover dragenter",()=>{t.addClass("is-dragover")}).on("dragleave dragend drop",()=>{t.removeClass("is-dragover")}).on("drop",t=>{droppedFiles=t.originalEvent.dataTransfer.files,chatPalette_import_uploadfiles(droppedFiles)})})($form),$("#window_chatPalette_import :file").on("change",t=>{arr=[];for(item of $("#window_chatPalette_import :file")[0].files)arr.push(item);chatPalette_import_uploadfiles(arr)}),$("#window_chatPalette_import .overwrap a").on("click",t=>($("#window_chatPalette_import .overwrap :file").click(),!1)),$("#chatPalette_import_close").on("click",t=>{$("#window_chatPalette_import").hide()}),$("#chatPalette_tabAdd").on("click",t=>{id="id"+ddf.util.getUniqueId(),item={tabName:id,text:"",name:"",color:16777215},ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][id]=item,ddf.cmd.saveUserState(),$("#chatPalette_tabs").append($(`<p id="${id}">${$("#chatPalette_tabs p").length+1}</p>`)),$("#chatPalette_tabs p:last").click()}),$(document).on("click","#chatPalette_tabs > p:not(.active)",t=>{$("#chatPalette_tabs .active").removeClass("active"),$(t.target).addClass("active"),item=ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][$(t.target).attr("id")],color=new tinycolor("rgb("+[item.color/65536&255,item.color/256&255,255&item.color]+")").toHex(),$("#chatPalette_senderName").val(item.name),$("#chatPalette_color").val(color),$("#chatPalette_color2").spectrum("set","#"+color),$("#chatPalette_tabName").val(/^id/.test(item.tabName)?"":item.tabName),$("#chatPalette_text").val(item.text),$("#chatPalette_main").html(`<p>${item.text.replace(/\n/g,"</p><p>")}</p>`),$("#chatPalette_text").hide(),$("#chatPalette_main").show(),$("#chatPalette_edit").text("編集")}),$("#chatPalette_senderName").on("change",t=>{id=$("#chatPalette_tabs .active").attr("id"),ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][id].name=$("#chatPalette_senderName").val(),ddf.cmd.saveUserState()}),$("#chatPalette_tabName").on("change",t=>{id=$("#chatPalette_tabs .active").attr("id"),tabName=$("#chatPalette_tabName").val(),item=ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][id],tabName!=id&&""!=tabName?(item.tabName=tabName,ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][tabName]=item,ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][id]=null,$("#chatPalette_tabs .active").attr("id",tabName),$("#chatPalette_tabs .active").text(tabName)):tabName!=id&&(item.tabName="ib"+ddf.util.getUniqueId(),ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][tabName]=item,ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][id]=null,$("#chatPalette_tabs .active").attr("id",tabName),$("#chatPalette_tabs .active").text($("#chatPalette_tabs .active").prevAll().length+1)),ddf.cmd.saveUserState()}),$("#chatPalette_tabEdit").on("click",t=>{id=$("#chatPalette_tabs .active").attr("id"),ddf.userState.chatPalette[ddf.base_url+ddf.userState.room][id]=null,ddf.cmd.saveUserState(),$("#chatPalette_tabs .active").remove(),$("#chatPalette_tabs p:eq(0)").click()}),$("#chatPalette_send").on("click",t=>{ddf.cmd.sendChatMessage(ddf.userState.channel,""==$("#chatPalette_senderName").val()?$("#chatname").val():$("#chatPalette_senderName").val(),"",$("#dicebot").val(),$("#chatPalette_chattext").val(),"ffffff"==$("#chatPalette_color").val()?ddf.userState.chatColor:$("#chatPalette_color").val()),$("#chatPalette_chattext").val("")});
 
-$("#saveChatLog_close, #saveChatLog_close2").on("click", (e) => {
-  $("#window_saveChatLog").hide();
-});
-
-$("[name=saveChatLog_mode]").on('click', (e) => {
-  if($("[name=saveChatLog_mode]:checked").val()=="HTML"){
-    $("#saveChatLog_fontSize").prop('disabled', false);
-    $("#saveChatLog_lineHeight").prop('disabled', false);
-  }else{
-    $("#saveChatLog_fontSize").prop('disabled', true);
-    $("#saveChatLog_lineHeight").prop('disabled', true);
-  }
-});
-
-function saveChatLog_show(){
-  $("#saveChatLog_channel").empty();
-
-  index = 0;
-  for(item of ddf.roomState.chatChannelNames){
-    obj = $(`<button>${item}</button>`);
-    obj.on('click', ((channel)=>{return (e)=>{saveChatLog(channel);}})(index++));
-    $("#saveChatLog_channel").append(obj);
-  }
-
-  $("#window_saveChatLog").show().css("zIndex", "151");
-  $(".draggable:not(#window_saveChatLog)").css("zIndex", "150");
-}
-
-$("#saveChatLog_saveAll").on('click', (e) => {saveChatLog()});
-
-function saveChatLog(channel = 'all'){
-  if(channel != 'all'){
-    list = chatlog.filter((v)=>{return v[0]==channel});
-  }else{
-    list = chatlog.filter((v)=>{return v[1]!=null});
-  }
-  if($("[name=saveChatLog_mode]:checked").val()=="HTML"){
-    style = `
-#container * {
-  font-size: ${$("#saveChatLog_fontSize").val()};
-  line-height: ${$("#saveChatLog_lineHeight").val()};
-}
-
-#container dt {
-  display: inline-block;
-}
-
-#container dd {
-  margin-left: 0;
-  display: inline;
-  vertical-align:top;
-}
-
-#container dd:after {
-  content:'';
-  display:block;
-} 
-`;
-    body = list.map((v)=>{return `<dt>[${encode(v[1])}]${ddf.roomState.showChatTime?dateFormat(new Date(v[2]*1000), "HH:MM")+"：":""}</dt><dd style="color:${v[3]};"><b>${encode(v[4])}</b>：${encode(v[5]).replace(/\n/g,"<br>")}</dd>`}).join("\n");
-    output = `<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<title></title>
-<style>${style}</style>
-</head>
-<body>
-<div id="container">
-<dl>
-${body}
-</dl>
-</div>
-</body>
-</html>
-`;
-    let buffer = new Buffer(output);
-    let filename = `chatlog_${dateFormat(new Date, "yymmdd_HHMMss")}.html`;
-    a = $(`<a href="data://text/html;base64,${buffer.toString('base64')}" download="${filename}">.</a>`);
-    $(document.body).append(a);
-    a[0].click();
-    a.remove();
-  }else{
-    output = list.map((v)=>{return `[${v[1]}]${ddf.roomState.showChatTime?dateFormat(new Date(v[2]*1000), "HH:MM")+"：":""}${v[4]}：${v[5]}`}).join("\n");
-
-    let buffer = new Buffer(output);
-    let filename = `chatlog_${dateFormat(new Date, "yymmdd_HHMMss")}.txt`;
-    a = $(`<a href="data://text/html;base64,${buffer.toString('base64')}" download="${filename}">.</a>`);
-    $(document.body).append(a);
-    a[0].click();
-    a.remove();
-  }
-}
 }).call(this,require("buffer").Buffer)
-},{"buffer":2}],28:[function(require,module,exports){
+},{"../.option.spectrum.json":17,"buffer":2}],33:[function(require,module,exports){
+function getGraveyardCharacterData(){return ddf.getGraveyardCharacterData().then(a=>{$("#graveyard_characters").empty();for(item of a){switch(type=item.type,name=item.name,item.type){case"mapMask":type="マップマスク";break;case"characterData":type="キャラクター";break;case"magicRangeMarker":type="魔法範囲";break;case"LogHorizonRange":type="ログホライズン攻撃範囲";break;case"MetalicGuardianDamageRange":type="メタリックガーディアン攻撃範囲";break;case"MagicTimer":type="魔法タイマー";break;case"chit":name="",type="チット";break;case"Memo":type="共有メモ",name=item.message.split("\r")[0];break;case"diceSymbol":type="ダイスシンボル",name=`[${item.ownerName}]のダイス`;break;case"magicRangeMarkerDD4th":type="魔法範囲D&D4版"}$("#graveyard_characters").append($(`<option value="${item.imgId}">${encode(name)}[${type}]</option>`))}})}$("#btn_graveyard, #btn_graveyard2").on("click",a=>{getGraveyardCharacterData(),$("#window_graveyard").show().css("zIndex",151),$(".draggable:not(#window_graveyard)").css("zIndex",150)}),$("#graveyard_close, #graveyard_close2").on("click",a=>{$("#window_graveyard").hide()}),$("#graveyard_resurrect").on("click",a=>{ddf.resurrectCharacter($("#graveyard_characters").val()),$("#graveyard_characters")[0].remove($("#graveyard_characters")[0].selectedIndex)}),$("#graveyard_clear").on("click",a=>{ddf.clearGraveyard().then(a=>{getGraveyardCharacterData()})}),$("#graveyard_reload").on("click",a=>{getGraveyardCharacterData()});
 
-$("#btn_imageupload").on("click", (e) => {
-  $("#window_upload").show().css("zIndex", 151);
-  $(".draggable:not(#window_upload)").css("zIndex", 150);
-});
+},{}],34:[function(require,module,exports){
+$("#btn_help").on("click",e=>{dicebot=ddf.info.diceBotInfos.find(e=>e.gameType==$("#dicebot").val()),baseDicebot=ddf.info.diceBotInfos.find(e=>"BaseDiceBot"==e.gameType),$("#help_text").text(`${baseDicebot.info}\n==【${dicebot.name}専用】=======================\n${dicebot.info}`),$("#window_help").show().css("zIndex",151),$(".draggable:not(#window_help)").css("zIndex",150)}),$("#help_close").on("click",e=>{$("#window_help").hide()});
 
-var upload_uploadlist = [];
+},{}],35:[function(require,module,exports){
+function imageDelete_setTag(e){$("#imageDelete_imagearea").empty();let a=$("#imageDelete_password").val();for(item of ddf.images.imageList)ddf.images.tagInfos[item]?"（全て）"!=e&&!ddf.images.tagInfos[item].tags.includes(e)||""!=ddf.images.tagInfos[item].password&&ddf.images.tagInfos[item].password!=a||$("#imageDelete_imagearea").append($(`<div><img src="${ddf.base_url+item}" /><input type="checkbox" value="${item}"></div>`)):"（全て）"==e&&$("#imageDelete_imagearea").append($(`<div><img src="${ddf.base_url+item}" /><input type="checkbox" value="${item}"></div>`))}$("#btn_imagedelete").on("click",e=>{$("#window_imageDelete").show().css("zIndex",151),$(".draggable:not(#window_imageDelete)").css("zIndex",150),ddf.getImageTagsAndImageList().then(e=>{tagList=["（全て）"],ddf.images=e;for(item of ddf.images.imageList)if(ddf.images.tagInfos[item])for(tag of ddf.images.tagInfos[item].tags)""!=tag&&(tagList.includes(tag)||tagList.push(tag));$("#imageDelete_tagbox").empty();for(item of tagList)$("#imageDelete_tagbox").append($(`<option>${encode(item)}</option>`));imageDelete_setTag(tagList[0])})}),$("#imageDelete_tagbox").on("change",e=>{imageDelete_setTag($("#imageDelete_tagbox").val())}),$("#imageDelete_close, #imageDelete_close2").on("click",e=>{$("#window_imageDelete").hide(),$("#imageDelete_password").val("")}),$("#imageDelete_btnpassword").on("click",e=>{$("#imageDelete_btnpassword").hide(),$("#imageDelete_password").show().focus()}),$("#imageDelete_password").on("focusout",e=>{$("#imageDelete_btnpassword").show(),$("#imageDelete_password").hide(),imageDelete_setTag($("#imageDelete_tagbox").val())}).on("keydown",e=>{13==e.keyCode&&$("#imageDelete_password").blur()}),$("button#imageDelete_delete").on("click",e=>{imageList=[];for(obj of $("#imageDelete_imagearea :checked"))imageList.push(obj.value),ddf.images.imageList.splice(ddf.images.imageList.indexOf(obj.value),1);ddf.deleteImage(imageList).then(e=>{imageDelete_setTag($("#imageDelete_tagbox").val()),$("#imageDelete_result").text(e.resultText)})});
 
-$form = $("#upload_droparea");
+},{}],36:[function(require,module,exports){
+function initiative_sort(t=!1){ddf.cmd.refresh_parseRoundTimeData({roundTimeData:ddf.roomState.roundTimeData},t)}$("#initiative_next").on("click",t=>(list=ddf.util.hashSort(ddf.roomState.ini_characters,t=>t.data.initiative,!0),ddf.roomState.roundTimeData.initiative<=list[0]?ddf.changeRoundTime(ddf.roomState.roundTimeData.round+1,list[list.length-1],ddf.roomState.roundTimeData.counterNames):ddf.changeRoundTime(ddf.roomState.roundTimeData.round,list[list.findIndex(t=>t>=ddf.roomState.roundTimeData.initiative)-1],ddf.roomState.roundTimeData.counterNames))),$("#initiative_prev").on("click",t=>(list=ddf.util.hashSort(ddf.roomState.ini_characters,t=>t.data.initiative,!0),ddf.roomState.roundTimeData.initiative>=list[list.length-1]?ddf.changeRoundTime(ddf.roomState.roundTimeData.round-1,list[0],ddf.roomState.roundTimeData.counterNames):ddf.changeRoundTime(ddf.roomState.roundTimeData.round,list.find(t=>t>ddf.roomState.roundTimeData.initiative),ddf.roomState.roundTimeData.counterNames))),$("#initiative_reset").on("click",t=>(list=ddf.util.hashSort(ddf.roomState.ini_characters,t=>t.data.initiative,!0),list.length>0?ddf.changeRoundTime(1,list[0],ddf.roomState.roundTimeData.counterNames):ddf.changeRoundTime(1,0,ddf.roomState.roundTimeData.counterNames))),$("#initiative_change").on("click",t=>{$("#initiative_edit_value").val(ddf.roomState.roundTimeData.counterNames.join(" ")),$("#window_initiative_edit").show().css("zIndex",151),$(".draggable:not(#window_initiative_edit)").css("zIndex",150)}),ddf.cmd.initiative_sort=initiative_sort,$(document).on("change","#initiative table tr input",t=>{switch(imgId=$(t.target).parent().parent().attr("id"),character=ddf.characters[imgId],obj=$(t.target),obj.attr("type")){case"number":switch(!isFinite(num=parseInt($(t.target).val()))&&(num=0),obj.val(num),obj.attr("class")){case"initiative":character.data.initiative=character.data.initiative%1+num;break;case"initiative2":character.data.initiative=(0|character.data.initiative)+num/100;break;default:key=ddf.roomState.roundTimeData.counterNames[parseInt(/^v(\d+)$/.exec(obj.attr("class"))[1])],character.data.counters[key]=num}break;case"checkbox":key=ddf.roomState.roundTimeData.counterNames[parseInt(/^v(\d+)$/.exec(obj.attr("class"))[1])],character.data.counters[key]=obj.prop("checked");break;default:character.data.info=$(t.target).val()}initiative_sort(),ddf.changeCharacter(character.data)}),$("#initiative_edit_close, #initiative_edit_close2").on("click",t=>{$("#window_initiative_edit").hide()}),$("#initiative_edit_send").on("click",t=>{value=$("#initiative_edit_value").val(),value.replace("��","*"),ddf.changeRoundTime(ddf.roomState.roundTimeData.round,ddf.roomState.roundTimeData.initiative,value.split(" ")).then(t=>{$("#window_initiative_edit").hide()})});
 
-$("#upload_droparea ~ .overwrap").on('dragenter', () => {
-  $form.addClass('is-dragover');
-});
+},{}],37:[function(require,module,exports){
+function loginCheck_show(o){room=ddf.roomInfos[o],$("#loginCheck_roomNumber").val(o),$("#loginCheck_playRoomName").text(room.playRoomName),room.canVisit?$("#loginCheck_canVisit").show():$("#loginCheck_canVisit").hide(),room.passwordLockState?$("#loginCheck_passwordLockState").show():$("#loginCheck_passwordLockState").hide(),$("[name=isVisit][value=0]").prop("checked"),$("#loginCheck_password").val(""),$("#window_loginCheck").show().css("zIndex",151),$(".draggable:not(#window_loginCheck)").css("zIndex",150)}$("#loginCheck_close, #loginCheck_close2").on("click",o=>{$("#window_loginCheck").hide()}),ddf.cmd.loginCheck_show=loginCheck_show,$("#loginCheck_send").on("click",o=>{roomNumber=parseInt($("#loginCheck_roomNumber").val()),ddf.loginPassword(roomNumber,$("#loginCheck_password").val(),1==$("[name=isVisit]:checked").val()).then(o=>{"OK"==o.resultText?ddf.cmd.checkRoomStatus(parseInt($("#loginCheck_roomNumber").val()),1==$("[name=isVisit]:checked").val(),$("#loginCheck_password").val()):alert("パスワードが違います。")})});
 
-$form.on('drag dragstart dragend dragover dragenter dragleave drop', (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-})
-.on('dragover dragenter', () => {
-  $form.addClass('is-dragover');
-})
-.on('dragleave dragend drop', () => {
-  $form.removeClass('is-dragover');
-})
-.on('drop', (e) => {
-  droppedFiles = e.originalEvent.dataTransfer.files;
+},{}],38:[function(require,module,exports){
+function magicRangeDD4th_show(a,e=0,c=0){if(character=ddf.characters[a])character=character.data,$("#window_magicRangeDD4th .title").text("魔法範囲変更（Ｄ＆Ｄ４版）"),$("#magicRangeDD4th_send").text("変更");else{index=0,reg=/^(\d+)$/;for(item in ddf.characters)(v=reg.exec(ddf.characters[item].data.name))&&(index=Math.max(index,parseInt(v[1])));character={type:"magicRangeMarkerDD4th",name:index+1,rangeType:"closeBurstDD4th",feets:15,color:0,timeRange:1,info:"",isHide:!1,size:0,x:e,y:c,counters:{},statusAlias:{},createRound:1,draggable:!0,imageName:"",imgId:"0",initiative:1,rotation:0,size:0},$("#window_magicRangeDD4th .title").text("魔法範囲作成（Ｄ＆Ｄ４版）"),$("#magicRangeDD4th_send").text("追加")}$("#magicRangeDD4th_imgId").val(character.imgId),$("#magicRangeDD4th_name").val(character.name),$("#magicRangeDD4th_rangeType").val(character.rangeType),$("#magicRangeDD4th_feets").val(character.feets/5),color=new tinycolor("rgb("+[character.color/65536&255,character.color/256&255,255&character.color]+")").toHex(),$("#magicRangeDD4th_color").val(color),$("#magicRangeDD4th_color2").spectrum("set","#"+color),$("#magicRangeDD4th_timeRange").val(character.timeRange),$("#magicRangeDD4th_info").val(character.info),$("#magicRangeDD4th_isHide").prop("checked",!character.isHide),$("#window_magicRangeDD4th").show().css("zIndex",151),$(".draggable:not(#window_magicRangeDD4th)").css("zIndex",150)}$("#btn_rangedd4").on("click",a=>{ddf.cmd.magicRangeDD4th_show("")}),$("#magicRangeDD4th_close, #magicRangeDD4th_close2").on("click",a=>{$("#window_magicRangeDD4th").hide()}),sp_param=require("../.option.spectrum.json"),sp_param.change=(a=>{$("#magicRangeDD4th_color").val(a.toHex())}),$("#magicRangeDD4th_color2").spectrum(sp_param),ddf.cmd.magicRangeDD4th_show=magicRangeDD4th_show,$("#magicRangeDD4th_send").on("click",a=>{(character=ddf.characters[$("#magicRangeDD4th_imgId").val()])?(character.data.name=$("#magicRangeDD4th_name").val(),character.data.rangeType=$("#magicRangeDD4th_rangeType").val(),character.data.feets=5*$("#magicRangeDD4th_feets").val(),character.data.color=parseInt("0x"+$("#magicRangeDD4th_color").val()),character.data.timeRange=$("#magicRangeDD4th_timeRange").val(),character.data.info=$("#magicRangeDD4th_info").val(),character.data.isHide=!$("#magicRangeDD4th_isHide").prop("checked"),ddf.changeCharacter(character.data).then(a=>{ddf.cmd.refresh_parseRecordData({record:[[0,"changeCharacter",[character.data],"dummy\t"]]}),$("#window_magicRangeDD4th").hide()})):(character={type:"magicRangeMarkerDD4th",size:0,x:1,y:1,counters:{},statusAlias:{},createRound:1,draggable:!0,imageName:"",imgId:"0",initiative:1,rotation:0,size:0},character.name=$("#magicRangeDD4th_name").val(),character.rangeType=$("#magicRangeDD4th_rangeType").val(),character.feets=5*$("#magicRangeDD4th_feets").val(),character.color=parseInt("0x"+$("#magicRangeDD4th_color").val()),character.timeRange=$("#magicRangeDD4th_timeRange").val(),character.info=$("#magicRangeDD4th_info").val(),character.isHide=!$("#magicRangeDD4th_isHide").prop("checked"),ddf.addCharacter(character).then(a=>{$("#window_magicRangeDD4th").hide(),ddf.cmd.initiative_sort(!0)}))});
 
-  upload_uploadfiles(droppedFiles);
-});
+},{"../.option.spectrum.json":17}],39:[function(require,module,exports){
+function magicRangeLH_show(a,e=0,c=0){if(character=ddf.characters[a])character=character.data,$("#window_magicRangeLH .title").text("攻撃範囲変更"),$("#magicRangeLH_send").text("変更");else{index=0,reg=/^(\d+)$/;for(item in ddf.characters)(v=reg.exec(ddf.characters[item].data.name))&&(index=Math.max(index,parseInt(v[1])));character={type:"LogHorizonRange",name:index+1,range:1,color:0,size:0,x:e,y:c,draggable:!0,imageName:"",imgId:"0",rotation:0,size:0},$("#window_magicRangeLH .title").text("攻撃範囲追加"),$("#magicRangeLH_send").text("追加")}$("#magicRangeLH_imgId").val(character.imgId),$("#magicRangeLH_name").val(character.name),$("#magicRangeLH_range").val(character.range),color=new tinycolor("rgb("+[character.color/65536&255,character.color/256&255,255&character.color]+")").toHex(),$("#magicRangeLH_color").val(color),$("#magicRangeLH_color2").spectrum("set","#"+color),$("#window_magicRangeLH").show().css("zIndex",151),$(".draggable:not(#window_magicRangeLH)").css("zIndex",150)}$("#btn_rangelh").on("click",a=>{ddf.cmd.magicRangeLH_show("0")}),$("#magicRangeLH_close, #magicRangeLH_close2").on("click",a=>{$("#window_magicRangeLH").hide()}),sp_param=require("../.option.spectrum.json"),sp_param.change=(a=>{$("#magicRangeLH_color").val(a.toHex())}),$("#magicRangeLH_color2").spectrum(sp_param),ddf.cmd.magicRangeLH_show=magicRangeLH_show,$("#magicRangeLH_send").on("click",a=>{(character=ddf.characters[$("#magicRangeLH_imgId").val()])?(character.data.name=$("#magicRangeLH_name").val(),character.data.range=$("#magicRangeLH_range").val(),character.data.color=parseInt("0x"+$("#magicRangeLH_color").val()),ddf.changeCharacter(character.data).then(a=>{ddf.cmd.refresh_parseRecordData({record:[[0,"changeCharacter",[character.data],"dummy\t"]]}),$("#window_magicRangeLH").hide()})):(character={type:"LogHorizonRange",size:0,x:1,y:1,draggable:!0,imageName:"",imgId:"0",rotation:0,size:0},character.name=$("#magicRangeLH_name").val(),character.range=$("#magicRangeLH_range").val(),character.color=parseInt("0x"+$("#magicRangeLH_color").val()),ddf.addCharacter(character).then(a=>{$("#window_magicRangeLH").hide()}))});
 
-$("#window_upload :file").on('change', (e) => {
-  arr = [];
-  for(item of $("#window_upload :file")[0].files){
-    arr.push(item);
-  }
-  upload_uploadfiles(arr);
-});
+},{"../.option.spectrum.json":17}],40:[function(require,module,exports){
+function mapChange_show(){switch($("#window_mapChange").show().css("zIndex",151),$(".draggable:not(#window_mapChange)").css("zIndex",150),color=new tinycolor("rgb("+[ddf.roomState.mapData.gridColor/65536&255,ddf.roomState.mapData.gridColor/256&255,255&ddf.roomState.mapData.gridColor]+")").toHex(),$("#mapChange_width").val(ddf.roomState.mapData.xMax),$("#mapChange_height").val(ddf.roomState.mapData.yMax),$("#mapChange_isAlternately").prop("checked",ddf.roomState.mapData.isAlternately),$("#mapChange_gridInterval").val(ddf.roomState.mapData.gridInterval),$("#mapChange_color").val(color),$("#mapChange_color2").spectrum("set","#"+color),ddf.roomState.mapData.mapType){case"imageGraphic":$("#mapChange_imageSource").val(ddf.roomState.mapData.imageSource),"image/whiteBack.png"==$("#mapChange_imageSource").val()?$("#mapChange_blank").prop("checked",!0):$("#mapChange_blank").prop("checked",!1),$("#mapChange_mirrored").prop("checked",ddf.roomState.mapData.mirrored)}mapChange_previewUpdate()}function mapChange_previewUpdate(){param={x:$("#mapChange_width").val(),y:$("#mapChange_height").val(),border:!0,alt:$("#mapChange_isAlternately").prop("checked"),num:!0,size:$("#mapChange_gridInterval").val(),color:"#"+$("#mapChange_color").val()},zoom=Math.min(1,7.26/param.y,8/param.x),$("#mapChange_preview").css("transform",`scale(${zoom})`),$("#mapChange_grid, #mapChange_map").css({width:50*param.x,height:50*param.y}),$("#mapChange_grid").attr("data","img/grid.svg?"+$.map(param,(a,e)=>e+"="+a).join("&")),$("#mapChange_map").attr("src",ddf.base_url+($("#mapChange_blank").prop("checked")?"image/whiteBack.png":$("#mapChange_imageSource").val())),$("#mapChange_mirrored").prop("checked")?$("#mapChange_map").addClass("mirrored"):$("#mapChange_map").removeClass("mirrored")}function mapChange_setTag(a){$("#mapChange_imagearea").empty();let e=$("#mapChange_password").val();for(item of ddf.images.imageList)ddf.images.tagInfos[item]?"（全て）"!=a&&!ddf.images.tagInfos[item].tags.includes(a)||""!=ddf.images.tagInfos[item].password&&ddf.images.tagInfos[item].password!=e||$("#mapChange_imagearea").append($(`<div><img src="${ddf.base_url+item}" /></div>`)):"（全て）"==a&&$("#mapChange_imagearea").append($(`<div><img src="${ddf.base_url+item}" /></div>`))}$("#btn_mapchange").on("click",a=>{mapChange_show()}),$("#window_mapChange input").on("change",mapChange_previewUpdate),sp_param=require("../.option.spectrum.json"),sp_param.change=(a=>{$("#mapChange_color").val(a.toHex()),mapChange_previewUpdate()}),$("#mapChange_color2").spectrum(sp_param),$("#mapChange_close, #mapChange_close2").on("click",a=>{$("#mapChange_image").show(),$("#mapChange_imageSelect").hide(),$("#window_mapChange").hide()}),$("#mapChange_imageChange").on("click",a=>{$("#mapChange_image").hide(),$("#mapChange_imageSelect").show(),ddf.getImageTagsAndImageList().then(a=>{tagList=["（全て）"],ddf.images=a;for(item of ddf.images.imageList)if(ddf.images.tagInfos[item])for(tag of ddf.images.tagInfos[item].tags)""!=tag&&(tagList.includes(tag)||tagList.push(tag));$("#mapChange_tagbox").empty();for(item of tagList)$("#mapChange_tagbox").append($(`<option>${encode(item)}</option>`));mapChange_setTag(tagList[0])})}),$("#mapChange_tagbox").on("change",a=>{mapChange_setTag($("#mapChange_tagbox").val())}),$(document).on("click","#mapChange_imagearea div img",a=>{let e=$(a.currentTarget).attr("src");$("#mapChange_imageSource").val(e.replace(ddf.base_url,"")),$("#mapChange_blank").prop("checked",!1),$("#mapChange_mirrored").prop("checked",$("#mapChange_mirrored2").prop("checked")),mapChange_previewUpdate()}),$("#mapChange_btnpassword").on("click",a=>{$("#mapChange_btnpassword").hide(),$("#mapChange_password").show().focus()}),$("#mapChange_password").on("focusout",a=>{$("#mapChange_btnpassword").show(),$("#mapChange_password").hide(),imageDelete_setTag($("#mapChange_tagbox").val())}).on("keydown",a=>{13==a.keyCode&&$("#mapChange_password").blur()}),$("#mapChange_send").on("click",a=>{ddf.changeMap("imageGraphic",$("#mapChange_blank").prop("checked")?"image/whiteBack.png":$("#mapChange_imageSource").val(),$("#mapChange_width").val(),$("#mapChange_height").val(),$("#mapChange_gridInterval").val(),$("#mapChange_isAlternately").prop("checked"),$("#mapChange_mirrored").prop("checked"),parseInt("0x"+$("#mapChange_color").val()),ddf.roomState.mapData.mapMarksAlpha,ddf.roomState.mapData.mapMarks).then(a=>{$("#mapChange_image").show(),$("#mapChange_imageSelect").hide(),$("#window_mapChange").hide()})});
 
-function upload_uploadfiles(droppedFiles){
-  upload_uploadlist = [];
-  $("#upload_droparea").empty();
-  for(file of droppedFiles){
-    new Promise((success, error)=>{
-      let fr = new FileReader();
+},{"../.option.spectrum.json":17}],41:[function(require,module,exports){
+function mapMask_previewUpdate(){zoom=Math.min(1,4.6/$("#mapMask_width").val(),4.8/$("#mapMask_height").val()),$("#mapMask_preview").css("transform",`scale(${zoom})`),$("#mapMask_preview").css({width:50*$("#mapMask_width").val(),height:50*$("#mapMask_height").val(),opacity:$("#mapMask_alpha").val(),backgroundColor:"#"+$("#mapMask_color").val()})}$("#btn_mapmask").on("click",a=>{ddf.mapMask_show("")}),$("#window_mapMask .slider").slider({min:0,max:1,step:.05,stop:(a,e)=>{$("#mapMask_alpha").val(e.value),mapMask_previewUpdate()}}),$("#window_mapMask input").on("change",mapMask_previewUpdate),sp_param=require("../.option.spectrum.json"),sp_param.change=(a=>{$("#mapMask_color").val(a.toHex()),mapMask_previewUpdate()}),$("#mapMask_color2").spectrum(sp_param),ddf.mapMask_show=(a=>{$("#window_mapMask").show().css("zIndex",151),$(".draggable:not(#window_mapMask)").css("zIndex",150);var e;if(null!=ddf.characters[a])e=ddf.characters[a].data,$("#mapMask_change").show(),$("#mapMask_create").hide(),$("#mapMask_preview").addClass("edit"),$("#mapMask_title").text("マスク変更");else{index=0,reg=/^(\d+)$/;for(item in ddf.characters)(v=reg.exec(ddf.characters[item].data.name))&&(index=Math.max(index,parseInt(v[1])));e={type:"mapMask",name:index+1,width:3,height:3,color:0,alpha:1,imgId:"",draggable:!0,rotation:0,x:0,y:0},$("#mapMask_change").hide(),$("#mapMask_create").show(),$("#mapMask_preview").removeClass("edit"),$("#mapMask_title").text("マスク作成")}$("#mapMask_alpha").val(e.alpha),$("#window_mapMask .slider").slider("value",e.alpha),$("#mapMask_imageId").val(e.imgId),$("#mapMask_name").val(e.name),color=new tinycolor("rgb("+[e.color/65536&255,e.color/256&255,255&e.color]+")").toHex(),$("#mapMask_width").val(e.width),$("#mapMask_height").val(e.height),$("#mapMask_color").val(color),$("#mapMask_color2").spectrum("set","#"+color),mapMask_previewUpdate()}),$("#mapMask_close, #mapMask_close2").on("click",a=>{$("#window_mapMask").hide()});var click={x:0,y:0};$("#mapMask_preview").draggable({start:a=>{click.x=a.clientX,click.y=a.clientY},helper:()=>{let a=$("#mapMask_preview").clone();return a.appendTo("#mapSurface"),a},drag:(a,e)=>{var t=ddf.roomState.zoom,o=e.originalPosition;e.position={left:(a.clientX-click.x+o.left)/t,top:(a.clientY-click.y+o.top)/t},ddf.roomState.viewStateInfo.isSnapMovablePiece&&(ddf.roomState.mapData.isAlternately&&ddf.roomState.mapData.gridInterval%2==1?1&Math.floor(e.position.top/50/ddf.roomState.mapData.gridInterval)?e.position={left:25*(1^(1|Math.floor(e.position.left/25))),top:50*Math.floor(e.position.top/50)}:e.position={left:25*(1|Math.floor(e.position.left/25)),top:50*Math.floor(e.position.top/50)}:e.position={left:50*Math.floor(e.position.left/50),top:50*Math.floor(e.position.top/50)})},stop:(a,e)=>{character={type:"mapMask",name:$("#mapMask_name").val(),width:$("#mapMask_width").val(),height:$("#mapMask_height").val(),color:parseInt("0x"+$("#mapMask_color").val()),alpha:$("#mapMask_alpha").val(),imgId:"",draggable:!0,rotation:0,x:e.position.left/50,y:e.position.top/50},ddf.addCharacter(character),$("#mapMask_multiple").prop("checked")?$("#mapMask_name").val(parseInt($("#mapMask_name").val())+1):$("#window_mapMask").hide()},cancel:".edit"}),$("#mapMask_send").on("click",a=>{imageId=$("#mapMask_imageId").val(),character=ddf.characters[imageId].data,character.name=$("#mapMask_name").val(),character.color=parseInt("0x"+$("#mapMask_color").val()),character.width=$("#mapMask_width").val(),character.height=$("#mapMask_height").val(),character.alpha=$("#mapMask_alpha").val(),ddf.changeCharacter(character).then(a=>{ddf.characters[imageId].data=character,ddf.cmd.refresh_parseRecordData({record:[[0,"changeCharacter",[character],"dummy\t"]]}),$("#window_mapMask").hide()})});
 
-      fr.onload = success;
+},{"../.option.spectrum.json":17}],42:[function(require,module,exports){
+function openMemo(e){$("#memo_imgId").val(e),(character=ddf.characters[$("#memo_imgId").val()])?(character=character.data,$("#window_memo .title").text("共有メモ変更"),$("#memo_send").text("変更")):(character={color:16777215,draggable:!0,height:1,width:1,rotation:0,x:0,y:0,type:"Memo",isPaint:!0,imgId:"",message:""},$("#window_memo .title").text("共有メモ"),$("#memo_send").text("追加")),$("#memo_tab, #memo_edit").empty(),count=0;for(item of character.message.split("\t|\t"))tab=$(`<div class="tab">${encode(item.split("\r")[0])}</div>`),obj=$(`<textarea>${encode(item)}</textarea>`),del=$('<img src="image/icons/cancel.png">'),del.on("click",((e,a)=>t=>{e.remove(),a.remove()})(tab,obj)),tab.append(del),tab.on("click",(e=>a=>{$(this).hasClass("active")||($("#memo_tab .active, #memo_edit .active").removeClass("active"),$(e).addClass("active"),$(this).addClass("active"))})(obj)),$("#memo_tab").append(tab),$("#memo_edit").append(obj),count++;$("#memo_tab .tab:eq(0), #memo_edit textarea:eq(0)").addClass("active"),$("#window_memo").show().css("zIndex",151),$(".draggable:not(#window_memo)").css("zIndex",150)}$("#btn_memo").on("click",e=>{ddf.cmd.openMemo("")}),$("#memo_close, #memo_close2").on("click",e=>{$("#window_memo").hide()}),ddf.cmd.openMemo=openMemo,$("#memo_send").on("click",e=>{arr=$.map($("#memo_edit textarea"),e=>$(e).val().replace("\n","\r")),message=arr.join("\t|\t"),(character=ddf.characters[$("#memo_imgId").val()])?(character.data.message=message,ddf.changeCharacter(character.data).then(e=>{title=character.data.message.split("\r")[0],ar=character.data.message.split(/\t\|\t/),ar.length>1?body=ar.map(e=>`[${e.split("\r")[0]}]`).join("<br>"):body=character.data.message.replace("\r","<br>"),character.obj.html(`<span>${encode(title)}</span><img src="${ddf.base_url}image/memo2.png"><div>${encode(body)}</div>`)})):(character={color:16777215,draggable:!0,height:1,width:1,rotation:0,x:0,y:0,type:"Memo",isPaint:!0,imgId:"0",message:message},ddf.addCharacter(character)),$("#window_memo").hide()}),$("#memo_addTab").on("click",e=>{count=$("#memo_tab .tab").length,tab=$(`<div class="tab active">${count+1}</div>`),obj=$('<textarea class="active"></textarea>'),del=$('<img src="image/icons/cancel.png">'),del.on("click",((e,a)=>t=>{e.remove(),a.remove()})(tab,obj)),tab.append(del),tab.on("click",(e=>a=>{$(this).hasClass("active")||($("#memo_tab .active, #memo_edit .active").removeClass("active"),$(e).addClass("active"),$(this).addClass("active"))})(obj)),$("#memo_tab .active, #memo_edit .active").removeClass("active"),$("#memo_tab").append(tab),$("#memo_edit").append(obj)}),$(document).on("keyup","#memo_edit textarea",e=>{$("#memo_tab .active").text(encode($("#memo_edit .active").val().split("\n")[0]))});
 
-      if(/image\/(gif|png|jpeg)/.test(file.type)){
-        fr.readAsArrayBuffer(file);
-      }
-    }).then(((file) => {return (r)=>{
-      let data = new Uint8Array(r.target.result);
+},{}],43:[function(require,module,exports){
+$("#btn_member").on("click",o=>{playRoomInfo_show()}),$("#playRoomInfo_close, #playRoomInfo_close2").on("click",o=>{$("#window_playRoomInfo").hide()}),playRoomInfo_show=(()=>{text=`【${ddf.roomState.playRoomName}】\n\nログイン中メンバー一覧\n`,text+=ddf.roomState.loginUserInfo.map(o=>`${o.userName}（ユーザーID：${o.userId.split("\t")[0]}）`).join("\n"),$("#playRoomInfo_main").html(text.replace(/\n/g,"<br>")),$("#window_playRoomInfo").show()});
 
-      if(upload_uploadlist.length == 0){
-        $("#upload_droparea").empty();
-      }
-      upload_uploadlist.push([file, data]);
-      url = `data:${file.type};base64,${btoa(Array.from(data, e => String.fromCharCode(e)).join(""))}`;
-      $("#upload_droparea").append(`<div><img src="${url}"></div>`);
-    };})(file));
-  }
-}
+},{}],44:[function(require,module,exports){
+(function (Buffer){
+function saveChatLog_show(){$("#saveChatLog_channel").empty(),index=0;for(item of ddf.roomState.chatChannelNames)obj=$(`<button>${item}</button>`),obj.on("click",(e=>a=>{saveChatLog(e)})(index++)),$("#saveChatLog_channel").append(obj);$("#window_saveChatLog").show().css("zIndex","151"),$(".draggable:not(#window_saveChatLog)").css("zIndex","150")}function saveChatLog(e="all"){if(list="all"!=e?chatlog.filter(a=>a[0]==e):chatlog.filter(e=>null!=e[1]),"HTML"==$("[name=saveChatLog_mode]:checked").val()){style=`\n#container * {\n  font-size: ${$("#saveChatLog_fontSize").val()};\n  line-height: ${$("#saveChatLog_lineHeight").val()};\n}\n\n#container dt {\n  display: inline-block;\n}\n\n#container dd {\n  margin-left: 0;\n  display: inline;\n  vertical-align:top;\n}\n\n#container dd:after {\n  content:'';\n  display:block;\n} \n`,body=list.map(e=>`<dt>[${encode(e[1])}]${ddf.userState.showTime?dateFormat(new Date(1e3*e[2]),"HH:MM")+"：":""}</dt><dd style="color:${e[3]};"><b>${encode(e[4])}</b>：${encode(e[5]).replace(/\n/g,"<br>")}</dd>`).join("\n"),output=`<!DOCTYPE html>\n<html lang="ja">\n<head>\n<meta charset="UTF-8">\n<title></title>\n<style>${style}</style>\n</head>\n<body>\n<div id="container">\n<dl>\n${body}\n</dl>\n</div>\n</body>\n</html>\n`;let e=new Buffer(output),t=`chatlog_${dateFormat(new Date,"yymmdd_HHMMss")}.html`;a=$(`<a href="data://text/html;base64,${e.toString("base64")}" download="${t}">.</a>`),$(document.body).append(a),a[0].click(),a.remove()}else{output=list.map(e=>`[${e[1]}]${ddf.userState.showTime?dateFormat(new Date(1e3*e[2]),"HH:MM")+"：":""}${e[4]}：${e[5]}`).join("\n");let e=new Buffer(output),t=`chatlog_${dateFormat(new Date,"yymmdd_HHMMss")}.txt`;a=$(`<a href="data://text/plain;base64,${e.toString("base64")}" download="${t}">.</a>`),$(document.body).append(a),a[0].click(),a.remove()}}$("#btn_savechatlog, #btn_savelog2").on("click",e=>{saveChatLog_show()}),$("#saveChatLog_close, #saveChatLog_close2").on("click",e=>{$("#window_saveChatLog").hide()}),$("[name=saveChatLog_mode]").on("click",e=>{"HTML"==$("[name=saveChatLog_mode]:checked").val()?($("#saveChatLog_fontSize").prop("disabled",!1),$("#saveChatLog_lineHeight").prop("disabled",!1)):($("#saveChatLog_fontSize").prop("disabled",!0),$("#saveChatLog_lineHeight").prop("disabled",!0))}),$("#saveChatLog_saveAll").on("click",e=>{saveChatLog()});
 
-$("#upload_send").on('click', (e)=>{
-  $("#upload_result").text("");
-  for(file of upload_uploadlist){
-    ddf.uploadImageData(
-      file[0].name,
-      file[1],
-      $("#upload_password").val(),
-      $("#upload_tag").val().split(/[ 　]/),
-      $("#upload_private").val()=="1"?null:ddf.userState.room
-    ).then(((name) => {return (r)=>{
-      $("#upload_result").text($("#upload_result").text() + name + ":" + r.resultText + "　　");
-    };})(file[0].name));
-  }
-  upload_uploadlist = [];
-});
+}).call(this,require("buffer").Buffer)
+},{"buffer":2}],45:[function(require,module,exports){
+function upload_uploadfiles(a){upload_uploadlist=[],$("#upload_droparea").empty();for(file of a)new Promise((a,o)=>{let d=new FileReader;d.onload=a,/image\/(gif|png|jpeg)/.test(file.type)&&d.readAsArrayBuffer(file)}).then((a=>o=>{let d=new Uint8Array(o.target.result);0==upload_uploadlist.length&&$("#upload_droparea").empty(),upload_uploadlist.push([a,d]),url=`data:${a.type};base64,${btoa(Array.from(d,a=>String.fromCharCode(a)).join(""))}`,$("#upload_droparea").append(`<div><img src="${url}"></div>`)})(file))}$("#btn_imageupload").on("click",a=>{$("#window_upload").show().css("zIndex",151),$(".draggable:not(#window_upload)").css("zIndex",150)});var upload_uploadlist=[];$form=$("#upload_droparea"),$("#upload_droparea ~ .overwrap").on("dragenter",()=>{$form.addClass("is-dragover")}),$form.on("drag dragstart dragend dragover dragenter dragleave drop",a=>{a.preventDefault(),a.stopPropagation()}).on("dragover dragenter",()=>{$form.addClass("is-dragover")}).on("dragleave dragend drop",()=>{$form.removeClass("is-dragover")}).on("drop",a=>{droppedFiles=a.originalEvent.dataTransfer.files,upload_uploadfiles(droppedFiles)}),$("#window_upload :file").on("change",a=>{arr=[];for(item of $("#window_upload :file")[0].files)arr.push(item);upload_uploadfiles(arr)}),$("#upload_send").on("click",a=>{$("#upload_result").text("");for(file of upload_uploadlist)ddf.uploadImageData(file[0].name,file[1],$("#upload_password").val(),$("#upload_tag").val().split(/[ 　]/),"1"==$("#upload_private").val()?null:ddf.userState.room).then((a=>o=>{$("#upload_result").text($("#upload_result").text()+a+":"+o.resultText+"　　")})(file[0].name));upload_uploadlist=[]}),$("#upload_tagbox").on("change",a=>{$("#upload_tag").val($("#upload_tagbox").val()+"　")}),$("#upload_close, #upload_close2").on("click",a=>{$("#window_upload").hide(),$("#upload_droparea").empty(),$("#upload_password").val(),$("#upload_btnpassword").text("パスワードなし")}),$("#upload_btnpassword").on("click",a=>{$("#upload_btnpassword").hide(),$("#upload_password").show().focus()}),$("#upload_password").on("focusout",a=>{$("#upload_btnpassword").show().text(""==$("#upload_password").val()?"パスワードなし":"パスワードあり"),$("#upload_password").hide()}).on("keydown",a=>{13==a.keyCode&&$("#upload_password").blur()}),$("#window_upload .overwrap a").on("click",a=>($("#window_upload .overwrap :file").click(),!1));
 
-$("#upload_tagbox").on('change', (e)=>{
-  $("#upload_tag").val($("#upload_tagbox").val()+"　");
-});
+},{}],46:[function(require,module,exports){
+var version=require("../../../package.json").version;$("#btn_version, #btn_version2").on("click",n=>{$("#version_DodontoF").text(ddf.info.version),$("#version_ddfjs").text(ddf.version),$("#version_ddfcli").text(version),$("#window_version").show().css("zIndex",151),$(".draggable:not(#window_version)").css("zIndex",150)}),$("#version_close").on("click",n=>{$("#window_version").hide()});
 
-$("#upload_close, #upload_close2").on('click', (e)=>{
-  $("#window_upload").hide();
-  $("#upload_droparea").empty();
-  $("#upload_password").val();
-  $("#upload_btnpassword").text("パスワードなし");
-});
-
-$("#upload_btnpassword").on('click', (e) => {
-  $("#upload_btnpassword").hide();
-  $("#upload_password").show().focus();
-});
-
-$("#upload_password").on('focusout', (e) => {
-  $("#upload_btnpassword").show().text($("#upload_password").val()==""?"パスワードなし":"パスワードあり");
-  $("#upload_password").hide();
-}).on('keydown', (e) => {
-  if(e.keyCode == 13){
-    $("#upload_password").blur();
-  }
-});
-
-$("#window_upload .overwrap a").on('click', (e) => {
-  $("#window_upload .overwrap :file").click();
-  return false;
-});
-
-},{}]},{},[13]);
+},{"../../../package.json":16}]},{},[24]);
 
 //# sourceMappingURL=.maps/index.js.map

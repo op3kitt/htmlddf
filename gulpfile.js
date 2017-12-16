@@ -11,8 +11,8 @@ buffer = require('vinyl-buffer');
 sourcemaps = require('gulp-sourcemaps');
 exec = require('child_process').exec;
 
-gulp.task('clean', function(cb){
-  del(['build/**/*'], cb);
+gulp.task('clean', function(){
+  del(['build/**/*', '!build/js', '!build/js/lib']);
 });
 
 gulp.task('release', [

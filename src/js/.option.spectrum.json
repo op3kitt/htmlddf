@@ -7,8 +7,8 @@
   hideAfterPaletteSelect:true,
   chooseText: "選択",
   cancelText: "キャンセル",
-  containerClassName: ddf.config.originalColorPalette?"originalColorSet":"",
-  palette: ddf.config.originalColorPalette?
+  containerClassName: config.originalColorPalette?"originalColorSet":"",
+  palette: config.originalColorPalette?
   [
     ["#000000","#000000","#003300","#006600","#009900","#00CC00","#00FF00","#330000","#333300","#336600","#339900","#33CC00","#33FF00","#660000","#663300","#666600","#669900","#66CC00","#66FF00"],
     ["#333333","#000033","#003333","#006633","#009933","#00CC33","#00FF33","#330033","#333333","#336633","#339933","#33CC33","#33FF33","#660033","#663333","#666633","#669933","#66CC33","#66FF33"],

@@ -51,8 +51,7 @@ $(() => {
     ddf.roomState.viewStateInfo.isChatPaletteVisible = !ddf.roomState.viewStateInfo.isChatPaletteVisible;
     $(e.currentTarget).toggleClass("checked");
     
-    //$("#chatpalette").toggle();
-    /*TODO*/
+    $("#window_chatPalette").toggle();
   });
   $("#btn_displaycounter").on("click", (e) => {
     ddf.roomState.viewStateInfo.isCounterRemoconVisible = !ddf.roomState.viewStateInfo.isCounterRemoconVisible;

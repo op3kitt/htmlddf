@@ -60,7 +60,7 @@ function saveChatLog(channel = 'all'){
   display:block;
 } 
 `;
-    body = list.map((v)=>{return `<dt>[${encode(v[1])}]${ddf.roomState.showChatTime?dateFormat(new Date(v[2]*1000), "HH:MM")+"：":""}</dt><dd style="color:${v[3]};"><b>${encode(v[4])}</b>：${encode(v[5]).replace(/\n/g,"<br>")}</dd>`}).join("\n");
+    body = list.map((v)=>{return `<dt>[${encode(v[1])}]${ddf.userState.showTime?dateFormat(new Date(v[2]*1000), "HH:MM")+"：":""}</dt><dd style="color:${v[3]};"><b>${encode(v[4])}</b>：${encode(v[5]).replace(/\n/g,"<br>")}</dd>`}).join("\n");
     output = `<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -84,11 +84,11 @@ ${body}
     a[0].click();
     a.remove();
   }else{
-    output = list.map((v)=>{return `[${v[1]}]${ddf.roomState.showChatTime?dateFormat(new Date(v[2]*1000), "HH:MM")+"：":""}${v[4]}：${v[5]}`}).join("\n");
+    output = list.map((v)=>{return `[${v[1]}]${ddf.userState.showTime?dateFormat(new Date(v[2]*1000), "HH:MM")+"：":""}${v[4]}：${v[5]}`}).join("\n");
 
     let buffer = new Buffer(output);
     let filename = `chatlog_${dateFormat(new Date, "yymmdd_HHMMss")}.txt`;
-    a = $(`<a href="data://text/html;base64,${buffer.toString('base64')}" download="${filename}">.</a>`);
+    a = $(`<a href="data://text/plain;base64,${buffer.toString('base64')}" download="${filename}">.</a>`);
     $(document.body).append(a);
     a[0].click();
     a.remove();

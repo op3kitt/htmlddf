@@ -1,0 +1,26 @@
+#main2
+  include _playRoom_menu.pug
+  #map.draggabletail
+    #mapSurface
+      object#mapGrid(type="image/svg+xml",data="img/grid.svg",style="pointer-events: none")
+      img#mapDraw
+      object#drawsPanel(type="image/svg+xml",data="img/draw.svg")
+      img#mapimg
+  #list_memo
+  include window/_chat.pug
+  include window/_initiative.pug
+  include window/_mapChange.pug
+  include window/_graveyard.pug
+  include window/_upload.pug
+  include window/_mapMask.pug
+  include window/_imageDelete.pug
+  include window/_memo.pug
+  include window/_help.pug
+  include window/_magicRangeDD4th.pug
+  include window/_magicRangeLH.pug
+  include window/_saveChatLog.pug
+  include window/_addCharacter.pug
+  include window/_playRoomInfo.pug
+  include window/_characterCutin.pug
+  include window/_chatFont.pug
+  include window/_chatPalette.pug

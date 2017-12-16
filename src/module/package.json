@@ -1,11 +1,10 @@
 {
   "name": "ddf",
-  "version": "1.0.0",
+  "version": "0.5.0",
   "description": "DodontoF API caller",
   "main": "index.js",
   "dependencies": {
-    "msgpack-lite": "^0.1.26",
-    "store": "^2.0.12"
+    "msgpack-lite": "^0.1.26"
   },
   "devDependencies": {},
   "scripts": {
