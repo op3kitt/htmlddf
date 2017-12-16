@@ -36,11 +36,10 @@ ddf.sendMsg = function (msg, type = 'json'){
     xhr.setRequestHeader('Content-Type', 'application/x-msgpack');
     //xhr.setRequestHeader('Content-Type', 'application/x-msgpack');
     xhr.send(msgpack.encode(msg));
-  });
-  /*.catch(function(r){
+  }).catch(function(r){
     console.log("ddf.sendMsg rejected ("+r+")");
   })
-  .then(function(r){console.log({caller: msg.cmd, param: msg, result: r});return r;});*/
+  .then(function(r){console.log({caller: msg.cmd, param: msg, result: r});return r;});
 }
 
 ddf.util = {};

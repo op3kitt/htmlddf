@@ -850,7 +850,9 @@ function refresh_parseRecordData(refreshData){
       data = record[2][0];
       character = ddf.characters[data.imgId];
       if(!character){
-        return refresh_parseCharacters({characters: [data]});
+        refresh_parseCharacters({characters: [data]});
+        iniChanged = true;
+        continue;
       }
       obj = character.obj;
       switch(data.type){
@@ -1190,13 +1192,13 @@ function refresh_parseRoundTimeData(refreshData, force = false){
       var character = ddf.roomState.ini_characters[key];
       var tmp = `<tr id="${character.data.imgId}">`;
       tmp+= `<td>${(character.data.initiative==refreshData.roundTimeData.initiative?"●":"")}</td>`;
-      if(character.data.initiative < 0 && character.data.initiative % 1 >= -0.1){
+      if(character.data.initiative < 0 && Math.round((character.data.initiative % 1)*10) >= -0.1){
         tmp+= `<td><input class="initiative" type="number" value="${Math.ceil(character.data.initiative)}"></td>`;
         tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100)}" min="-10" max="89"></td>`;
       }else if(character.data.initiative < 0){
         tmp+= `<td><input class="initiative" type="number" value="${Math.floor(character.data.initiative)}"></td>`;
         tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100)+100}" min="-10" max="89"></td>`;
-      }else if(character.data.initiative % 1 >= 0.9){
+      }else if(Math.round((character.data.initiative % 1) * 10) >= 9){
         tmp+= `<td><input class="initiative" type="number" value="${Math.ceil(character.data.initiative)}"></td>`;
         tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100 - 100)}" min="-10" max="89"></td>`;
       }else{
