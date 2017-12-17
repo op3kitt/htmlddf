@@ -514,16 +514,16 @@ function checkRoomStatus(roomNumber, isVisit = null, password = null){
 };
 
 ddf.cmd.removePlayRoom = removePlayRoom;
-function removePlayRoom(roomNumber, password = null){
+function removePlayRoom(roomNumber){
   room = ddf.roomInfos[roomNumber];
   if(room && room.lastUpdateTime){
-    if(room.passwordLockState && password == null){
-    
+    if(room.passwordLockState){
+      ddf.cmd.roomDelete_show(roomNumber);
     }else{
       body = `No.${room.index}：${room.playRoomName}\nを削除しますか？`;
       if(password != null || confirm(body)){
         ddf.removePlayRoom(roomNumber, false, password).then((r) => {
-          $("#playddf.roomInfos tbody").empty();
+          $("#playRoomInfos tbody").empty();
           ddf.cmd.getPlayRoomInfo();
         });
       }

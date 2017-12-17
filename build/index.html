@@ -95,6 +95,25 @@
             <div class="btn">OK</div>
           </div>
         </div>
+        <div class="draggable" id="window_roomDelete">
+          <div class="bg"> 
+            <div> <span class="title">部屋削除</span>
+              <div class="pull-right" id="roomDelete_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <input type="hidden" id="roomDelete_roomNumber">
+            <div class="row">部屋 [ No.<span id="roomDelete_Number"></span> ] を削除します。パスワードを入力してください。</div>
+            <div class="row">
+              <label>パスワード入力：</label>
+              <input type="password" id="roomDelete_password">
+            </div>
+            <div class="row center">
+              <button id="roomDelete_send">実行</button>
+              <button id="roomDelete_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
         <div id="loginMessage_wrap">
           <div id="loginMessage"></div>
         </div>

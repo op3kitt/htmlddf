@@ -11,6 +11,7 @@ msgpack = require('msgpack-lite');
 var ddf = {};
 ddf.patterns = {};
 ddf.base_url = "";
+ddf.isDebug = false;
 
 /**
  * @constant version
@@ -38,8 +39,12 @@ ddf.sendMsg = function (msg, type = 'json'){
     xhr.send(msgpack.encode(msg));
   }).catch(function(r){
     console.log("ddf.sendMsg rejected ("+r+")");
-  })
-  .then(function(r){console.log({caller: msg.cmd, param: msg, result: r});return r;});
+  }).then(function(r){
+    if(ddf.isDebug){
+      console.log({caller: msg.cmd, param: msg, result: r});
+    }
+    return r;
+  });
 }
 
 ddf.util = {};

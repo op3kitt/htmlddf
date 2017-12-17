@@ -1,6 +1,6 @@
 {
   "name": "DodontoF_html5cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DodontoF.rb client build package",
   "main": "gulpfile.js",
   "dependencies": {
@@ -13,6 +13,7 @@
     "gulp-sass": "^3.1.0",
     "gulp-sourcemaps": "^2.6.1",
     "gulp-watchify": "^0.7.0",
+    "gulp-plumber": "^1.1.0",
     "uglifyify": "^4.0.5",
     "minami": "^1.2.3",
     "msgpack-lite": "^0.1.26",

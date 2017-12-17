@@ -1931,6 +1931,32 @@ label {
   }
 }
 
+#window_roomDelete {
+  @include window(400px, 150px, 200px, 200px);
+
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 22px;
+    padding: 0.3em;
+
+    .row {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+}
+
 #window_chatPalette {
   @include window(500px, 540px, 200px, 200px);
 

@@ -2,6 +2,7 @@ $(() => {
   require("./version.js");
   //require("./createPlayRoom.js");
   require("./loginCheck.js");
+  require("./roomDelete.js");
 
   require("./saveChatLog.js");
 

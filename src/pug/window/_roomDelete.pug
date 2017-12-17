@@ -1,0 +1,17 @@
+#window_roomDelete.draggable
+  .bg 
+    div 
+      span.title 部屋削除
+      .pull-right#roomDelete_close2 ×
+  .body.dragprev
+    input(type="hidden")#roomDelete_roomNumber
+    .row
+      | 部屋 [ No.
+      span#roomDelete_Number
+      |  ] を削除します。パスワードを入力してください。
+    .row
+      label パスワード入力：
+      input(type="password")#roomDelete_password
+    .row.center
+      button#roomDelete_send 実行
+      button#roomDelete_close キャンセル
