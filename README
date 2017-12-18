@@ -58,7 +58,7 @@ build/js/.config.json
 
 ■開発者向け情報
 
-○コンパイル方法について
+○ビルド方法について
 
 ・リポジトリまたは配布サイトからソースコードを取得します。
 
@@ -66,18 +66,19 @@ build/js/.config.json
 
 ・Node.jsの実行環境をインストールします。
 
+・通信用ライブラリも同時にビルドする場合、
+node_modules/ddf に src/module へのシンボリックリンクを作成してください。
+>ln -s src/module node_modules/ddf
+
+※Windows環境では管理者権限にて以下のコマンドを実行してください。
+>MKLINK /D node_modules\ddf ,,\src\modules
+
 ・依存するライブラリを以下のコマンドでインストールします。
 >npm install
 
 ・以下のライブラリをグローバルにインストールしてください。
 >npm install -g browserify
 >npm install -g gulp
-
-・以下のシンボリックリンクを作成してください。
->ln -s src/modules node_modules/ddf
-
-※Windows環境では管理者権限にて以下のコマンドを実行してください。
->MKLINK /D node_modules/ddf src/modules
 
 ・ドキュメントの更新を行う場合は以下をインストールする必要があります。
 JSDoc

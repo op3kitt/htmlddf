@@ -1,7 +1,7 @@
 {
   "name": "ddf",
-  "version": "0.5.0",
-  "description": "DodontoF API caller",
+  "version": "0.5.3",
+  "description": "DodontoFServer.rb API wrapper",
   "main": "index.js",
   "dependencies": {
     "msgpack-lite": "^0.1.26"
@@ -11,5 +11,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "kitt",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/op3kitt/ddf.git"
+  }
 }
