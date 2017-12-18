@@ -248,6 +248,13 @@ $("#chatPalette_tabEdit").on('click', (e) => {
   $(`#chatPalette_tabs p:eq(0)`).click();
 });
 
+$("#chatPalette_chattext").on('keydown', (e) => {
+  if(e.keyCode == 13){
+    $("#chatPalette_send").click();
+    return false;
+  }
+});
+
 $("#chatPalette_send").on('click', (e) => {
   ddf.cmd.sendChatMessage(
     ddf.userState.channel,

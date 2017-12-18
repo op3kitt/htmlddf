@@ -541,82 +541,87 @@ function setChatTab(index){
 
 function refresh(){
   ddf.refresh().then((r) => {
-    refreshData = r;
-    //console.log(refreshData);
-    refreshData.lastUpdateTimes && (ddf.userState.lastUpdateTimes = refreshData.lastUpdateTimes);
-    if(refreshData.viewStateInfo){
-      ddf.roomState.viewStateInfo = refreshData.viewStateInfo;
-    }
-    if(refreshData.gameType){
-      if($("#dicebot").children(`[value=${refreshData.gameType}]`).length==1){
-        $("#dicebot").val($(refreshData.gameType));
-      }else{
-        $("#dicebot").append($(`<option value="${encode(refreshData.gameType)}">${encode(refreshData.gameType)}</option>`));
-        $("#dicebot").val(refreshData.gameType);
+    try{
+      refreshData = r;
+      //console.log(refreshData);
+      refreshData.lastUpdateTimes && (ddf.userState.lastUpdateTimes = refreshData.lastUpdateTimes);
+      if(refreshData.viewStateInfo){
+        ddf.roomState.viewStateInfo = refreshData.viewStateInfo;
       }
-    }
-    if(refreshData.mapData) {
-      ddf.cmd.refresh_parseMapData(refreshData);
-    }
-    if(refreshData.characters){
-      refresh_parseCharacters(refreshData);
-    }
-    if(refreshData.roundTimeData){
-      refresh_parseRoundTimeData(refreshData);
-    }
-    if(refreshData.gameType){
-      ddf.roomState.gameType = refreshData.gameType;
-    }
-    if(refreshData.viewStateInfo){
-      refresh_parseViewStateInfo(refreshData);
-    }
-    if(refreshData.effects){
-      refresh_parseEffects(refreshData);
-    }
-    if(refreshData.chatChannelNames && !refreshData.isFirstChatRefresh){
-      $(`#tab > p:gt(${refreshData.chatChannelNames.length - 1}),#log > div:gt(${refreshData.chatChannelNames.length - 1})`).remove();
-      ddf.roomState.unread.splice(refreshData.chatChannelNames.length);
-      for(i = 0;i < refreshData.chatChannelNames.length;i++){
-        if(ddf.roomState.chatChannelNames.length <= i){
-          ddf.roomState.unread.push(0);
-          var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
-          obj.on("click", ((index) => {
-            return (e) => {
-              if(!$(e.currentTarget).hasClass("active")){
-                setChatTab(index)
-              }
-            }
-          })(i));
-          $("#tab").append(obj);
-          $("#log").append($("<div><p></p></div>"));
+      if(refreshData.gameType){
+        if($("#dicebot").children(`[value=${refreshData.gameType}]`).length==1){
+          $("#dicebot").val($(refreshData.gameType));
         }else{
-          $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${encode(refreshData.chatChannelNames[i])}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
+          $("#dicebot").append($(`<option value="${encode(refreshData.gameType)}">${encode(refreshData.gameType)}</option>`));
+          $("#dicebot").val(refreshData.gameType);
         }
       }
-      if($("#tab .active").length == 0){
-        setChatTab(0);
+      if(refreshData.mapData) {
+        ddf.cmd.refresh_parseMapData(refreshData);
       }
-      ddf.roomState.chatChannelNames = refreshData.chatChannelNames;
-    }
-    if(refreshData.chatMessageDataLog){
-      refresh_parseChatMessageDataLog(refreshData);
-    }
-    if(refreshData.record) {
-      ddf.cmd.refresh_parseRecordData(refreshData);
-    }
-    if(refreshData.gameType){
-      $("#dicebot").val(refreshData.gameType);
-    }
-    if(refreshData.playRoomName){
-      ddf.roomState.playRoomName = refreshData.playRoomName;
-    }
-    if(refreshData.loginUserInfo){
-      ddf.roomState.loginUserInfo = refreshData.loginUserInfo;
-      $("#btn_member").text(`ルームNo.${ddf.roomState.roomNumber}：${refreshData.loginUserInfo.length}名`);
-    }
-    r = refreshData = null;
-    if(ddf.userState.room != -1){
-      setTimeout(refresh, 1000);
+      if(refreshData.characters){
+        refresh_parseCharacters(refreshData);
+      }
+      if(refreshData.roundTimeData){
+        refresh_parseRoundTimeData(refreshData);
+      }
+      if(refreshData.gameType){
+        ddf.roomState.gameType = refreshData.gameType;
+      }
+      if(refreshData.viewStateInfo){
+        refresh_parseViewStateInfo(refreshData);
+      }
+      if(refreshData.effects){
+        refresh_parseEffects(refreshData);
+      }
+      if(refreshData.chatChannelNames && !refreshData.isFirstChatRefresh){
+        $(`#tab > p:gt(${refreshData.chatChannelNames.length - 1}),#log > div:gt(${refreshData.chatChannelNames.length - 1})`).remove();
+        ddf.roomState.unread.splice(refreshData.chatChannelNames.length);
+        for(i = 0;i < refreshData.chatChannelNames.length;i++){
+          if(ddf.roomState.chatChannelNames.length <= i){
+            ddf.roomState.unread.push(0);
+            var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
+            obj.on("click", ((index) => {
+              return (e) => {
+                if(!$(e.currentTarget).hasClass("active")){
+                  setChatTab(index)
+                }
+              }
+            })(i));
+            $("#tab").append(obj);
+            $("#log").append($("<div><p></p></div>"));
+          }else{
+            $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${encode(refreshData.chatChannelNames[i])}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
+          }
+        }
+        if($("#tab .active").length == 0){
+          setChatTab(0);
+        }
+        ddf.roomState.chatChannelNames = refreshData.chatChannelNames;
+      }
+      if(refreshData.chatMessageDataLog){
+        refresh_parseChatMessageDataLog(refreshData);
+      }
+      if(refreshData.record) {
+        ddf.cmd.refresh_parseRecordData(refreshData);
+      }
+      if(refreshData.gameType){
+        $("#dicebot").val(refreshData.gameType);
+      }
+      if(refreshData.playRoomName){
+        ddf.roomState.playRoomName = refreshData.playRoomName;
+      }
+      if(refreshData.loginUserInfo){
+        ddf.roomState.loginUserInfo = refreshData.loginUserInfo;
+        $("#btn_member").text(`ルームNo.${ddf.roomState.roomNumber}：${refreshData.loginUserInfo.length}名`);
+      }
+      r = refreshData = null;
+    }catch(e){
+      console.log(e);
+    }finally{
+      if(ddf.userState.room != -1){
+        setTimeout(refresh, ddf.info.refreshInterval * 1000);
+      }
     }
   });
 }
@@ -1266,7 +1271,7 @@ function sendChatMessage(channel, senderName, state, gameType, message, color, i
     ddf.patterns[ddf.roomState.gameType] = pattern;
   }
   var match;
-  if(!!pattern.find((r) => {return !!(match = r.exec(message));})){
+  if(!!pattern.find((r) => {return !!(match = r.exec(toHalf(message)));})){
     //DiceBotMessage
     ddf.userState.name = senderName;
     saveUserState();
