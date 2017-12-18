@@ -37,6 +37,13 @@ $("#btn_easyUpload").on('click', (e) => {
 $("#btn_talk").on('click', (e) => {
 });
 
+$("#chattext").on('keydown', (e) => {
+  if(e.keyCode == 13 && !e.shiftKey){
+    $("#btn_chatsend").click();
+    return false;
+  }
+});
+
 $("#btn_chatsend").on('click', (e) => {
   ddf.cmd.sendChatMessage(ddf.userState.channel, $("#chatname").val(), "", $("#dicebot").val(), $("#chattext").val(), ddf.userState.chatColor)
   $("#chattext").val("");
