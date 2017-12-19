@@ -725,9 +725,9 @@ function refresh_parseChatMessageDataLog(refreshData){
     $("#diceResult").empty();
     for(item of lastRandResult[1]){
       if([4,6,8,10,12,20].includes(item[1])){
-        $("#diceResult").append($(`<img src="${ddf.base_url}img/diceImage/${item[1]}_dice/${item[1]}_dice[${item[0]}].png" alt="${item[0]}">`));
+        $("#diceResult").append($(`<img src="${ddf.base_url}image/diceImage/${item[1]}_dice/${item[1]}_dice[${item[0]}].png" alt="${item[0]}">`));
       }else{
-        $("#diceResult").append($(`<img src="${ddf.base_url}img/diceImage/unknown.png" alt="${item[0]}">`));
+        $("#diceResult").append($(`<img src="${ddf.base_url}image/diceImage/unknown.png" alt="${item[0]}">`));
       }
     }
     total = /\s([^\s]+)$/.exec(lastRandResult[0])[1];
