@@ -48,7 +48,7 @@ gulp.task('build:scss', function(){
 });
 
 gulp.task('build:asset', function(){
-  gulp.src('src/vender/**')
+  gulp.src(['src/vender/**', 'local/**'])
     .pipe(gulp.dest('build'));
 });
 
@@ -71,6 +71,7 @@ gulp.task('browserify', watchify(function(watchify){
       .pipe(gulp.dest('build/js/'));
   })
 );
+
 gulp.task('build:ddf', ['doc:ddf'], function(){
   exec('browserify -r ddf -g uglifyify --outfile build/js/lib/ddf.js', function(a,b,c){
     exec('echo var ddf = require("ddf");>> build/js/lib/ddf.js');
@@ -82,7 +83,7 @@ gulp.task('watch', ['build', 'build:ddf', 'watchify'], function(){
   gulp.watch('src/pug/**/*.pug', ['build:pug']);
   gulp.watch('src/scss/**/*.scss', ['build:scss']);
   gulp.watch('src/module/*.js', ['build:ddf']);
-  gulp.watch('src/vender/**/*', ['build:asset']);
+  gulp.watch(['local/**', 'src/vender/**'], ['build:asset']);
 });
 
 gulp.task('doc:ddf', function(){
