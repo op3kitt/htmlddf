@@ -5,6 +5,7 @@ $(() => {
   require("./roomDelete.js");
 
   require("./saveChatLog.js");
+  require("./loadSaveData.js");
 
   require("./chatPalette.js");
   require("./graveyard.js");

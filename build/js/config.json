@@ -3,4 +3,6 @@ config = {
   base_url: "http://tools.cry-kit.com/ddf/public_html/DodontoF/"
 };
 
-ddf.isDebug = true;
+$(() => {
+  ddf.isDebug = true;
+});

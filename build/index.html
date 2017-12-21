@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="js/jquery.tablesorter.min.js"></script>
     <script src="js/jquery.contextMenu.js"></script>
+    <script src="js/colResizable-1.6.min.js"></script>
     <script src="js/spectrum.js"></script>
     <script src="js/lib/htmlspecialchars.js"></script>
     <script src="js/lib/dateformat.js"></script>
@@ -190,11 +191,11 @@
           <div class="menuarea">
             <div class="dropdown">ファイル
               <div class="dropdown-content">
-                <button id="btn_save" disabled>セーブ</button>
-                <button id="btn_load" disabled>ロード</button>
+                <button id="btn_save">セーブ</button>
+                <button id="btn_load">ロード</button>
                 <hr>
-                <button id="btn_saveall" disabled>全データセーブ</button>
-                <button id="btn_loadall" disabled>全データロード（旧：シナリオデータ読み込み）</button>
+                <button id="btn_saveall">全データセーブ</button>
+                <button id="btn_loadall">全データロード（旧：シナリオデータ読み込み）</button>
                 <hr>
                 <button id="btn_savechatlog">チャットログ保存</button>
                 <hr>
@@ -231,7 +232,7 @@
                 <button id="btn_changefont" disabled>フォントサイズ変更</button>
                 <hr>
                 <button id="btn_resetwindow" disabled>ウィンドウ配置初期化</button>
-                <button id="btn_resetdisplay" disabled>表示状態初期化</button>
+                <button id="btn_resetdisplay">表示状態初期化</button>
               </div>
             </div>
             <div class="dropdown">コマ
@@ -296,10 +297,10 @@
           </div><img id="btn_zoomin" src="img/icons/zoom_in.png"><img id="btn_zoomout" src="img/icons/zoom_out.png">
           <button id="btn_member">ルームNo.X：0名</button>
           <button id="btn_memo">共有メモ</button>
-          <button class="disabled" id="btn_draw"><img src="img/icons/pencil.gif">手書き</button>
+          <button id="btn_draw" disabled><img src="img/icons/pencil.gif">手書き</button>
           <button id="btn_graveyard2">墓場</button>
           <button class="pull-right" id="btn_logout2"><img src="img/icons/door_out.png">ログアウト</button>
-          <button class="disabled pull-right" id="btn_screenshot"><img src="img/icons/camera.png"></button>
+          <button class="pull-right" id="btn_screenshot" disabled><img src="img/icons/camera.png"></button>
         </div>
         <div class="draggabletail" id="map">
           <div id="mapSurface">
@@ -388,8 +389,8 @@
               <button id="initiative_change">設定</button>
             </div>
           </div>
-          <div id="wrap">
-            <table class="dragprev">
+          <div class="dragprev" id="wrap">
+            <table>
               <thead>
                 <tr></tr>
               </thead>
@@ -997,6 +998,82 @@
               <div id="chatPalette_import_droparea"></div>
               <div class="overwrap">
                 <input class="hide" type="file" multiple accept="plain/text,application/json"><a href="#">ファイルを選択</a><br>　または　<br>ファイルをドラッグアンドドロップ
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_loadSaveData">
+          <div class="bg">
+            <div><span class="title">ロード</span>
+              <div class="pull-right" id="loadSaveData_close2">×</div>
+            </div>
+            <div class="body dragprev">
+              <div class="row">
+                <input type="radio" name="datatype" value="all">全データをロードする（現在のデータはすべて破棄されます）
+              </div>
+              <div class="row">
+                <input type="radio" name="datatype" value="part">一部データのみをロードする。
+              </div>
+              <div class="row">
+                <input type="checkbox" value="map">マップを変更する
+              </div>
+              <div class="row">以下は現状に該当データを追加します（現在のデータは保持されます）</div>
+              <div class="row">
+                <input type="checkbox" value="floorTile">フロアタイル
+              </div>
+              <div class="row">
+                <input type="checkbox" value="mapMask">マップマスク
+              </div>
+              <div class="row">
+                <input type="checkbox" value="mapMarker">マップマーカー
+              </div>
+              <div class="row">
+                <input type="checkbox" value="characterData">キャラクター
+              </div>
+              <div class="row">
+                <input type="checkbox" value="characterWaitingRoom">キャラクター待合室
+              </div>
+              <div class="row">
+                <input type="checkbox" value="magicRangeMarker,magicRangeMarkerDD4th">魔法範囲
+              </div>
+              <div class="row">
+                <input type="checkbox" value="Memo">共有メモ
+              </div>
+              <div class="row">
+                <input type="checkbox" value="standingGraphicInfos">立ち絵
+              </div>
+              <div class="row">
+                <input type="checkbox" value="cutIn">カットイン
+              </div>
+              <div class="row">
+                <input type="checkbox" value="Card">カード
+              </div>
+              <div class="row">
+                <input type="checkbox" value="initiative">イニシアティブ表
+              </div>
+              <div class="row">
+                <input type="checkbox" value="resource">リソース
+              </div>
+              <div class="row">
+                <input type="checkbox" value="diceBotTable">ダイスボット表
+              </div>
+              <div class="row center">
+                <button id="loadSaveData_send">実行</button>
+                <button id="loadSaveData_close">キャンセル</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_loadSaveData_import">
+          <div class="bg">
+            <div><span class="title">ロード</span>
+              <div class="pull-right" id="loadSaveData_import_close">×</div>
+            </div>
+            <div class="body dragprev">
+              <input type="hidden" id="loadSaveData_import_target">
+              <div id="loadSaveData_import_droparea"></div>
+              <div class="overwrap">
+                <input class="hide" type="file" accept=""><a href="#">ファイルを選択</a><br>　または　<br>ファイルをドラッグアンドドロップ
               </div>
             </div>
           </div>

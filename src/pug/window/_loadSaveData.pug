@@ -1,0 +1,74 @@
+#window_loadSaveData.draggable
+  .bg
+    div
+      span.title ロード
+      .pull-right#loadSaveData_close2 ×
+    .body.dragprev
+      .row
+        input(type="radio",name="datatype",value="all")
+        | 全データをロードする（現在のデータはすべて破棄されます）
+      .row
+        input(type="radio",name="datatype",value="part")
+        | 一部データのみをロードする。
+      .row
+        input(type="checkbox",value="map")
+        | マップを変更する
+      .row
+        | 以下は現状に該当データを追加します（現在のデータは保持されます）
+      .row
+        input(type="checkbox",value="floorTile")
+        | フロアタイル
+      .row
+        input(type="checkbox",value="mapMask")
+        | マップマスク
+      .row
+        input(type="checkbox",value="mapMarker")
+        | マップマーカー
+      .row
+        input(type="checkbox",value="characterData")
+        | キャラクター
+      .row
+        input(type="checkbox",value="characterWaitingRoom")
+        | キャラクター待合室
+      .row
+        input(type="checkbox",value="magicRangeMarker,magicRangeMarkerDD4th")
+        | 魔法範囲
+      .row
+        input(type="checkbox",value="Memo")
+        | 共有メモ
+      .row
+        input(type="checkbox",value="standingGraphicInfos")
+        | 立ち絵
+      .row
+        input(type="checkbox",value="cutIn")
+        | カットイン
+      .row
+        input(type="checkbox",value="Card")
+        | カード
+      .row
+        input(type="checkbox",value="initiative")
+        | イニシアティブ表
+      .row
+        input(type="checkbox",value="resource")
+        | リソース
+      .row
+        input(type="checkbox",value="diceBotTable")
+        | ダイスボット表
+      .row.center
+        button#loadSaveData_send 実行
+        button#loadSaveData_close キャンセル
+#window_loadSaveData_import.draggable
+  .bg
+    div
+      span.title ロード
+      .pull-right#loadSaveData_import_close ×
+    .body.dragprev
+      input(type="hidden")#loadSaveData_import_target
+      #loadSaveData_import_droparea
+      .overwrap
+        input(type="file",accept="").hide
+        a(href="#") ファイルを選択
+        br
+        | 　または　
+        br
+        | ファイルをドラッグアンドドロップ

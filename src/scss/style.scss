@@ -377,7 +377,7 @@ label {
         padding-left: 0;
         
         &::before {
-          content: url(../image/icons/tick.png);
+          content: url(../img/icons/tick.png);
           position: relative;
           top: 2px;
         }
@@ -587,7 +587,7 @@ label {
   }
 
   &.rangeCenterMarker::after {
-    content: url(../image/centerMarker.png);
+    content: url(../img/centerMarker.png);
     position: absolute;
     top: 50%;
     left: 50%;
@@ -596,7 +596,7 @@ label {
   }
 
   &.rangeLeftMarker::after {
-    content: url(../image/centerMarker.png);
+    content: url(../img/centerMarker.png);
     position: absolute;
     top: 50%;
     left: 0;
@@ -605,7 +605,7 @@ label {
   }
 
   &.rangeRightMarker::after {
-    content: url(../image/centerMarker.png);
+    content: url(../img/centerMarker.png);
     position: absolute;
     top: 50%;
     right: 0;
@@ -614,7 +614,7 @@ label {
   }
 
   &.rangeTopMarker::after {
-    content: url(../image/centerMarker.png);
+    content: url(../img/centerMarker.png);
     position: absolute;
     top: 0;
     left: 50%;
@@ -623,7 +623,7 @@ label {
   }
 
   &.rangeBottomMarker::after {
-    content: url(../image/centerMarker.png);
+    content: url(../img/centerMarker.png);
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -632,7 +632,7 @@ label {
   }
 
   &.rangeTopLeftMarker::after {
-    content: url(../image/centerMarker.png);
+    content: url(../img/centerMarker.png);
     position: absolute;
     top: 0;
     left: 0;
@@ -641,7 +641,7 @@ label {
   }
 
   &.rangeTopRightMarker::after {
-    content: url(../image/centerMarker.png);
+    content: url(../img/centerMarker.png);
     position: absolute;
     top: 0;
     right: 0;
@@ -650,7 +650,7 @@ label {
   }
 
   &.rangeBottomLeftMarker::after {
-    content: url(../image/centerMarker.png);
+    content: url(../img/centerMarker.png);
     position: absolute;
     bottom: 0;
     left: 0;
@@ -659,7 +659,7 @@ label {
   }
 
   &.rangeBottomRightMarker::after {
-    content: url(../image/centerMarker.png);
+    content: url(../img/centerMarker.png);
     position: absolute;
     bottom: 0;
     right: 0;
@@ -769,14 +769,41 @@ label {
     
     border-top: solid #ccc 1px;
     border-left: solid #ccc 1px;
+
+    tr {
+      background: white;
+      
+      &:hover {
+        background: #cff;
+
+        input:not([type="checkbox"]) {
+          background: #cff;
+        }
+      }
+    }
   }
 
   table th, 
   table td {
+    position: relative;
     border-right: solid #ccc 1px;
     border-bottom: solid #ccc 1px;
 
-    input:not([type="checkbox"]) {
+    &:nth-child(n+2):not(:last-child) {
+      min-width: 3.2em;
+    }
+
+    input[type="number"] {
+      text-align: right;
+
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button {
+          width: 0.3em;
+      }
+    }
+
+    input:not([type="checkbox"]), textarea {
+      @include full();
       border: 0;
       width: 100%;
     }
@@ -2034,7 +2061,7 @@ label {
       }
 
       p:hover {
-        background: #99f;
+        background: #cff;
       }
     }
 
@@ -2085,6 +2112,110 @@ label {
   }
 
   #chatPalette_import_droparea {
+    width: 100%;
+    height: 120px;
+    border: solid #666 1px;
+    z-index: 55;
+    background: #fff;
+
+    &.is-dragover{
+      background: #ccf;
+
+      & ~ .overwrap, img {
+        display: none;
+      }
+      
+      &::before {
+        content: "ここにドロップ";
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    div {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+
+      img {
+        max-width: 50px;
+        max-height: 50px;
+      }
+    }
+
+    & ~ .overwrap {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      top: 8px;
+      left: 0;
+      
+      input {
+        overflow: hidden;
+        width: 0;
+      }
+      z-index: 54;
+    }
+    
+    
+  }
+}
+
+
+#window_loadSaveData {
+  @include window(500px, 540px, 200px, 200px);
+
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 22px;
+    padding: 0.3em;
+    left: 0;
+    right: 0;
+    bottm: 0;
+    line-height: 2.4;
+
+    input[type=checkbox] {
+      margin-left: 2em;
+    }
+  }
+}
+
+#window_loadSaveData_import {
+  @include window(250px, 152px, 40%, 40%);
+
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 22px;
+    padding: 0.3em;
+    text-align: center;
+    left: 0;
+    right: 0;
+    bottm: 0;
+  }
+
+  #loadSaveData_import_droparea {
     width: 100%;
     height: 120px;
     border: solid #666 1px;

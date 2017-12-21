@@ -6,7 +6,7 @@ $("#btn_imageupload").on("click", (e) => {
 
 var upload_uploadlist = [];
 
-$form = $("#upload_droparea");
+let $form = $("#upload_droparea");
 
 $("#upload_droparea ~ .overwrap").on('dragenter', () => {
   $form.addClass('is-dragover');

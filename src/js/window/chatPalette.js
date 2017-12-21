@@ -100,7 +100,7 @@ $("#chatPalette_load").on('click', (e) => {
   $(".draggable:not(#window_chatPalette_import)").css("zIndex", 150);
 });
 
-$form = $("#chatPalette_import_droparea");
+let $form = $("#chatPalette_import_droparea");
 
 (($form) => {
   $("#chatPalette_import_droparea ~ .overwrap").on('dragenter', () => {

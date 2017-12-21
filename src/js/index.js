@@ -227,6 +227,7 @@ $(() => {
       }
   });
   
+  $("#initiative table").colResizable({partialRefresh: true});
 });
 
 ddf.safeDragDestoroy = () => {
@@ -813,6 +814,8 @@ function refresh_parseViewStateInfo(refreshData){
           $("#btn_displayinitiative").addClass("checked");
           
           $("#initiative").show();
+
+          $("#initiative table").colResizable({partialRefresh: true});
         }
         break;
       case "isResourceWindowVisible":
@@ -1240,18 +1243,19 @@ function refresh_parseRoundTimeData(refreshData, force = false){
         );
       }
     }
+    $("#initiative table").colResizable({partialRefresh: true});
   }else{
-      ddf.roomState.ini_characters = ddf.util.hashSort(ddf.roomState.ini_characters, (obj) => {return obj.data.initiative});
-      for(key in ddf.roomState.ini_characters){
-        var character = ddf.roomState.ini_characters[key];
-        if(character != undefined){
-          character.row.children("td:eq(0)").text(character.data.initiative==refreshData.roundTimeData.initiative?"●":"");
-          $("#initiative table tbody tr:eq(0)").before(
-            character.row
-          );
-        }
+    ddf.roomState.ini_characters = ddf.util.hashSort(ddf.roomState.ini_characters, (obj) => {return obj.data.initiative});
+    for(key in ddf.roomState.ini_characters){
+      var character = ddf.roomState.ini_characters[key];
+      if(character != undefined){
+        character.row.children("td:eq(0)").text(character.data.initiative==refreshData.roundTimeData.initiative?"●":"");
+        $("#initiative table tbody tr:eq(0)").before(
+          character.row
+        );
       }
     }
+  }
   $("#round").text(refreshData.roundTimeData.round);
   $("#now_ini").text(refreshData.roundTimeData.initiative);
 

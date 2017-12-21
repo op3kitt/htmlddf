@@ -2,11 +2,11 @@
   .menuarea
     .dropdown ファイル
       .dropdown-content
-        button#btn_save(disabled) セーブ
-        button#btn_load(disabled) ロード
+        button#btn_save セーブ
+        button#btn_load ロード
         hr
-        button#btn_saveall(disabled) 全データセーブ
-        button#btn_loadall(disabled) 全データロード（旧：シナリオデータ読み込み）
+        button#btn_saveall 全データセーブ
+        button#btn_loadall 全データロード（旧：シナリオデータ読み込み）
         hr
         button#btn_savechatlog チャットログ保存
         hr
@@ -39,7 +39,7 @@
         button#btn_changefont(disabled) フォントサイズ変更
         hr
         button#btn_resetwindow(disabled) ウィンドウ配置初期化
-        button#btn_resetdisplay(disabled) 表示状態初期化
+        button#btn_resetdisplay 表示状態初期化
     .dropdown コマ
       .dropdown-content
         button#btn_createcharacter キャラクター追加
@@ -73,7 +73,7 @@
         button#btn_mapmodify(disabled) 簡易マップ作成
         hr
         button#btn_mapsave マップ状態保存
-        button#btn_mapchange(disabled) マップ切り替え
+        button#btn_mapchange マップ切り替え
     .dropdown 画像
       .dropdown-content
         button#btn_imageupload ファイルアップローダー
@@ -91,12 +91,12 @@
   img#btn_zoomout(src="img/icons/zoom_out.png")
   button#btn_member ルームNo.X：0名
   button#btn_memo 共有メモ
-  button#btn_draw.disabled
+  button#btn_draw(disabled)
     img(src="img/icons/pencil.gif")
     | 手書き
   button#btn_graveyard2 墓場
   button#btn_logout2.pull-right
     img(src="img/icons/door_out.png")
     | ログアウト
-  button#btn_screenshot.disabled.pull-right
+  button#btn_screenshot(disabled).pull-right
     img(src="img/icons/camera.png")

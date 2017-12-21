@@ -1,13 +1,35 @@
 $(() => {
   /*プレイルームメニュー*/
   $("#btn_save").on("click", (e) => {
+    ddf.save().then((r) => {
+      if(r.result == "OK"){
+        obj = $(`<a href="${ddf.base_url+r.saveFileName}" download="">.</a>`);
+        $("body").append(obj);
+        obj[0].click();
+        obj.remove();
+      }
+    });
   });
-  $("#btn_load").on("click", (e) => {
-  });
+  /*$("#btn_load").on("click", (e) => {
+  });*/
   $("#btn_saveall").on("click", (e) => {
+    data = JSON.stringify({
+      saveData: {
+        tabInfos: tab
+      },
+      saveDataTypeName: "ChatPalette2"
+    });
+    ddf.saveAllData(data).then((r) => {
+      if(r.result == "OK"){
+        obj = $(`<a href="${ddf.base_url+r.saveFileName}" download="">.</a>`);
+        $("body").append(obj);
+        obj[0].click();
+        obj.remove();
+      }
+    });
   });
-  $("#btn_loadall").on("click", (e) => {
-  });
+  /*$("#btn_loadall").on("click", (e) => {
+  });*/
   /*$("#btn_savechatlog, #btn_saveChatLog2").on("click", (e) => {
   });*/
   $("#btn_startrecord").on("click", (e) => {
@@ -93,6 +115,11 @@ $(() => {
   $("#btn_resetwindow").on("click", (e) => {
   });
   $("#btn_resetdisplay").on("click", (e) => {
+    if(confirm("ウィンドウ位置等の表示情報を初期化しますか？\n(初期化した場合再ログインが必要です)")){
+      ddf.cmd.clearUserState();
+      window.onbeforeunload = null;
+      location.reload();
+    }
   });
 
   /*$("#btn_addCharacter").on("click", (e) => {

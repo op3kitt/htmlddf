@@ -1664,15 +1664,41 @@ ddf.uploadFile = function(fileName, baseUrl, fileData){
  * @return {Promise}
  */
 ddf.load = function(fileName, fileData, targets = null){
+  u8array = fileData;
+  fileDataMsg = msgpack.encode(u8array);
+  fileDataMsg = fileDataMsg.slice(fileDataMsg.indexOf(u8array[0]));
   return ddf.sendMsg({
     room: ddf.userState.room,
     own: ddf.info.uniqueId + ddf.userState.own,
     params: {
       fileName: fileName,
-      fileData: fileData,
+      fileData: fileDataMsg,
       targets: targets
     },
     cmd: "load"
+  });
+};
+
+/**
+ * @function load
+ * @description セーブデータを読み込む
+ * @param {String} fileName ローカルファイル名
+ * @param {String} fileData ファイルの内容
+ * @param {Array(String)} [targets=null] 読み込む対象
+ * @return {Promise}
+ */
+ddf.loadAllSaveData = function(fileName, fileData){
+  u8array = fileData;
+  fileDataMsg = msgpack.encode(u8array);
+  fileDataMsg = fileDataMsg.slice(fileDataMsg.indexOf(u8array[0]));
+  return ddf.sendMsg({
+    room: ddf.userState.room,
+    own: ddf.info.uniqueId + ddf.userState.own,
+    params: {
+      fileName: fileName,
+      fileData: fileDataMsg,
+    },
+    cmd: "loadAllSaveData"
   });
 };
 
