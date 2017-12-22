@@ -105,6 +105,7 @@ JSDoc
 
 ・MITライセンス
   browserify
+  compare-versions
   Date Format
   del
   gulp

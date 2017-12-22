@@ -1282,6 +1282,10 @@ function sendChatMessage(channel, senderName, state, gameType, message, color, i
     return ddf.sendDiceBotChatMessage(channel, senderName, state, match[2]?match[2]:0, match[3], color, ddf.roomState.gameType, isNeedResult);
   }else{
     //ChatMessage
+    /*version = /^Ver\.\d+\.(\d+\.\d+\.?\d*)\(/.exec(ddf.info.version);
+    if(compareVersion(version[1], '48.32.1') < 0 && /^###CutInCommand:/.test(message)){
+      message = "Wrong Message -> " + message;
+    }*/
     if(/^###CutInCommand:/.test(message)){
       message = "Wrong Message -> " + message;
     }

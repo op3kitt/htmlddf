@@ -47,8 +47,12 @@ gulp.task('build:scss', function(){
     .pipe(gulp.dest('build/css/'));
 });
 
-gulp.task('build:asset', function(){
+gulp.task('build:asset:local', function(){
   gulp.src(['src/vender/**', 'local/**'])
+    .pipe(gulp.dest('build'));
+});
+gulp.task('build:asset', function(){
+  gulp.src(['local/**', 'src/vender/**'])
     .pipe(gulp.dest('build'));
 });
 
@@ -79,11 +83,11 @@ gulp.task('build:ddf', ['doc:ddf'], function(){
 });
 
 gulp.task('watchify', ['enable-watch-mode', 'enable-debug-mode', 'browserify']);
-gulp.task('watch', ['build', 'build:ddf', 'watchify'], function(){
+gulp.task('watch', ['build:pug', 'build:scss', 'build:asset:local', 'build:ddf', 'watchify'], function(){
   gulp.watch('src/pug/**/*.pug', ['build:pug']);
   gulp.watch('src/scss/**/*.scss', ['build:scss']);
   gulp.watch('src/module/*.js', ['build:ddf']);
-  gulp.watch(['local/**', 'src/vender/**'], ['build:asset']);
+  gulp.watch(['local/**', 'src/vender/**'], ['build:asset:local']);
 });
 
 gulp.task('doc:ddf', function(){

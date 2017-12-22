@@ -1,5 +1,6 @@
 var encode = require('htmlspecialchars');
 var dateFormat = require('dateformat');
+var compareVersion = require('compare-versions');
 
 function toHalf(strVal){
   // 半角変換

@@ -1,8 +1,4 @@
 config = {
   originalColorPalette: false, //true‚ğw’è‚·‚é‚Æ‚Ç‚Ç‚ñ‚Æ‚Ó‚Æ“¯‚¶‚É‚È‚éB
-  base_url: "http://tools.cry-kit.com/ddf/public_html/DodontoF/"
-};
-
-$(() => {
-  ddf.isDebug = true;
-});
+  base_url: ""
+}
