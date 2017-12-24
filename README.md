@@ -40,12 +40,12 @@ buildフォルダ以下をDodontoFServer.rbと同階層にアップロードし�
 ## あなたの管理しているサーバーに接続するが、別階層に設置する場合
 
 1. サーバーの任意のディレクトリにbuildフォルダ以下をアップロードして下さい。
-2. [build/js/.config.json](build/js/.config.json)を編集して、DodontoFServer.rbのあるディレクトリを指定してください。
+2. [build/js/config.json](build/js/config.json)を編集して、DodontoFServer.rbのあるディレクトリを指定してください。
 
 ## あなたの管理している他のサーバーに接続する場合
 
 1. サーバーの任意のディレクトリにbuildフォルダ以下をアップロードして下さい。
-2. [build/js/.config.json](build/js/.config.json)を編集して、どどんとふの設置されているディレクトリを指定してください。
+2. [build/js/config.json](build/js/config.json)を編集して、どどんとふの設置されているディレクトリを指定してください。
 3. 設置しているサーバーが以下のヘッダーを返すように設定してください。
         Access-Control-Allow-Origin *
         Access-Control-Allow-Headers Origin, X-Requested-With, Content-Type, Accept
@@ -59,7 +59,7 @@ buildフォルダ以下をDodontoFServer.rbと同階層にアップロードし�
 
 カラーパレットをオリジナルのどどんとふと同一にする場合、以下のファイルを編集してください。
 
-[build/js/.config.json](build/js/.config.json)
+[build/js/config.json](build/js/config.json)
 
 # 免責
 
