@@ -666,6 +666,9 @@ label {
     margin-left: 25px;
     margin-top: 25px;
   }
+
+  &.metallicGuardian {
+  }
 }
 
 .mapMaskFrame {
@@ -1096,6 +1099,45 @@ label {
     }
 
     #magicRangeLH_name {
+      width: 10em;
+    }
+  }
+}
+
+#window_magicRangeMG {
+  @include window(400px, 230px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    label {
+      width: 8em;
+      display: inline-block;
+      text-align: right;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+
+    #magicRangeMG_name {
       width: 10em;
     }
   }

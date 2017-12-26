@@ -13,6 +13,7 @@ $(() => {
   require("./addCharacter.js");
   require("./magicRangeDD4th.js");
   require("./magicRangeLH.js");
+  require("./magicRangeMG.js");
   require("./mapMask.js");
 
   require("./mapChange.js");

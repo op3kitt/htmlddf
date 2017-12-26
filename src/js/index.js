@@ -113,7 +113,6 @@ $(() => {
         data.y = ui.position.top / 50;
         ddf.moveCharacter(data.imgId, data.x, data.y);
       }
-        console.log(ui);
     }
   };
 
@@ -864,9 +863,43 @@ function refresh_parseRecordData(refreshData){
       }
       obj = character.obj;
       switch(data.type){
+        case "MetallicGuardianDamageRange":
+          
+          obj.css({
+            clipPath: data.maxmaxRange < 2 ?"":`polygon(0 ${(data.maxRange * 50) * ddf.roomState.mapData.gridInterval}px,
+                       0 ${(data.maxRange * 50 - 50) * ddf.roomState.mapData.gridInterval}px,
+                       ${(data.maxRange * 50 - 50) * ddf.roomState.mapData.gridInterval}px 0,
+                       ${(data.maxRange * 50) * ddf.roomState.mapData.gridInterval}px 0,
+                       ${(data.maxRange * 100 - 50) * ddf.roomState.mapData.gridInterval}px ${(data.maxRange * 50 - 50) * ddf.roomState.mapData.gridInterval}px,
+                       ${(data.maxRange * 100 - 50) * ddf.roomState.mapData.gridInterval}px ${(data.maxRange * 50) * ddf.roomState.mapData.gridInterval}px,
+                       ${(data.maxRange * 50) * ddf.roomState.mapData.gridInterval}px ${(data.maxRange * 50) * ddf.roomState.mapData.gridInterval}px,
+                       ${(data.maxRange * 50) * ddf.roomState.mapData.gridInterval}px ${(data.maxRange * 50 + 50) * ddf.roomState.mapData.gridInterval}px,
+                       ${(data.maxRange * 50 - 50) * ddf.roomState.mapData.gridInterval}px ${(data.maxRange * 50 + 50) * ddf.roomState.mapData.gridInterval}px,
+                       ${(data.maxRange * 50 - 50) * ddf.roomState.mapData.gridInterval}px ${(data.maxRange * 50) * ddf.roomState.mapData.gridInterval}px)`,
+            left: data.x * 50,
+            top: data.y * 50,
+            marginLeft: data.maxRange > 1 ? (data.maxRange * -50 + 50) * ddf.roomState.mapData.gridInterval: 0,
+            marginTop:  (data.maxRange * -50) * ddf.roomState.mapData.gridInterval,
+            opacity: 0.5,
+            transformOrigin: `center ${data.maxRange * 50 + 25}px`,
+            transform: `rotateZ(${data.rotation}deg)`
+          });
+          obj.children("object").attr("data", `img/rangeMG.svg?maxRange=${data.maxRange}&minRange=${data.minRange}&color=${data.color}&gridInterval=${ddf.roomState.mapData.gridInterval}`);
+          obj.children("object").css({
+            width: (data.maxRange * 100 - 50) * ddf.roomState.mapData.gridInterval,
+            height: (data.maxRange * 50 + 50) * ddf.roomState.mapData.gridInterval
+          });
+          break;
         case "LogHorizonRange":
           obj.css({
-            clipPath: `polygon(0 ${data.range*50+50}px, 0 ${data.range*50}px,${data.range*50}px 0,${data.range*50+50}px 0,${data.range*100+50}px ${data.range*50}px, ${data.range*100+50}px ${data.range*50+50}px, ${data.range*50+50}px ${data.range*100+50}px, ${data.range*50}px ${data.range*100+50}px)`,
+          clipPath: `polygon(0 ${(data.range * 50 + 50) * ddf.roomState.mapData.gridInterval}px,
+                     0 ${(data.range * 50) * ddf.roomState.mapData.gridInterval}px,
+                     ${(data.range * 50) * ddf.roomState.mapData.gridInterval}px 0,
+                     ${(data.range * 50 + 50) * ddf.roomState.mapData.gridInterval}px 0,
+                     ${(data.range * 100 + 50) * ddf.roomState.mapData.gridInterval}px ${(data.range * 50) * ddf.roomState.mapData.gridInterval}px,
+                     ${(data.range * 100 + 50) * ddf.roomState.mapData.gridInterval}px ${(data.range * 50 + 50) * ddf.roomState.mapData.gridInterval}px,
+                     ${(data.range * 50 + 50) * ddf.roomState.mapData.gridInterval}px ${(data.range * 100 + 50) * ddf.roomState.mapData.gridInterval}px, 
+                     ${(data.range * 50) * ddf.roomState.mapData.gridInterval}px ${(data.range * 100 + 50) * ddf.roomState.mapData.gridInterval}px)`,
             left: data.x * 50,
             top: data.y * 50,
             marginLeft: (data.range * -50) * ddf.roomState.mapData.gridInterval,
@@ -874,7 +907,7 @@ function refresh_parseRecordData(refreshData){
             width: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
             height: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
           });
-          obj.children("object").attr("data", `img/rangeLH.svg?size=${data.range}&color=${data.color}`);
+          obj.children("object").attr("data", `img/rangeLH.svg?size=${data.range}&color=${data.color}&gridInterval=${ddf.roomState.mapData.gridInterval}`);
           obj.children("object").css({
             width: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval,
             height: (data.range * 100 + 50) * ddf.roomState.mapData.gridInterval
@@ -1003,15 +1036,53 @@ function refresh_parseCharacters(refreshData){
     case "CardTrushMount":
     case "CardMount":
       break;
-    case "LogHorizonRange":
-      obj = $(`<div class="magicRangeFrame draggableObj rangeCenterMarker" id="${character.imgId}"><object type="image/svg+xml" data="img/rangeLH.svg?size=${character.range}&color=${character.color}"></div>`);
+    case "MetallicGuardianDamageRange":
+      obj = $(`<div class="magicRangeFrame metallicGuardian draggableObj rangeBottomMarker" id="${character.imgId}"><object type="image/svg+xml" data="img/rangeMG.svg?maxRange=${character.maxRange}&minRange=${character.minRange}&color=${character.color}&gridInterval=${ddf.roomState.mapData.gridInterval}"></div>`);
       $("#mapSurface").append(obj);
       ddf.characters[character.imgId] = {
         obj: obj,
         data: character
       };
       obj.css({
-        clipPath: `polygon(0 ${character.range*50+50}px, 0 ${character.range*50}px,${character.range*50}px 0,${character.range*50+50}px 0,${character.range*100+50}px ${character.range*50}px, ${character.range*100+50}px ${character.range*50+50}px, ${character.range*50+50}px ${character.range*100+50}px, ${character.range*50}px ${character.range*100+50}px)`,
+        clipPath: character.maxmaxRange < 2 ?"":`polygon(0 ${(character.maxRange * 50) * ddf.roomState.mapData.gridInterval}px,
+                   0 ${(character.maxRange * 50 - 50) * ddf.roomState.mapData.gridInterval}px,
+                   ${(character.maxRange * 50 - 50) * ddf.roomState.mapData.gridInterval}px 0,
+                   ${(character.maxRange * 50) * ddf.roomState.mapData.gridInterval}px 0,
+                   ${(character.maxRange * 100 - 50) * ddf.roomState.mapData.gridInterval}px ${(character.maxRange * 50 - 50) * ddf.roomState.mapData.gridInterval}px,
+                   ${(character.maxRange * 100 - 50) * ddf.roomState.mapData.gridInterval}px ${(character.maxRange * 50) * ddf.roomState.mapData.gridInterval}px,
+                   ${(character.maxRange * 50) * ddf.roomState.mapData.gridInterval}px ${(character.maxRange * 50) * ddf.roomState.mapData.gridInterval}px,
+                   ${(character.maxRange * 50) * ddf.roomState.mapData.gridInterval}px ${(character.maxRange * 50 + 50) * ddf.roomState.mapData.gridInterval}px,
+                   ${(character.maxRange * 50 - 50) * ddf.roomState.mapData.gridInterval}px ${(character.maxRange * 50 + 50) * ddf.roomState.mapData.gridInterval}px,
+                   ${(character.maxRange * 50 - 50) * ddf.roomState.mapData.gridInterval}px ${(character.maxRange * 50) * ddf.roomState.mapData.gridInterval}px)`,
+        left: character.x * 50,
+        top: character.y * 50,
+        marginLeft: character.maxRange > 1 ? (character.maxRange * -50 + 50) * ddf.roomState.mapData.gridInterval: 0,
+        marginTop:  (character.maxRange * -50) * ddf.roomState.mapData.gridInterval,
+        opacity: 0.5,
+        transformOrigin: `center ${character.maxRange * 50 + 25}px`,
+        transform: `rotateZ(${character.rotation}deg)`
+      });
+      obj.children("object").css({
+        width: (character.maxRange * 100 - 50) * ddf.roomState.mapData.gridInterval,
+        height: (character.maxRange * 50 + 50) * ddf.roomState.mapData.gridInterval
+      });
+      break;
+    case "LogHorizonRange":
+      obj = $(`<div class="magicRangeFrame draggableObj rangeCenterMarker" id="${character.imgId}"><object type="image/svg+xml" data="img/rangeLH.svg?size=${character.range}&color=${character.color}&gridInterval=${ddf.roomState.mapData.gridInterval}"></div>`);
+      $("#mapSurface").append(obj);
+      ddf.characters[character.imgId] = {
+        obj: obj,
+        data: character
+      };
+      obj.css({
+        clipPath: `polygon(0 ${(character.range * 50 + 50) * ddf.roomState.mapData.gridInterval}px,
+                   0 ${(character.range * 50) * ddf.roomState.mapData.gridInterval}px,
+                   ${(character.range * 50) * ddf.roomState.mapData.gridInterval}px 0,
+                   ${(character.range * 50 + 50) * ddf.roomState.mapData.gridInterval}px 0,
+                   ${(character.range * 100 + 50) * ddf.roomState.mapData.gridInterval}px ${(character.range * 50) * ddf.roomState.mapData.gridInterval}px,
+                   ${(character.range * 100 + 50) * ddf.roomState.mapData.gridInterval}px ${(character.range * 50 + 50) * ddf.roomState.mapData.gridInterval}px,
+                   ${(character.range * 50 + 50) * ddf.roomState.mapData.gridInterval}px ${(character.range * 100 + 50) * ddf.roomState.mapData.gridInterval}px, 
+                   ${(character.range * 50) * ddf.roomState.mapData.gridInterval}px ${(character.range * 100 + 50) * ddf.roomState.mapData.gridInterval}px)`,
         left: character.x * 50,
         top: character.y * 50,
         marginLeft: (character.range * -50) * ddf.roomState.mapData.gridInterval,
@@ -1174,7 +1245,9 @@ function refresh_parseMapData(refreshData){
   }
   redraw = [];
   for(item in ddf.characters){
-    if(ddf.characters[item].data.type == "magicRangeMarkerDD4th"){
+    if(ddf.characters[item].data.type == "magicRangeMarkerDD4th" ||
+       ddf.characters[item].data.type == "LogHorizonRange" ||
+       ddf.characters[item].data.type == "MetallicGuardianDamageRange"){
       redraw.push([0, "changeCharacter", [ddf.characters[item].data], "dummy\t"]);
     }
   }

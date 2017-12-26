@@ -244,7 +244,7 @@
                     <button id="btn_rangedd3" disabled>魔法範囲追加(D&D3版)</button>
                     <button id="btn_rangedd4">魔法範囲追加(D&D4版)</button>
                     <button id="btn_rangelh">ログホライズン用範囲</button>
-                    <button id="btn_rangemg" disabled>攻撃範囲(メタリックガーディアン)</button>
+                    <button id="btn_rangemg">攻撃範囲(メタリックガーディアン)</button>
                   </div>
                 </div>
                 <button id="btn_magictimer" disabled>魔法タイマー追加</button>
@@ -275,7 +275,7 @@
                 <button id="btn_mapmodify" disabled>簡易マップ作成</button>
                 <hr>
                 <button id="btn_mapsave">マップ状態保存</button>
-                <button id="btn_mapchange">マップ切り替え</button>
+                <button id="btn_mapload">マップ切り替え</button>
               </div>
             </div>
             <div class="dropdown">画像
@@ -690,6 +690,37 @@
             <div class="r center">
               <button id="magicRangeLH_send">追加</button>
               <button id="magicRangeLH_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_magicRangeMG">
+          <div class="bg"> 
+            <div> <span class="title">攻撃範囲追加</span>
+              <div class="pull-right" id="magicRangeMG_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <input type="hidden" id="magicRangeMG_imgId">
+              <label>名前：</label>
+              <input id="magicRangeMG_name">
+            </div>
+            <div class="r">
+              <label>最大射程：</label>
+              <input type="number" min="0" max="100" required id="magicRangeMG_maxRange">
+            </div>
+            <div class="r">
+              <label>最小射程：</label>
+              <input type="number" min="0" max="100" required id="magicRangeMG_minRange">
+            </div>
+            <div class="r">
+              <label>色：</label>
+              <input type="hidden" id="magicRangeMG_color">
+              <input id="magicRangeMG_color2">
+            </div>
+            <div class="r center">
+              <button id="magicRangeMG_send">追加</button>
+              <button id="magicRangeMG_close">キャンセル</button>
             </div>
           </div>
         </div>

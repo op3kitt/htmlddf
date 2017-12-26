@@ -130,8 +130,8 @@ $(() => {
   });*/
   /*$("#btn_rangelh").on("click", (e) => {
   });*/
-  $("#btn_rangemg").on("click", (e) => {
-  });
+  /*$("#btn_rangemg").on("click", (e) => {
+  });*/
   $("#btn_magictimer").on("click", (e) => {
   });
   $("#btn_createchit").on("click", (e) => {
@@ -178,8 +178,8 @@ $(() => {
       }
     });
   });
-  $("#btn_mapchange").on("click", (e) => {
-  });
+  /*$("#btn_mapload").on("click", (e) => {
+  });*/
 
   /*$("#btn_imageupload").on("click", (e) => {
   });*/

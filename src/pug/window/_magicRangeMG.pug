@@ -1,0 +1,23 @@
+#window_magicRangeMG.draggable
+  .bg 
+    div 
+      span.title 攻撃範囲追加
+      .pull-right#magicRangeMG_close2 ×
+  .body.dragprev
+    .r
+      input(type="hidden")#magicRangeMG_imgId
+      label 名前：
+      input#magicRangeMG_name
+    .r
+      label 最大射程：
+      input(type="number",min=0,max=100,required)#magicRangeMG_maxRange
+    .r
+      label 最小射程：
+      input(type="number",min=0,max=100,required)#magicRangeMG_minRange
+    .r
+      label 色：
+      input(type="hidden")#magicRangeMG_color
+      input#magicRangeMG_color2
+    .r.center
+      button#magicRangeMG_send 追加
+      button#magicRangeMG_close キャンセル

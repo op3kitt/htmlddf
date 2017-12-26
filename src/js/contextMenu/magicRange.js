@@ -12,6 +12,9 @@ $.contextMenu({
           case "magicRangeMarkerDD4th":
             ddf.cmd.magicRangeDD4th_show(opt.$trigger.attr("id"));
             break;
+          case "MetallicGuardianDamageRange":
+            ddf.cmd.magicRangeMG_show(opt.$trigger.attr("id"));
+            break;
         }
       },
     },
@@ -28,6 +31,30 @@ $.contextMenu({
           }
           $(".draggableObj").draggable(ddf.dragOption);
         }
+      },
+    },
+    rotationR: {name: "右回転",
+      visible: function(key, opt){
+          return opt.$trigger && ddf.characters[opt.$trigger.attr("id")] && ddf.characters[opt.$trigger.attr("id")].data.type == "MetallicGuardianDamageRange";
+      },
+      callback: function(itemKey, opt, rootMenu, originalEvent) {
+        character = ddf.characters[opt.$trigger.attr("id")];
+        character.data.rotation = character.data.rotation + 90 % 360;
+        ddf.changeCharacter(character.data).then((r) => {
+          ddf.cmd.refresh_parseRecordData({record: [[0, "changeCharacter", [character.data], "dummy\t"]]});
+        });
+      },
+    },
+    rotationL: {name: "左回転",
+      visible: function(key, opt){
+          return opt.$trigger && ddf.characters[opt.$trigger.attr("id")] && ddf.characters[opt.$trigger.attr("id")].data.type == "MetallicGuardianDamageRange";
+      },
+      callback: function(itemKey, opt, rootMenu, originalEvent) {
+        character = ddf.characters[opt.$trigger.attr("id")];
+        character.data.rotation = character.data.rotation + 270 % 360;
+        ddf.changeCharacter(character.data).then((r) => {
+          ddf.cmd.refresh_parseRecordData({record: [[0, "changeCharacter", [character.data], "dummy\t"]]});
+        });
       },
     }
   }

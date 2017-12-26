@@ -22,6 +22,11 @@ $.contextMenu({
         ddf.cmd.magicRangeLH_show("0");
       },
     },
+    addMagicRangeMG: {name: "メタリックガーディアン用範囲",
+      callback: function(itemKey, opt, rootMenu, originalEvent) {
+        ddf.cmd.magicRangeMG_show("0");
+      },
+    },
     addMagicTimer: {name: "魔法タイマー追加",
       disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {

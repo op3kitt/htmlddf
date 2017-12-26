@@ -136,7 +136,7 @@ $("#window_loadSaveData_import .overwrap a").on('click', (e) => {
 });
 
 
-$("#btn_mapchange").on('click', (e) => {
+$("#btn_mapload").on('click', (e) => {
   $("#loadSaveData_import_target").val("mapData");
 
   $("#window_loadSaveData_import").show().css("zIndex", "151");

@@ -41,7 +41,7 @@ function getGraveyardCharacterData(){
         case "LogHorizonRange":
           type = "ログホライズン攻撃範囲";
           break;
-        case "MetalicGuardianDamageRange":
+        case "MetallicGuardianDamageRange":
           type = "メタリックガーディアン攻撃範囲";
           break;
         case "MagicTimer":
