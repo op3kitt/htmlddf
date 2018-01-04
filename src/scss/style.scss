@@ -609,7 +609,7 @@ label {
     position: absolute;
     top: 50%;
     right: 0;
-    margin-left: 25px;
+    margin-right: -25px;
     margin-top: -25px;
   }
 
@@ -628,7 +628,7 @@ label {
     bottom: 0;
     left: 50%;
     margin-left: -25px;
-    margin-top: 25px;
+    margin-bottom: -25px;
   }
 
   &.rangeTopLeftMarker::after {
@@ -645,7 +645,7 @@ label {
     position: absolute;
     top: 0;
     right: 0;
-    margin-left: 25px;
+    margin-right: -25px;
     margin-top: -25px;
   }
 
@@ -655,7 +655,7 @@ label {
     bottom: 0;
     left: 0;
     margin-left: -25px;
-    margin-top: 25px;
+    margin-bottom: -25px;
   }
 
   &.rangeBottomRightMarker::after {
@@ -663,8 +663,8 @@ label {
     position: absolute;
     bottom: 0;
     right: 0;
-    margin-left: 25px;
-    margin-top: 25px;
+    margin-right: -25px;
+    margin-bottom: -25px;
   }
 
   &.metallicGuardian {
