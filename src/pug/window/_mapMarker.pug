@@ -1,0 +1,33 @@
+#window_mapMarker.draggable
+  .bg 
+    div
+      span#mapMarker_title マップマーカー作成
+      .pull-right#mapMarker_close2 ×
+  .body.dragprev
+    .r
+      input(type="hidden")#mapMarker_imgId
+      label 高さ：
+      input(type="number",min="1",max="100",required)#mapMarker_height.spinner
+      label 幅：
+      input(type="number",min="1",max="100",required)#mapMarker_width.spinner
+    .r
+      label 色：
+      input(type="hidden")#mapMarker_color
+      input#mapMarker_color2.colorpalette
+    .r
+      input(type="checkbox")#mapMarker_isPaint
+      |塗り潰す
+      input(type="checkbox")#mapMarker_draggable
+      |マーカー固定
+    .r
+      label メッセージ：
+      textarea#mapMarker_message
+    .r#mapMarker_create
+      input(type="checkbox")#mapMarker_multiple
+      |複数作成
+    .r#mapMarker_change
+      button#mapMarker_send 変更
+      button#mapMarker_close キャンセル
+  .body2.dragprev
+    #mapMarker_preview
+      .message

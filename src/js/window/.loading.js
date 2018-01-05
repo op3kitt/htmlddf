@@ -11,10 +11,12 @@ $(() => {
   require("./graveyard.js");
 
   require("./addCharacter.js");
+  require("./magicRangeMarker.js");
   require("./magicRangeDD4th.js");
   require("./magicRangeLH.js");
   require("./magicRangeMG.js");
   require("./mapMask.js");
+  require("./mapMarker.js");
 
   require("./mapChange.js");
 

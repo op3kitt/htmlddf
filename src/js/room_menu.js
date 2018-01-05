@@ -124,8 +124,8 @@ $(() => {
 
   /*$("#btn_addCharacter").on("click", (e) => {
   });*/
-  $("#btn_ragedd3").on("click", (e) => {
-  });
+  /*$("#btn_ragedd3").on("click", (e) => {
+  });*/
   /*$("#btn_rangedd4").on("click", (e) => {
   });*/
   /*$("#btn_rangelh").on("click", (e) => {

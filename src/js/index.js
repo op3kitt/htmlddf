@@ -72,8 +72,8 @@ $(() => {
   
   ddf.dragOption = {
     start: (event) =>  {
-        click.x = event.clientX - parseInt($(event.target).css("marginLeft")) / 2;
-        click.y = event.clientY - parseInt($(event.target).css("marginTop")) / 2;
+        click.x = event.clientX - (parseInt($(event.target).css("marginLeft")) / 2) * ddf.roomState.zoom;
+        click.y = event.clientY - (parseInt($(event.target).css("marginTop")) / 2) * ddf.roomState.zoom;
     },
     drag: (event, ui) =>  {
       var zoom = ddf.roomState.zoom;
@@ -863,6 +863,124 @@ function refresh_parseRecordData(refreshData){
       }
       obj = character.obj;
       switch(data.type){
+        case "magicRangeMarker":
+          iniChanged = true;
+          obj.css({
+            left: data.x * 50,
+            top: data.y * 50,
+            clipPath: getPath(data.rangeType, data.feets / 5,ddf.roomState.mapData.gridInterval),
+            opacity: 0.5
+          });
+          obj.children("object").attr("data",`img/range.svg?radius=${data.feets}&color=${data.color}&gridInterval=${ddf.roomState.mapData.gridInterval}&direction=${data.rangeType}`);
+          obj.removeClass("rangeCenterMarker rangeTopMarker rangeLeftMarker rangeRightMarker rangeBottomMarker rangeTopLeftMarker rangeTopRightMarker rangeBottomLeftMarker rangeBottomRightMarker");
+          if(!data.isHide){
+            ddf.roomState.ini_characters[character.data.imgId] = ddf.characters[character.data.imgId];
+          }else{
+            character.row && character.row.remove();
+            delete ddf.roomState.ini_characters[character.data.imgId];
+          }
+          switch(data.rangeType){
+            case "circle":
+              obj.addClass("rangeCenterMarker");
+              obj.children("object").css({
+                width: (data.feets * 20) * ddf.roomState.mapData.gridInterval,
+                height: (data.feets * 20) * ddf.roomState.mapData.gridInterval
+              });
+              obj.css({
+                marginLeft: -(data.feets * 10 - 50) * ddf.roomState.mapData.gridInterval,
+                marginTop: -(data.feets * 10) * ddf.roomState.mapData.gridInterval
+              });
+              break;
+            case "corn1":
+              obj.addClass("rangeBottomLeftMarker");
+              obj.children("object").css({
+                width: (data.feets * 10) * ddf.roomState.mapData.gridInterval,
+                height: (data.feets * 10) * ddf.roomState.mapData.gridInterval
+              });
+              obj.css({
+                marginLeft: 50 * ddf.roomState.mapData.gridInterval,
+                marginTop: -(data.feets * 10) * ddf.roomState.mapData.gridInterval
+              });
+              break;
+            case "corn3":
+              obj.addClass("rangeTopLeftMarker");
+              obj.children("object").css({
+                width: (data.feets * 10) * ddf.roomState.mapData.gridInterval,
+                height: (data.feets * 10) * ddf.roomState.mapData.gridInterval
+              });
+              obj.css({
+                marginLeft: 50 * ddf.roomState.mapData.gridInterval,
+                marginTop: 0
+              });
+              break;
+            case "corn5":
+              obj.addClass("rangeTopRightMarker");
+              obj.children("object").css({
+                width: (data.feets * 10) * ddf.roomState.mapData.gridInterval,
+                height: (data.feets * 10) * ddf.roomState.mapData.gridInterval
+              });
+              obj.css({
+                marginLeft: -(data.feets * 10 - 50) * ddf.roomState.mapData.gridInterval,
+                marginTop: 0
+              });
+              break;
+            case "corn7":
+              obj.addClass("rangeBottomRightMarker");
+              obj.children("object").css({
+                width: (data.feets * 10) * ddf.roomState.mapData.gridInterval,
+                height: (data.feets * 10) * ddf.roomState.mapData.gridInterval
+              });
+              obj.css({
+                marginLeft: -(data.feets * 10 - 50) * ddf.roomState.mapData.gridInterval,
+                marginTop: -(data.feets * 10) * ddf.roomState.mapData.gridInterval
+              });
+              break;
+            case "corn2":
+              obj.addClass("rangeLeftMarker");
+              obj.children("object").css({
+                width: (data.feets * 10) * ddf.roomState.mapData.gridInterval,
+                height: (Math.round(data.feets / 15 *2) * 100) * ddf.roomState.mapData.gridInterval
+              });
+              obj.css({
+                marginLeft: 50 * ddf.roomState.mapData.gridInterval,
+                marginTop: -(Math.round(data.feets / 15 * 2) * 50) * ddf.roomState.mapData.gridInterval
+              });
+              break;
+            case "corn4":
+              obj.addClass("rangeTopMarker");
+              obj.children("object").css({
+                width: (Math.round(data.feets / 15 *2) * 100) * ddf.roomState.mapData.gridInterval,
+                height: (data.feets * 10) * ddf.roomState.mapData.gridInterval
+              });
+              obj.css({
+                marginLeft: -(Math.round(data.feets / 15 * 2) * 50 -50) * ddf.roomState.mapData.gridInterval,
+                marginTop: 0
+              });
+              break;
+            case "corn6":
+              obj.addClass("rangeRightMarker");
+              obj.children("object").css({
+                width: (data.feets * 10) * ddf.roomState.mapData.gridInterval,
+                height: (Math.round(data.feets / 15 *2) * 100) * ddf.roomState.mapData.gridInterval
+              });
+              obj.css({
+                marginLeft: -(data.feets * 10 -50) * ddf.roomState.mapData.gridInterval,
+                marginTop: -(Math.round(data.feets / 15 * 2) * 50) * ddf.roomState.mapData.gridInterval
+              });
+              break;
+            case "corn8":
+              obj.addClass("rangeBottomMarker");
+              obj.children("object").css({
+                width: (Math.round(data.feets / 15 *2) * 100) * ddf.roomState.mapData.gridInterval,
+                height: (data.feets * 10) * ddf.roomState.mapData.gridInterval
+              });
+              obj.css({
+                marginLeft: -(Math.round(data.feets / 15 * 2) * 50-50) * ddf.roomState.mapData.gridInterval,
+                marginTop: -(data.feets * 10) * ddf.roomState.mapData.gridInterval
+              });
+              break;
+          }
+          break;
         case "MetallicGuardianDamageRange":
           
           obj.css({
@@ -974,6 +1092,20 @@ function refresh_parseRecordData(refreshData){
           obj.removeClass("draggableObj");
         }
         break;
+      case "floorTile":
+        obj.animate({
+          left: data.x * 50,
+          top: data.y * 50
+        }, 300);
+        obj.css({
+          width: data.width * 50,
+          height: data.height * 50
+        });
+        obj.children(".inner").css({
+          transform: "rotateZ("+data.rotation+"deg)",
+          backgroundImage: "url("+ddf.base_url+data.imageUrl+")"
+        });
+        break;
       case "characterData":
         iniChanged = true;
         obj.animate({
@@ -998,6 +1130,31 @@ function refresh_parseRecordData(refreshData){
         });
         obj.children(".name").text(data.name);
         obj.children(".dogtag").text(data.dogTag);
+        break;
+      case "mapMarker":
+        obj.children(".message").text(data.message);
+        obj.animate({
+          left: data.x * 50,
+          top: data.y * 50
+        }, 300);
+        colors = [data.color / 65536 & 0xFF, data.color / 256 & 0xFF, data.color & 0xFF];
+        sum = 255;
+        refColor = [sum - colors[0], sum - colors[1], sum - colors[2]];
+        obj.css({
+          left: data.x * 50,
+          top: data.y * 50,
+          width: data.width * 50,
+          height: data.height * 50,
+          backgroundColor: data.isPaint?"rgb("+colors+")":""
+        });
+        obj.children(".message").css({
+          color: "rgb("+refColor+")"
+        });
+        if(data.draggable){
+          obj.addClass("draggableObj");
+        }else{
+          obj.removeClass("draggableObj");
+        }
         break;
       case "Memo":
         title = data.message.split("\r")[0];
@@ -1044,13 +1201,15 @@ function refresh_parseCharacters(refreshData){
         obj: obj,
         data: character
       };
+      if(!character.isHide){
+        ddf.roomState.ini_characters[character.imgId] = ddf.characters[character.imgId];
+      }
       obj.css({
         left: character.x * 50,
         top: character.y * 50,
         clipPath: getPath(character.rangeType, character.feets / 5,ddf.roomState.mapData.gridInterval),
         opacity: 0.5
       });
-      console.log(getPath(character.rangeType, character.feets / 5,ddf.roomState.mapData.gridInterval));
       switch(character.rangeType){
         case "circle":
           obj.addClass("rangeCenterMarker");
@@ -1271,6 +1430,25 @@ function refresh_parseCharacters(refreshData){
       });
       $("#mapSurface").append(obj);
       break;
+    case "floorTile":
+      obj = $(`<div class="floorTileFrame" id="${character.imgId}"></div>`);
+      obj.append($(`<div class="inner"></div>`));
+      ddf.characters[character.imgId] = {
+        obj: obj,
+        data: character
+      };
+      obj.css({
+        left: character.x * 50,
+        top: character.y * 50,
+        width: character.width * 50,
+        height: character.height * 50
+      });
+      obj.children(".inner").css({
+        transform: "rotateZ("+character.rotation+"deg) ",
+        backgroundImage: "url("+ddf.base_url+character.imageUrl+")"
+      });
+      $("#mapSurface").append(obj);
+      break;
     case "characterData":
       obj = $(`<div class="characterFrame draggableObj" id="${character.imgId}"></div>`);
       obj.append($(`<div class="inner"></div><div class="dogtag">${encode(character.dogTag)}</div><div class="name">${encode(character.name)}</div>`));
@@ -1293,7 +1471,29 @@ function refresh_parseCharacters(refreshData){
         transform: "rotateZ("+character.rotation+"deg) "+(character.mirrored?" rotateY(180deg)":""),
         backgroundImage: "url("+ddf.base_url+character.imageName+")"
       });
-              
+      $("#mapSurface").append(obj);
+      break;
+    case "mapMarker":
+      obj = $(`<div class="mapMarkerFrame" id="${character.imgId}"></div>`);
+      if(character.draggable){obj.addClass("draggableObj");}
+      obj.append($(`<div class="message">${encode(character.message)}</div>`));
+      ddf.characters[character.imgId] = {
+        obj: obj,
+        data: character
+      };
+      colors = [character.color / 65536 & 0xFF, character.color / 256 & 0xFF, character.color & 0xFF];
+      sum = 255;
+      refColor = [sum - colors[0], sum - colors[1], sum - colors[2]];
+      obj.css({
+        left: character.x * 50,
+        top: character.y * 50,
+        width: character.width * 50,
+        height: character.height * 50,
+        backgroundColor: character.isPaint?"rgb("+colors+")":""
+      });
+      obj.children(".message").css({
+        color: "rgb("+refColor+")"
+      });
       $("#mapSurface").append(obj);
       break;
     case "Memo":
@@ -1362,7 +1562,8 @@ function refresh_parseMapData(refreshData){
   }
   redraw = [];
   for(item in ddf.characters){
-    if(ddf.characters[item].data.type == "magicRangeMarkerDD4th" ||
+    if(ddf.characters[item].data.type == "magicRangeMarker" ||
+       ddf.characters[item].data.type == "magicRangeMarkerDD4th" ||
        ddf.characters[item].data.type == "LogHorizonRange" ||
        ddf.characters[item].data.type == "MetallicGuardianDamageRange"){
       redraw.push([0, "changeCharacter", [ddf.characters[item].data], "dummy\t"]);
@@ -1714,6 +1915,6 @@ var pathList = {
           [[0,800],[250,300],[300,250],[800,0],[900,0],[1400,250],[1450,300],[1700,800],[1700,900],[1450,1400],[1400,1450],[900,1700],[800,1700],[300,1450],[250,1400],[0,900]],
           [[0,850],[250,350],[350,250],[850,0],[950,0],[1450,250],[1550,350],[1800,850],[1800,950],[1550,1450],[1450,1550],[950,1800],[850,1800],[350,1550],[250,1450],[0,950]],
           [[0,900],[300,300],[900,0],[1000,0],[1600,300],[1900,900],[1900,1000],[1600,1600],[1000,1900],[900,1900],[300,1600],[0,1000]],
-          [[0,950],[300,350],[350,300],[1000,0],[1100,0],[1650,300],[1700,350],[2000,950],[2000,1050],[1700,1650],[1650,1700],[1050,2000],[950,2000],[350,1700],[300,1650],[0,1050]]
+          [[0,950],[300,350],[350,300],[950,0],[1050,0],[1650,300],[1700,350],[2000,950],[2000,1050],[1700,1650],[1650,1700],[1050,2000],[950,2000],[350,1700],[300,1650],[0,1050]]
           ],
 };

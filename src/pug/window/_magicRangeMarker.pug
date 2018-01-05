@@ -1,0 +1,41 @@
+#window_magicRangeMarker.draggable
+  .bg 
+    div 
+      span.title 魔法範囲作成
+      .pull-right#magicRangeMarker_close2 ×
+  .body.dragprev
+    .r
+      input(type="hidden")#magicRangeMarker_imgId
+      label 名前：
+      input#magicRangeMarker_name
+    .r
+      label 半径（5ft.単位）：
+      input(type="number",min=5,max=100,step=5,required)#magicRangeMarker_feets
+    .r
+      label 範囲種別：
+      select#magicRangeMarker_rangeType
+        option(value="circle") 円
+        option(value="corn1") 円錐型（右上）
+        option(value="corn2") 円錐型（右）
+        option(value="corn3") 円錐型（右下）
+        option(value="corn4") 円錐型（下）
+        option(value="corn5") 円錐型（左下）
+        option(value="corn6") 円錐型（左）
+        option(value="corn7") 円錐型（左上）
+        option(value="corn8") 円錐型（上）
+    .r
+      label 色：
+      input(type="hidden")#magicRangeMarker_color
+      input#magicRangeMarker_color2
+    .r
+      label 持続時間：
+      input(type="number",min=1,max=99,required)#magicRangeMarker_timeRange
+    .r
+      label その他：
+      input#magicRangeMarker_info
+    .r
+      input(type="checkbox",checked)#magicRangeMarker_isHide
+      |イニシアティブ表に表示する
+    .r.center
+      button#magicRangeMarker_send 変更
+      button#magicRangeMarker_close キャンセル

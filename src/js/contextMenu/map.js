@@ -8,8 +8,8 @@ $.contextMenu({
       },
     },
     addMagicRangeDD3: {name: "魔法範囲追加(DD3版)",
-      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
+        ddf.cmd.magicRangeMarker_show("0");
       },
     },
     addMagicRangeDD4: {name: "魔法範囲追加(DD4版)",
@@ -38,8 +38,8 @@ $.contextMenu({
       },
     },
     addMapMarker: {name: "マップマーカー追加",
-      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
+        ddf.cmd.mapMarker_show("");
       },
     },
     sep1: "---------",

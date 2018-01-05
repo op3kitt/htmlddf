@@ -241,7 +241,7 @@
                 <button id="btn_createcharacter">キャラクター追加</button>
                 <div class="dropdown2">範囲追加
                   <div class="dropdown-content2">
-                    <button id="btn_rangedd3" disabled>魔法範囲追加(D&D3版)</button>
+                    <button id="btn_rangedd3">魔法範囲追加(D&D3版)</button>
                     <button id="btn_rangedd4">魔法範囲追加(D&D4版)</button>
                     <button id="btn_rangelh">ログホライズン用範囲</button>
                     <button id="btn_rangemg">攻撃範囲(メタリックガーディアン)</button>
@@ -566,6 +566,47 @@
             <div id="mapMask_preview"></div>
           </div>
         </div>
+        <div class="draggable" id="window_mapMarker">
+          <div class="bg"> 
+            <div><span id="mapMarker_title">マップマーカー作成</span>
+              <div class="pull-right" id="mapMarker_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <input type="hidden" id="mapMarker_imgId">
+              <label>高さ：</label>
+              <input class="spinner" type="number" min="1" max="100" required id="mapMarker_height">
+              <label>幅：</label>
+              <input class="spinner" type="number" min="1" max="100" required id="mapMarker_width">
+            </div>
+            <div class="r">
+              <label>色：</label>
+              <input type="hidden" id="mapMarker_color">
+              <input class="colorpalette" id="mapMarker_color2">
+            </div>
+            <div class="r">
+              <input type="checkbox" id="mapMarker_isPaint">塗り潰す
+              <input type="checkbox" id="mapMarker_draggable">マーカー固定
+            </div>
+            <div class="r">
+              <label>メッセージ：</label>
+              <textarea id="mapMarker_message"></textarea>
+            </div>
+            <div class="r" id="mapMarker_create">
+              <input type="checkbox" id="mapMarker_multiple">複数作成
+            </div>
+            <div class="r" id="mapMarker_change">
+              <button id="mapMarker_send">変更</button>
+              <button id="mapMarker_close">キャンセル</button>
+            </div>
+          </div>
+          <div class="body2 dragprev">
+            <div id="mapMarker_preview">
+              <div class="message"></div>
+            </div>
+          </div>
+        </div>
         <div class="draggable" id="window_imageDelete">
           <div class="bg"> 
             <div>画像削除
@@ -618,6 +659,58 @@
           <div class="body dragprev">
             <div class="r">
               <pre id="help_text"></pre>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_magicRangeMarker">
+          <div class="bg"> 
+            <div> <span class="title">魔法範囲作成</span>
+              <div class="pull-right" id="magicRangeMarker_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <input type="hidden" id="magicRangeMarker_imgId">
+              <label>名前：</label>
+              <input id="magicRangeMarker_name">
+            </div>
+            <div class="r">
+              <label>半径（5ft.単位）：</label>
+              <input type="number" min="5" max="100" step="5" required id="magicRangeMarker_feets">
+            </div>
+            <div class="r">
+              <label>範囲種別：</label>
+              <select id="magicRangeMarker_rangeType">
+                <option value="circle">円</option>
+                <option value="corn1">円錐型（右上）</option>
+                <option value="corn2">円錐型（右）</option>
+                <option value="corn3">円錐型（右下）</option>
+                <option value="corn4">円錐型（下）</option>
+                <option value="corn5">円錐型（左下）</option>
+                <option value="corn6">円錐型（左）</option>
+                <option value="corn7">円錐型（左上）</option>
+                <option value="corn8">円錐型（上）</option>
+              </select>
+            </div>
+            <div class="r">
+              <label>色：</label>
+              <input type="hidden" id="magicRangeMarker_color">
+              <input id="magicRangeMarker_color2">
+            </div>
+            <div class="r">
+              <label>持続時間：</label>
+              <input type="number" min="1" max="99" required id="magicRangeMarker_timeRange">
+            </div>
+            <div class="r">
+              <label>その他：</label>
+              <input id="magicRangeMarker_info">
+            </div>
+            <div class="r">
+              <input type="checkbox" checked id="magicRangeMarker_isHide">イニシアティブ表に表示する
+            </div>
+            <div class="r center">
+              <button id="magicRangeMarker_send">変更</button>
+              <button id="magicRangeMarker_close">キャンセル</button>
             </div>
           </div>
         </div>

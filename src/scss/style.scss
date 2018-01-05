@@ -411,7 +411,7 @@ label {
 
 #mapGrid {
   @include full();
-  z-index: 52;
+  z-index: 20;
   pointer-events: none;
 }
 
@@ -694,6 +694,19 @@ label {
 
 }
 
+.floorTileFrame {
+  z-index: 12;
+  position: absolute;
+  text-align: center;
+
+  .inner {
+    @include full;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+}
+
 .characterFrame {
   z-index: 55;
   position: absolute;
@@ -728,6 +741,30 @@ label {
     background-repeat: no-repeat;
     border: solid #bbbb00 4px;
     box-shadow: black 0 0px 0px 2px;
+  }
+}
+
+.mapMarkerFrame {
+  z-index: 45;
+
+  position: absolute;
+  text-align: center;
+  display: table;
+
+  .message {
+    color: white;
+    vertical-align: middle;
+    display: table-cell;
+    height: 100%;
+    font-size: 18pt;
+  }
+
+  &:after {
+    content: "";
+    background-image: url(../img/mapMarker.png);
+    background-size: 100% 100%;
+    display: inline-block;
+    @include full();
   }
 }
 
@@ -1019,6 +1056,125 @@ label {
   }
   #mapMask_width, #mapMask_height {
     width: 3em;
+  }
+}
+
+
+#window_mapMarker {
+  @include window(400px, 300px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    right: 40%;
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    label {
+      width: 3em;
+      text-align: right;
+      display: inline-block;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+
+  .body2 {
+    @include full();
+    left: 50%;
+    top: 26px;
+    padding: 0.3em;
+
+    #mapMarker_preview {
+      transform-origin: top left;
+      text-align: center;
+      display: table;
+
+      .message {
+        color: white;
+        vertical-align: middle;
+        display: table-cell;
+        height: 100%;
+        font-size: 18pt;
+      }
+
+      &:after {
+        content: "";
+        background-image: url(../img/mapMarker.png);
+        background-size: 100% 100%;
+        display: inline-block;
+        @include full();
+      }
+    }
+
+  }
+
+  
+  #mapMarker_message {
+    width: 12em;
+    height: 6em;
+  }
+  #mapMarker_width, #mapMarker_height {
+    width: 3em;
+  }
+}
+
+#window_magicRangeMarker {
+  @include window(400px, 350px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    label {
+      width: 8em;
+      display: inline-block;
+      text-align: right;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+
+    #magicRangeMarker_name, #magicRangeMarker_info {
+      width: 10em;
+    }
+
+    #magicRangeMarker_timeRange, #magicRangeMarker_feets {
+      width: 3em;
+    }
   }
 }
 
