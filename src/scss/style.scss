@@ -707,6 +707,21 @@ label {
   }
 }
 
+.chitFrame {
+  z-index: 55;
+  position: absolute;
+  text-align: center;
+
+  .inner {
+    @include full;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: solid #3366bb 4px;
+    box-shadow: black 0 0px 0px 2px;
+  }
+}
+
 .characterFrame {
   z-index: 55;
   position: absolute;
@@ -1059,6 +1074,55 @@ label {
   }
 }
 
+#window_chit {
+  @include window(480px, 300px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    label {
+      width: 3em;
+      text-align: right;
+      display: inline-block;
+    }
+
+    .slider {
+      width: 120px;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+
+  .body2 {
+    @include full();
+    left: 40%;
+    top: 26px;
+    padding: 0.3em;
+
+    #mapMask_preview {
+      transform-origin: top left;
+    }
+  }
+}
 
 #window_mapMarker {
   @include window(400px, 300px, 40%, 40%);

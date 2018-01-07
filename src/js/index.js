@@ -1131,6 +1131,19 @@ function refresh_parseRecordData(refreshData){
         obj.children(".name").text(data.name);
         obj.children(".dogtag").text(data.dogTag);
         break;
+      case "chit":
+        obj.animate({
+          left: data.x * 50,
+          top: data.y * 50
+        }, 300);
+        obj.css({
+          width: data.width * 50,
+          height: data.height * 50
+        });
+        obj.children(".inner").css({
+          backgroundImage: "url("+ddf.base_url+data.imageUrl+")"
+        });
+        break;
       case "mapMarker":
         obj.children(".message").text(data.message);
         obj.animate({
@@ -1427,6 +1440,24 @@ function refresh_parseCharacters(refreshData){
       });
       obj.children(".name").css({
         color: "rgb("+refColor+")"
+      });
+      $("#mapSurface").append(obj);
+      break;
+    case "chit":
+      obj = $(`<div class="chitFrame draggableObj" id="${character.imgId}"></div>`);
+      obj.append($(`<div class="inner"></div>`));
+      ddf.characters[character.imgId] = {
+        obj: obj,
+        data: character
+      };
+      obj.css({
+        left: character.x * 50,
+        top: character.y * 50,
+        width: character.width * 50,
+        height: character.height * 50
+      });
+      obj.children(".inner").css({
+        backgroundImage: "url("+ddf.base_url+character.imageUrl+")"
       });
       $("#mapSurface").append(obj);
       break;

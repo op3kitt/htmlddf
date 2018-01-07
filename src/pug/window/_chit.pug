@@ -1,0 +1,27 @@
+#window_chit.draggable
+  .bg 
+    div
+      span#chit_title チット作成
+      .pull-right#chit_close2 ×
+  .body.dragprev
+    .r
+      label 高さ：
+      input(type="number",min="1",max="100",required)#chit_height.spinner
+      label 幅：
+      input(type="number",min="1",max="100",required)#chit_width.spinner
+      label 説明：
+      input#chit_info
+    .r
+      input(type="hidden")#chit_imageUrl
+      #chit_preview
+      #chit_image
+        .r
+          button#chit_imageChange 画像変更
+      #chit_imageSelect
+        .r
+          #chit_imagearea
+        .r
+          | 検索タグ
+          select#chit_tagbox
+          button#chit_btnpassword 隠し画像
+          input#chit_password
