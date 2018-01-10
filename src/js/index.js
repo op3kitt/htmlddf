@@ -257,6 +257,8 @@ function getDiceBotInfos(){
 function getLoginInfo(){
   return ddf.getLoginInfo().then((r) => {
     ddf.info = r;
+    $("#mapChange_width").attr("max", ddf.info.mapMaxWidth);
+    $("#mapChange_height").attr("max", ddf.info.mapMaxHeight);
     $("#loginMessage").html(ddf.info.loginMessage);
     total = 0;
     str = "";
@@ -411,13 +413,14 @@ function checkRoomStatus(roomNumber, isVisit = null, password = null){
       ddf.cmd.loginCheck_show(roomNumber);
     }else{
     /*ログイン*/
-      return ddf.checkRoomStatus(roomNumber, password).then((r) => {
-        roominfo=r;
+      return ddf.checkRoomStatus(roomNumber, password).then((roominfo) => {
         if(roominfo.isRoomExist){
           ddf.userState.room = roominfo.roomNumber;
           ddf.userState.name = $("#login_name").val();
           saveUserState();
-          ddf.sendChatMessage(0, "どどんとふ\t", "「"+ddf.userState.name+"」がログインしました。（htmlddf "+version+"）", "00aa00", true);
+          if(roominfo.isWelComeMessageOn){
+            ddf.sendChatMessage(0, "どどんとふ\t", "「"+ddf.userState.name+"」がログインしました。（htmlddf "+version+"）", "00aa00", true);
+          }
           $("#main").hide();
           //history.pushState({roomNumber: roomNumber}, "room="+roomNumber, "index.html?room="+roomNumber);
           $("#main2").show();
