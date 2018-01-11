@@ -4,10 +4,59 @@ $("#btn_createchit").on("click", (e) => {
 
 $("#window_chit input").on('change', chit_previewUpdate);
 
+$(document).on('click', '#chit_imagearea div img', (e) => {
+  let img = $(e.currentTarget).attr("src");
+  $("#chit_imageUrl").val(img.replace(ddf.base_url, ""));
+  $("#chit_preview .inner").css("backgroundImage", `url(${img})`);
+});
+
+$("#chit_imageChange").on('click', (e) => {
+  ddf.getImageTagsAndImageList().then((r) => {
+    tagList = ["キャラクター画像"];
+    ddf.images = r;
+    for(item of ddf.images.imageList){
+      if(ddf.images.tagInfos[item]){
+        for(tag of ddf.images.tagInfos[item].tags){
+          if(tag == ""){continue;}
+          tagList.includes(tag) || tagList.push(tag);
+        }
+      }
+    }
+    tagList.push("（全て）");
+
+    $("#chit_tagbox").empty();
+    for(item of tagList){
+      $("#chit_tagbox").append($(`<option>${encode(item)}</option>`));
+    }
+      $("#chit_tagbox").append($(`<option>${encode(item)}</option>`));
+    chit_setTag(tagList[0]);
+  });
+
+  $("#chit_image").hide();
+  $("#chit_imageSelect").show();
+});
+
+
+function chit_setTag(tag){
+  $("#chit_imagearea").empty();
+  let password = $("#chit_password").val();
+  for(item of ddf.images.imageList){
+    if(ddf.images.tagInfos[item]){
+      if((tag == "（全て）" || ddf.images.tagInfos[item].tags.includes(tag)) && (ddf.images.tagInfos[item].password == "" || ddf.images.tagInfos[item].password == password)){
+        $("#chit_imagearea").append($(`<div><img src="${ddf.base_url + item}" /></div>`));
+      }
+    }else if(tag == "（全て）"){
+      $("#chit_imagearea").append($(`<div><img src="${ddf.base_url + item}" /></div>`));
+    }
+  }
+}
+
 ddf.cmd.chit_show = chit_show;
 function chit_show(imgId){
   $("#window_chit").show().css("zIndex", 151);
   $(".draggable:not(#window_chit)").css("zIndex", 150);
+  $("#chit_image").show();
+  $("#chit_imageSelect").hide();
 
   var character;
   index = 0;
@@ -20,15 +69,13 @@ function chit_show(imgId){
 
   character = {
     type: "chit",
-    name: index + 1,
     width: 1,
     height: 1,
-    color: 0,
     imgId: "",
-    isPaint: false,
     draggable: true,
+    imageUrl: "./image/defaultImageSet/pawn/pawnBlack.png",
     rotation: 0,
-    message: "",
+    info: "",
     x: 0,
     y: 0
   };
@@ -43,12 +90,33 @@ function chit_show(imgId){
   chit_previewUpdate();
 }
 
+$("#chit_btnpassword").on('click', (e) => {
+  $("#chit_btnpassword").hide();
+  $("#chit_password").show().focus();
+});
+
+$("#chit_password").on('focusout', (e) => {
+  $("#chit_btnpassword").show();
+  $("#chit_password").hide();
+  chit_setTag($("#chit_tagbox").val());
+}).on('keydown', (e) => {
+  if(e.keyCode == 13){
+    $("#chit_password").blur();
+  }
+});
+
+$("#chit_tagbox").on('change', (e) => {
+  chit_setTag($("#chit_tagbox").val());
+});
+
 function chit_previewUpdate(){
-  zoom = Math.min(1, 4.6 / $("#chit_width").val(),4.8 / $("#chit_height").val());
-  $("#chit_preview").css("transform", `scale(${zoom})`);
+  zoom = Math.min(1, 1 / $("#chit_width").val(), 1 / $("#chit_height").val());
   $("#chit_preview").css({
     width: $("#chit_width").val() * 50,
     height: $("#chit_height").val() * 50,
+    transform: `scale(${zoom})`
+  });
+  $("#chit_preview .inner").css({
     backgroundImage: "url("+ddf.base_url+$("#chit_imageUrl").val()+")"
   });
 }
@@ -69,6 +137,8 @@ $("#chit_preview").draggable({
   },
   helper: () => {
     let obj = $("#chit_preview").clone();
+    obj.addClass("chitFrame");
+    obj.css("transform", "");
     obj.appendTo("#mapSurface");
     return obj;
   },
@@ -110,11 +180,10 @@ $("#chit_preview").draggable({
         width: $("#chit_width").val(),
         height: $("#chit_height").val(),
         info: $("#chit_info").val(),
-        isPaint: $("#chit_isPaint").prop("checked"),
         imageUrl: $("#chit_imageUrl").val(),
         imgId: "",
-        draggable: !$("#chit_draggable").prop("checked"),
         rotation: 0,
+        info: $("#chit_info").val(),
         x: ui.position.left / 50,
         y: ui.position.top / 50
       };

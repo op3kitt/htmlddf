@@ -407,6 +407,31 @@ label {
 #map {
   top: 36px;
   z-index: 10;
+
+  &:not(.floorTileEditing) .floorTileFrame {
+    pointer-events: none;
+  }
+
+  &.floorTileEditing {
+    #mapimg {
+      z-index: 140 !important;
+      position: absolute;
+    }
+
+    .floorTileFrame {
+      z-index: 143 !important;
+      border: solid #ff9999 4px;
+
+      &.draggableObj {
+        z-index: 146 !important;
+        border: solid #ffff99 4px;
+      }
+    }
+
+    .magicRangeFrame, .mapMaskFrame, .chitFrame, .characterFrame, .mapMarkerFrame {
+      display: none;
+    }
+  }
 }
 
 #mapGrid {
@@ -1075,7 +1100,7 @@ label {
 }
 
 #window_chit {
-  @include window(480px, 300px, 40%, 40%);
+  @include window(480px, 350px, 40%, 40%);
   .bg {
     @include bg(0.8);
 
@@ -1112,14 +1137,136 @@ label {
     }
   }
 
-  .body2 {
+  #chit_imageSelect {
+    display: none;
+    width: 80%;
+    float: right;
+  }
+
+  #chit_preview {
+    float: left;
+    transform-origin: top left;
+    margin-right: 20px;
+
+    .inner {
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+  }
+
+  #chit_password {
+    display: none;
+  }
+
+  
+  #chit_imagearea {
+    height: 200px;
+    border: solid #666 1px;
+    overflow: scroll;
+
+    div {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+
+      img {
+        max-width: 50px;
+        max-height: 50px;
+      }
+
+      input {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+    }
+  }
+}
+
+#window_floorTile {
+  @include window(480px, 350px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
     @include full();
-    left: 40%;
     top: 26px;
     padding: 0.3em;
 
-    #mapMask_preview {
-      transform-origin: top left;
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    label {
+      width: 3em;
+      text-align: right;
+      display: inline-block;
+    }
+
+    .slider {
+      width: 120px;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+
+  #floorTile_imageSelect {
+    display: none;
+    width: 60%;
+    float: right;
+  }
+
+  #floorTile_preview {
+    float: left;
+    transform-origin: top left;
+    margin-right: 20px;
+
+    .inner {
+      background-size: 100% 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+  }
+
+  #floorTile_password {
+    display: none;
+  }
+
+  
+  #floorTile_imagearea {
+    height: 200px;
+    border: solid #666 1px;
+    overflow: scroll;
+
+    div {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+
+      img {
+        max-width: 50px;
+        max-height: 50px;
+      }
+
+      input {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
     }
   }
 }

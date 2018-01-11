@@ -71,6 +71,7 @@ $(() => {
   request2.send();
   
   ddf.dragOption = {
+    cancel: ".dragprev",
     start: (event) =>  {
         click.x = event.clientX - (parseInt($(event.target).css("marginLeft")) / 2) * ddf.roomState.zoom;
         click.y = event.clientY - (parseInt($(event.target).css("marginTop")) / 2) * ddf.roomState.zoom;
@@ -229,7 +230,7 @@ $(() => {
   $("#initiative table").colResizable({partialRefresh: true});
 });
 
-ddf.safeDragDestoroy = () => {
+ddf.cmd.safeDragDestroy = () => {
   try{
     $(".draggableObj").draggable("destroy");
   }catch(e){}
@@ -849,7 +850,7 @@ function refresh_parseViewStateInfo(refreshData){
 
 ddf.cmd.refresh_parseRecordData = refresh_parseRecordData;
 function refresh_parseRecordData(refreshData){
-  ddf.safeDragDestoroy();
+  ddf.cmd.safeDragDestroy();
   iniChanged = false;
   force = false;
   for(record of refreshData.record){
@@ -1108,6 +1109,11 @@ function refresh_parseRecordData(refreshData){
           transform: "rotateZ("+data.rotation+"deg)",
           backgroundImage: "url("+ddf.base_url+data.imageUrl+")"
         });
+        if(data.draggable){
+          obj.addClass("draggableObj");
+        }else{
+          obj.removeClass("draggableObj");
+        }
         break;
       case "characterData":
         iniChanged = true;
@@ -1465,7 +1471,8 @@ function refresh_parseCharacters(refreshData){
       $("#mapSurface").append(obj);
       break;
     case "floorTile":
-      obj = $(`<div class="floorTileFrame" id="${character.imgId}"></div>`);
+      obj = $(`<div class="floorTileFrame dragprev" id="${character.imgId}"></div>`);
+      if(character.draggable){obj.addClass("draggableObj");}
       obj.append($(`<div class="inner"></div>`));
       ddf.characters[character.imgId] = {
         obj: obj,

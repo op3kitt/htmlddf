@@ -162,8 +162,8 @@ $(() => {
 
   /*$("#btn_mapchange").on("click", (e) => {
   });*/
-  $("#btn_maptile").on("click", (e) => {
-  });
+  /*$("#btn_maptile").on("click", (e) => {
+  });*/
   /*$("#btn_mapmask").on("click", (e) => {
   });*/
   $("#btn_mapmodify").on("click", (e) => {

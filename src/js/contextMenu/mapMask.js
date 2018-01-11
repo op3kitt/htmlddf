@@ -9,7 +9,7 @@ $.contextMenu({
     },
     fix: {name: "マップマスクの固定",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.safeDragDestoroy();
+        ddf.cmd.safeDragDestroy();
         character = ddf.characters[opt.$trigger.attr("id")];
         character.data.draggable = false;
         ddf.changeCharacter(character.data);
@@ -22,7 +22,7 @@ $.contextMenu({
         ddf.removeCharacter(opt.$trigger.attr("id"), true);
         character = ddf.characters[opt.$trigger.attr("id")];
         if(character){
-          ddf.safeDragDestoroy();
+          ddf.cmd.safeDragDestroy();
           character.obj && character.obj.remove();
           delete ddf.characters[opt.$trigger.attr("id")];
           $(".draggableObj").draggable(ddf.dragOption);
@@ -40,7 +40,7 @@ $.contextMenu({
         ddf.removeCharacter(opt.$trigger.attr("id"), true);
         character = ddf.characters[opt.$trigger.attr("id")];
         if(character){
-          ddf.safeDragDestoroy();
+          ddf.cmd.safeDragDestroy();
           character.obj && character.obj.remove();
           delete ddf.characters[opt.$trigger.attr("id")];
           $(".draggableObj").draggable(ddf.dragOption);

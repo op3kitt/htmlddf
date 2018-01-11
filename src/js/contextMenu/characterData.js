@@ -12,7 +12,7 @@ $.contextMenu({
         ddf.removeCharacter(opt.$trigger.attr("id"), true);
         character = ddf.characters[opt.$trigger.attr("id")];
         if(character){
-          ddf.safeDragDestoroy();
+          ddf.cmd.safeDragDestroy();
           character.obj && character.obj.remove();
           character.row && character.row.remove();
           delete ddf.characters[opt.$trigger.attr("id")];

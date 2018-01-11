@@ -122,7 +122,7 @@ $("#mapChange_btnpassword").on('click', (e) => {
 $("#mapChange_password").on('focusout', (e) => {
   $("#mapChange_btnpassword").show();
   $("#mapChange_password").hide();
-  imageDelete_setTag($("#mapChange_tagbox").val());
+  mapChange_setTag($("#mapChange_tagbox").val());
 }).on('keydown', (e) => {
   if(e.keyCode == 13){
     $("#mapChange_password").blur();

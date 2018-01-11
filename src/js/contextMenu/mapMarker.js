@@ -13,7 +13,7 @@ $.contextMenu({
         ddf.removeCharacter(opt.$trigger.attr("id"), true);
         character = ddf.characters[opt.$trigger.attr("id")];
         if(character){
-          ddf.safeDragDestoroy();
+          ddf.cmd.safeDragDestroy();
           character.obj && character.obj.remove();
           delete ddf.characters[opt.$trigger.attr("id")];
           if(ddf.roomState.ini_characters[opt.$trigger.attr("id")]){

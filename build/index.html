@@ -270,7 +270,7 @@
             <div class="dropdown">マップ
               <div class="dropdown-content">
                 <button id="btn_mapchange">マップ変更</button>
-                <button id="btn_maptile" disabled>フロアタイル変更モード</button>
+                <button id="btn_maptile">フロアタイル変更モード</button>
                 <button id="btn_mapmask">マップマスク追加</button>
                 <button id="btn_mapmodify" disabled>簡易マップ作成</button>
                 <hr>
@@ -463,6 +463,42 @@
             <div class="r center">
               <button id="mapChange_send">設定</button>
               <button id="mapChange_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_floorTile">
+          <div class="bg"> 
+            <div><span id="floorTile_title">フロアタイル作成</span>
+              <div class="pull-right" id="floorTile_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <label>高さ：</label>
+              <input class="spinner" type="number" min="1" max="100" required id="floorTile_height">
+              <label>幅：</label>
+              <input class="spinner" type="number" min="1" max="100" required id="floorTile_width">
+            </div>
+            <div class="r">
+              <input type="hidden" id="floorTile_imageUrl">
+              <div class="floorTileFrame" id="floorTile_preview">
+                <div class="inner"></div>
+              </div>
+              <div id="floorTile_image">
+                <div class="r center">
+                  <button id="floorTile_imageChange">画像変更</button>
+                </div>
+              </div>
+              <div id="floorTile_imageSelect">
+                <div class="r">
+                  <div id="floorTile_imagearea"></div>
+                </div>
+                <div class="r">検索タグ
+                  <select id="floorTile_tagbox"></select>
+                  <button id="floorTile_btnpassword">隠し画像</button>
+                  <input id="floorTile_password">
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -834,9 +870,11 @@
             </div>
             <div class="r">
               <input type="hidden" id="chit_imageUrl">
-              <div id="chit_preview"></div>
+              <div class="chitFrame" id="chit_preview">
+                <div class="inner"></div>
+              </div>
               <div id="chit_image">
-                <div class="r">
+                <div class="r center">
                   <button id="chit_imageChange">画像変更</button>
                 </div>
               </div>

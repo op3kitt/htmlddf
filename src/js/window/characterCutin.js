@@ -144,7 +144,7 @@ $("#characterCutin_create_btnpassword").on('click', (e) => {
 $("#characterCutin_create_password").on('focusout', (e) => {
   $("#characterCutin_create_btnpassword").show();
   $("#characterCutin_create_password").hide();
-  imageDelete_setTag($("#characterCutin_create_tagbox").val());
+  characterCutin_setTag($("#characterCutin_create_tagbox").val());
 }).on('keydown', (e) => {
   if(e.keyCode == 13){
     $("#characterCutin_create_password").blur();

@@ -125,6 +125,7 @@ function addCharacter_setTag(tag){
     }
   }
 }
+
 $(document).on('click', '#addCharacter_imagearea div img', (e) => {
   let img = $(e.currentTarget).attr("src");
   $("#addCharacter_imageName").val(img.replace(ddf.base_url, ""));
@@ -147,7 +148,7 @@ $("#addCharacter_btnpassword").on('click', (e) => {
 $("#addCharacter_password").on('focusout', (e) => {
   $("#addCharacter_btnpassword").show();
   $("#addCharacter_password").hide();
-  imageDelete_setTag($("#addCharacter_tagbox").val());
+  addCharacter_setTag($("#addCharacter_tagbox").val());
 }).on('keydown', (e) => {
   if(e.keyCode == 13){
     $("#addCharacter_password").blur();

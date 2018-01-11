@@ -1,0 +1,26 @@
+#window_floorTile.draggable
+  .bg 
+    div
+      span#floorTile_title フロアタイル作成
+      .pull-right#floorTile_close2 ×
+  .body.dragprev
+    .r
+      label 高さ：
+      input(type="number",min="1",max="100",required)#floorTile_height.spinner
+      label 幅：
+      input(type="number",min="1",max="100",required)#floorTile_width.spinner
+    .r
+      input(type="hidden")#floorTile_imageUrl
+      #floorTile_preview.floorTileFrame
+        .inner
+      #floorTile_image
+        .r.center
+          button#floorTile_imageChange 画像変更
+      #floorTile_imageSelect
+        .r
+          #floorTile_imagearea
+        .r
+          | 検索タグ
+          select#floorTile_tagbox
+          button#floorTile_btnpassword 隠し画像
+          input#floorTile_password
