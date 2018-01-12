@@ -3173,7 +3173,7 @@ function clearAll() {
 },{"../src/util":8}],16:[function(require,module,exports){
 module.exports={
   "name": "DodontoF_html5cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "DodontoF.rb client build package",
   "main": "gulpfile.js",
   "dependencies": {

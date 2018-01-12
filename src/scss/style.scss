@@ -832,6 +832,13 @@ label {
   height: 400px;
   display: none;
 
+  
+  .tableSorter {
+    position: absolute;
+    top: 50px;
+    width: 100%;
+  }
+
   #wrap {
     position: absolute;
     left: 6px;
@@ -840,8 +847,6 @@ label {
 
   table {
     background: white;
-    position: absolute;
-    top: 50px;
     bottom: 0px;
     border-collapse: collapse;
     font-size: 12px;
