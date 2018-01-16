@@ -742,7 +742,7 @@ label {
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    border: solid #3366bb 4px;
+    border: solid #bbbbff 4px;
     box-shadow: black 0 0px 0px 2px;
   }
 }
@@ -796,7 +796,6 @@ label {
     vertical-align: middle;
     display: table-cell;
     height: 100%;
-    font-size: 18pt;
   }
 
   &:after {
@@ -1037,6 +1036,62 @@ label {
     top: 26px;
     padding: 0.3em;
     overflow: scroll;
+    
+    pre {
+      margin: 0;
+      background: #fff;
+    }
+  }
+}
+
+#window_vote {
+  @include window(400px, 110px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+  
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+    
+    pre {
+      margin: 0;
+      background: #fff;
+    }
+  }
+
+  #vote_requiredCount {
+    width: 3em;
+  }
+
+  
+}
+
+#window_vote_alerm, #window_vote_select {
+  @include window(200px, 200px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+  
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
     
     pre {
       margin: 0;
@@ -2668,6 +2723,82 @@ label {
       width: 100%;
       text-align: center;
       top: 8px;
+      left: 0;
+      
+      input {
+        overflow: hidden;
+        width: 0;
+      }
+      z-index: 54;
+    }
+    
+    
+  }
+}
+
+
+#window_uploadFile {
+  @include window(400px, 250px, 40%, 40%);
+
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 22px;
+    padding: 0.3em;
+    text-align: center;
+    left: 0;
+    right: 0;
+    bottm: 0;
+  }
+
+  #uploadFile_droparea {
+    width: 100%;
+    height: 120px;
+    border: solid #666 1px;
+    z-index: 55;
+    background: #fff;
+
+    &.is-dragover{
+      background: #ccf;
+
+      & ~ .overwrap, img {
+        display: none;
+      }
+      
+      &::before {
+        content: "ここにドロップ";
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    div {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+
+      img {
+        max-width: 50px;
+        max-height: 50px;
+      }
+    }
+
+    & ~ .overwrap {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      top: 110px;
       left: 0;
       
       input {

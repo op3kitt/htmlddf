@@ -1551,6 +1551,9 @@ ddf.drawOnMap = function(type, weight, color, data){
  * @return {Promise}
  */
 ddf.convertDrawToImage = function(fileData){
+  u8array = fileData;
+  fileDataMsg = msgpack.encode(u8array);
+  fileDataMsg = fileDataMsg.slice(fileDataMsg.indexOf(u8array[0]));
   return ddf.sendMsg({
     room: ddf.userState.room,
     own: ddf.info.uniqueId + ddf.userState.own,
@@ -1621,6 +1624,9 @@ ddf.clearCharacterByType = function(types){
  * @return {Promise}
  */
 ddf.uploadReplayData = function(fileName, replayDataName, ownUrl, fileData) {
+  u8array = fileData;
+  fileDataMsg = msgpack.encode(u8array);
+  fileDataMsg = fileDataMsg.slice(fileDataMsg.indexOf(u8array[0]));
   return ddf.sendMsg({
     room: ddf.userState.room,
     own: ddf.info.uniqueId + ddf.userState.own,
@@ -1628,7 +1634,7 @@ ddf.uploadReplayData = function(fileName, replayDataName, ownUrl, fileData) {
       fileName: fileName,
       replayDataName: replayDataName,
       ownUrl: ownUrl,
-      fileData: fileData
+      fileData: fileDataMsg
     },
     cmd: "uploadReplayData"
   });
@@ -1643,13 +1649,16 @@ ddf.uploadReplayData = function(fileName, replayDataName, ownUrl, fileData) {
  * @return {Promise}
  */
 ddf.uploadFile = function(fileName, baseUrl, fileData){
+  u8array = fileData;
+  fileDataMsg = msgpack.encode(u8array);
+  fileDataMsg = fileDataMsg.slice(fileDataMsg.indexOf(u8array[0]));
   return ddf.sendMsg({
     room: ddf.userState.room,
     own: ddf.info.uniqueId + ddf.userState.own,
     params: {
       fileName: fileName,
       baseUrl: baseUrl,
-      fileData: fileData
+      fileData: fileDataMsg
     },
     cmd: "uploadFile"
   });

@@ -681,6 +681,55 @@ function refresh_parseChatMessageDataLog(refreshData){
       $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:【${encode(param.message)}】</p>`));
       chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, param.chatMessage]);
       $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+    }else if(matches = /^###vote###(.+)$/.exec(item[1].message)){
+      param = JSON.parse(matches[1]);
+      ddf.roomState.voting = {requiredCount:param.requiredCount, count: [0,0,0,0,0]};
+      if(param.isCallTheRoll){
+        $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:点呼開始！</p>`));
+        if(param.callerId != ddf.info.uniqueId && !refreshData.isFirstChatRefresh){
+          ddf.cmd.vote_alerm_show();
+        }
+      }else{
+        $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:投票を開始しました：${encode(param.question)}</p>`));
+        if(param.callerId != ddf.info.uniqueId && !refreshData.isFirstChatRefresh){
+          ddf.cmd.vote_select_show(param.question);
+        }
+      }
+    }else if(matches = /^###vote_replay_readyOK###(.+)$/.exec(item[1].message)){
+      param = JSON.parse(matches[1]);
+      if(ddf.roomState.voting){
+        switch(param.voteReplay){
+          case 1:
+            ddf.roomState.voting.count[1]++;
+            totalCount = ddf.roomState.voting.count[1] + ddf.roomState.voting.count[2];
+            $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:賛成。（${totalCount}/${ddf.roomState.voting.requiredCount}）</p>`));
+            if(totalCount => ddf.roomState.voting.requiredCount){
+              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">投票結果　賛成：${ddf.roomState.voting.count[1]}　反対：${ddf.roomState.voting.count[2]}</p>`));
+              delete ddf.roomState.voting;
+            }
+            break;
+          case 2:
+            ddf.roomState.voting.count[2]++;
+            totalCount = ddf.roomState.voting.count[1] + ddf.roomState.voting.count[2];
+            $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:反対。（${totalCount}/${ddf.roomState.voting.requiredCount}）</p>`));
+            if(totalCount => ddf.roomState.voting.requiredCount){
+              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">投票結果　賛成：${ddf.roomState.voting.count[1]}　反対：${ddf.roomState.voting.count[2]}</p>`));
+              delete ddf.roomState.voting;
+            }
+            break;
+          case 4:
+            ddf.roomState.voting.count[4]++;
+            totalCount = ddf.roomState.voting.count[4];
+            $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:準備完了！（${totalCount}/${ddf.roomState.voting.requiredCount}）</p>`));
+            if(totalCount => ddf.roomState.voting.requiredCount){
+              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">全員準備完了しましたっ！</p>`));
+              delete ddf.roomState.voting;
+            }
+            break;
+        }
+      }
+    }else if(matches = /^(.*がファイルをアップロードしました)\s*ファイル名：([^\s]*)\s*URL:(.*)$/.exec(item[1].message)){
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(matches[1])}　<a href="${matches[3]}" download="${matches[2]}">${encode(matches[2])}</a></p>`));
     }else{
       $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(item[1].message).replace(/\n/, "<br>")}</p>`));
       chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, item[1].message]);

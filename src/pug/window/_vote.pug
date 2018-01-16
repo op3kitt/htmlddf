@@ -1,0 +1,41 @@
+#window_vote.draggable
+  .bg 
+    div
+      span.title 点呼／投票画面
+      .pull-right#vote_close2 ×
+  .body.dragprev
+    .r
+      label 対象人数：
+      input(type="number",min="1")#vote_requiredCount
+      | /
+      span#vote_number
+      | 　　
+      input(type="radio",checked,name="vote")#vote_alerm
+      | 点呼
+      input(type="radio",name="vote")#vote_select
+      | 投票
+    .r#vote_isSelect
+      label 質問：
+      input#vote_question
+    .r.center
+      button#vote_send 実行
+      button#vote_close キャンセル
+#window_vote_alerm.draggable
+  .bg 
+    div
+      span.title 点呼
+  .body.dragprev
+    .r
+      | 準備が出来たらOKを押してください
+    .r.center
+      button#vote_alerm_ok OK
+#window_vote_select.draggable
+  .bg 
+    div
+      span.title 投票
+  .body.dragprev
+    .r
+      p#vote_select_text
+    .r.center
+      button#vote_select_agree Yes
+      button#vote_select_disagree No

@@ -1,0 +1,23 @@
+#window_uploadFile.draggable
+  .bg
+    div
+      span.title 簡易ファイルアップローダー
+      .pull-right#uploadFile_close ×
+    .body.dragprev
+      .row.left
+        p
+          | ファイルをアップロードできます。
+          br
+          | アップロードされたファイルのURLはチャットに発言され、
+          br
+          | ダウンロードする事ができます。
+          br
+          | （アップロードされたファイルは１時間で自動的に削除されます。）
+      #uploadFile_droparea
+      .overwrap
+        input(type="file",accept="").hide
+        a(href="#") ファイルを選択
+        br
+        | 　または　
+        br
+        | ファイルをドラッグアンドドロップ
