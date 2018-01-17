@@ -15,6 +15,7 @@ $(() => {
   require("./magicRangeDD4th.js");
   require("./magicRangeLH.js");
   require("./magicRangeMG.js");
+  require("./magicTimer.js");
   require("./chit.js");
   require("./mapMask.js");
   require("./mapMarker.js");

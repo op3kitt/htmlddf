@@ -108,6 +108,11 @@ function mapChange_setTag(tag){
 }
 $(document).on('click', '#mapChange_imagearea div img', (e) => {
   let img = $(e.currentTarget).attr("src");
+  let tag = ddf.images.tagInfos[img.replace(ddf.base_url, "")].tags.join(" ");
+  if(match = /縦(\d+)横(\d+)/.exec(tag)){
+    $("#mapChange_height").val(match[1]);
+    $("#mapChange_width").val(match[2]);
+  }
   $("#mapChange_imageSource").val(img.replace(ddf.base_url, ""));
   $("#mapChange_blank").prop("checked", false);
   $("#mapChange_mirrored").prop("checked", $("#mapChange_mirrored2").prop("checked"));

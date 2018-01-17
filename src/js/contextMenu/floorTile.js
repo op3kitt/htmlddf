@@ -49,7 +49,7 @@ $.contextMenu({
     sep2: "---------",
     delete: {name: "フロアタイルの削除",
       callback: function(itemKey, opt, rootMenu, originalEvent) {
-        ddf.removeCharacter(opt.$trigger.attr("id"), true);
+        ddf.removeCharacter(opt.$trigger.attr("id"), false);
         character = ddf.characters[opt.$trigger.attr("id")];
         if(character){
           safeDragDestroy();

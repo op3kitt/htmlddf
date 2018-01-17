@@ -132,8 +132,8 @@ $(() => {
   });*/
   /*$("#btn_rangemg").on("click", (e) => {
   });*/
-  $("#btn_magictimer").on("click", (e) => {
-  });
+  /*$("#btn_magictimer").on("click", (e) => {
+  });*/
   $("#btn_createchit").on("click", (e) => {
   });
   /*$("#btn_graveyard, #btn_graveyard2").on("click", (e) => {

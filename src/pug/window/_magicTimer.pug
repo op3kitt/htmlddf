@@ -1,0 +1,26 @@
+#window_magicTimer.draggable
+  .bg 
+    div 
+      span.title 魔法タイマー作成
+      .pull-right#magicTimer_close2 ×
+  .body.dragprev
+    .r
+      input(type="hidden")#magicTimer_imgId
+      label 名前：
+      input#magicTimer_name
+    .r
+      label 持続時間：
+      input(type="number",min=1,max=99,required)#magicTimer_timeRange
+      | ラウンド
+    .r
+      label 効果開始ラウンド：
+      input(type="number",min=1,max=99,required)#magicTimer_createRound
+    .r
+      label 効果開始イニシアティブ：
+      input(type="number",min=1,max=99,step=0.01,required)#magicTimer_initiative
+    .r
+      label その他：
+      input#magicTimer_info
+    .r.center
+      button#magicTimer_send 変更
+      button#magicTimer_close キャンセル

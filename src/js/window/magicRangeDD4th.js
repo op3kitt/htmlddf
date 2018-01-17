@@ -40,11 +40,11 @@ function magicRangeDD4th_show(imgId, x = 0, y = 0){
       y: y,
       counters: {},
       statusAlias: {},
-      createRound: 1,
+      createRound: ddf.roomState.roundTimeData.round,
       draggable: true,
       imageName: "",
       imgId: "0",
-      initiative: 1,
+      initiative: ddf.roomState.roundTimeData.initiative,
       rotation: 0,
       size: 0
     };
@@ -97,11 +97,11 @@ $("#magicRangeDD4th_send").on('click', (e) => {
       y: 1,
       counters: {},
       statusAlias: {},
-      createRound: 1,
+      createRound: ddf.roomState.roundTimeData.round,
       draggable: true,
       imageName: "",
       imgId: "0",
-      initiative: 1,
+      initiative: ddf.roomState.roundTimeData.initiative,
       rotation: 0,
       size: 0
     };

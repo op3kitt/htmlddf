@@ -857,12 +857,16 @@ label {
     tr {
       background: white;
       
+      &.end {
+        background: #999;
+      }
+
       &:hover {
         background: #cff;
+      }
 
-        input:not([type="checkbox"]) {
-          background: #cff;
-        }
+      input:not([type="checkbox"]) {
+        background: transparent;
       }
     }
   }
@@ -1403,6 +1407,49 @@ label {
   }
   #mapMarker_width, #mapMarker_height {
     width: 3em;
+  }
+}
+
+#window_magicTimer {
+  @include window(400px, 260px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    label {
+      width: 14em;
+      display: inline-block;
+      text-align: right;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+
+    #magicTimer_name, #magicTimer_info {
+      width: 10em;
+    }
+
+    #magicTimer_timeRange, #magicTimer_createRound, #magicTimer_initiative {
+      width: 5em;
+    }
   }
 }
 
@@ -2001,7 +2048,7 @@ label {
 
 
   #mapChange_width, #mapChange_height, #mapChange_gridInterval {
-    width: 2em;
+    width: 3em;
   }
 
   #mapChange_password {

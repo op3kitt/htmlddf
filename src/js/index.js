@@ -686,15 +686,18 @@ function refresh_parseChatMessageDataLog(refreshData){
       ddf.roomState.voting = {requiredCount:param.requiredCount, count: [0,0,0,0,0]};
       if(param.isCallTheRoll){
         $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:点呼開始！</p>`));
+        chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, "点呼開始！"]);
         if(param.callerId != ddf.info.uniqueId && !refreshData.isFirstChatRefresh){
           ddf.cmd.vote_alerm_show();
         }
       }else{
         $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:投票を開始しました：${encode(param.question)}</p>`));
+        chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, `投票を開始しました：${encode(param.question)}`]);
         if(param.callerId != ddf.info.uniqueId && !refreshData.isFirstChatRefresh){
           ddf.cmd.vote_select_show(param.question);
         }
       }
+      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }else if(matches = /^###vote_replay_readyOK###(.+)$/.exec(item[1].message)){
       param = JSON.parse(matches[1]);
       if(ddf.roomState.voting){
@@ -702,34 +705,46 @@ function refresh_parseChatMessageDataLog(refreshData){
           case 1:
             ddf.roomState.voting.count[1]++;
             totalCount = ddf.roomState.voting.count[1] + ddf.roomState.voting.count[2];
-            $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:賛成。（${totalCount}/${ddf.roomState.voting.requiredCount}）</p>`));
             if(totalCount => ddf.roomState.voting.requiredCount){
-              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">投票結果　賛成：${ddf.roomState.voting.count[1]}　反対：${ddf.roomState.voting.count[2]}</p>`));
+              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:賛成。（${totalCount}/${ddf.roomState.voting.requiredCount}）<br>投票結果　賛成：${ddf.roomState.voting.count[1]}　反対：${ddf.roomState.voting.count[2]}</p>`));
+              chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, `賛成。（${totalCount}/${ddf.roomState.voting.requiredCount}）\n投票結果　賛成：${ddf.roomState.voting.count[1]}　反対：${ddf.roomState.voting.count[2]}`]);
               delete ddf.roomState.voting;
+            }else{
+              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:賛成。（${totalCount}/${ddf.roomState.voting.requiredCount}）</p>`));
+              chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, `賛成。（${totalCount}/${ddf.roomState.voting.requiredCount}）`]);
             }
             break;
           case 2:
             ddf.roomState.voting.count[2]++;
             totalCount = ddf.roomState.voting.count[1] + ddf.roomState.voting.count[2];
-            $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:反対。（${totalCount}/${ddf.roomState.voting.requiredCount}）</p>`));
             if(totalCount => ddf.roomState.voting.requiredCount){
-              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">投票結果　賛成：${ddf.roomState.voting.count[1]}　反対：${ddf.roomState.voting.count[2]}</p>`));
+              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:反対。（${totalCount}/${ddf.roomState.voting.requiredCount}）<br>投票結果　賛成：${ddf.roomState.voting.count[1]}　反対：${ddf.roomState.voting.count[2]}</p>`));
+              chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, `反対。（${totalCount}/${ddf.roomState.voting.requiredCount}）\n投票結果　賛成：${ddf.roomState.voting.count[1]}　反対：${ddf.roomState.voting.count[2]}`]);
               delete ddf.roomState.voting;
+            }else{
+              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:反対。（${totalCount}/${ddf.roomState.voting.requiredCount}）</p>`));
+              chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, `反対。（${totalCount}/${ddf.roomState.voting.requiredCount}）`]);
             }
             break;
           case 4:
             ddf.roomState.voting.count[4]++;
             totalCount = ddf.roomState.voting.count[4];
-            $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:準備完了！（${totalCount}/${ddf.roomState.voting.requiredCount}）</p>`));
             if(totalCount => ddf.roomState.voting.requiredCount){
-              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">全員準備完了しましたっ！</p>`));
+              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:準備完了！（${totalCount}/${ddf.roomState.voting.requiredCount}）<br>全員準備完了しましたっ！</p>`));
+              chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, `準備完了！（${totalCount}/${ddf.roomState.voting.requiredCount}）\n全員準備完了しましたっ！`]);
               delete ddf.roomState.voting;
+            }else{
+              $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:準備完了！（${totalCount}/${ddf.roomState.voting.requiredCount}）</p>`));
+              chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, `準備完了！（${totalCount}/${ddf.roomState.voting.requiredCount}）`]);
             }
             break;
         }
       }
+      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }else if(matches = /^(.*がファイルをアップロードしました)\s*ファイル名：([^\s]*)\s*URL:(.*)$/.exec(item[1].message)){
       $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(matches[1])}　<a href="${matches[3]}" download="${matches[2]}">${encode(matches[2])}</a></p>`));
+      chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, item[1].message]);
+      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }else{
       $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(item[1].message).replace(/\n/, "<br>")}</p>`));
       chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, item[1].message]);
@@ -1164,6 +1179,10 @@ function refresh_parseRecordData(refreshData){
           obj.removeClass("draggableObj");
         }
         break;
+      case "MagicTimer":
+        iniChanged = true;
+        ddf.roomState.ini_characters[character.data.imgId] = ddf.characters[character.data.imgId];
+        break;
       case "characterData":
         iniChanged = true;
         obj.animate({
@@ -1539,6 +1558,12 @@ function refresh_parseCharacters(refreshData){
       });
       $("#mapSurface").append(obj);
       break;
+    case "MagicTimer":
+      ddf.characters[character.imgId] = {
+        data: character
+      };
+      ddf.roomState.ini_characters[character.imgId] = ddf.characters[character.imgId];
+      break;
     case "characterData":
       obj = $(`<div class="characterFrame draggableObj" id="${character.imgId}"></div>`);
       obj.append($(`<div class="inner"></div><div class="dogtag">${encode(character.dogTag)}</div><div class="name">${encode(character.name)}</div>`));
@@ -1665,12 +1690,13 @@ function refresh_parseMapData(refreshData){
 ddf.cmd.refresh_parseRoundTimeData = refresh_parseRoundTimeData;
 function refresh_parseRoundTimeData(refreshData, force = false){
   if(force || JSON.stringify(refreshData.roundTimeData.counterNames) != JSON.stringify(ddf.roomState.roundTimeData.counterNames)){
+    ddf.roomState.roundTimeData = refreshData.roundTimeData;
     $("#initiative table thead tr").empty();
     $("#initiative table thead tr").append($("<th><p>順番</p></th>"));
     $("#initiative table thead tr").append($("<th><p>イニシアティブ</p></th>"));
     $("#initiative table thead tr").append($("<th><p>修正値</p></th>"));
     $("#initiative table thead tr").append($("<th><p>名前</p></th>"));
-    for(counter of refreshData.roundTimeData.counterNames){
+    for(counter of ddf.roomState.roundTimeData.counterNames){
       $("#initiative table thead tr").append($(`<th><p>${encode(counter.replace(/^\*/, ""))}</p></th>`));
     }
     $("#initiative table thead tr").append($("<th><p>その他</p></th>"));
@@ -1680,7 +1706,15 @@ function refresh_parseRoundTimeData(refreshData, force = false){
     for(key in ddf.roomState.ini_characters){
       var character = ddf.roomState.ini_characters[key];
       var tmp = `<tr id="${character.data.imgId}">`;
-      tmp+= `<td>${(character.data.initiative==refreshData.roundTimeData.initiative?"●":"")}</td>`;
+      if(character.data.type != "characterData"){
+        if(character.data.createRound + character.data.timeRange <= ddf.roomState.roundTimeData.round){
+          tmp+= `<td>${(character.data.initiative==ddf.roomState.roundTimeData.initiative?"×":"")}</td>`;
+        }else{
+          tmp+= `<td>${(character.data.initiative==ddf.roomState.roundTimeData.initiative?"●":"")}</td>`;
+        }
+      }else{
+        tmp+= `<td>${(character.data.initiative==ddf.roomState.roundTimeData.initiative?"●":"")}</td>`;
+      }
       if(character.data.initiative < 0 && Math.round((character.data.initiative % 1)*10) >= -0.1){
         tmp+= `<td><input class="initiative" type="number" value="${Math.ceil(character.data.initiative)}"></td>`;
         tmp+= `<td><input class="initiative2" type="number" value="${Math.round(character.data.initiative*100 % 100)}" min="-10" max="89"></td>`;
@@ -1696,12 +1730,14 @@ function refresh_parseRoundTimeData(refreshData, force = false){
       }
       tmp+= `<td>${encode(character.data.name)}</td>`;
       count = 0;
-      for(counter of refreshData.roundTimeData.counterNames){
+      for(counter of ddf.roomState.roundTimeData.counterNames){
         character.data.counters == null && (character.data.counters = {});
         character.data.statusAlias == null && (character.data.statusAlias = {});
         character.data.counters[counter]==undefined && (character.data.counters[counter] = 0);
         if(/^\*/.test(counter)){
-          if(character.data.statusAlias && character.data.statusAlias[counter]){
+          if(character.data.type != "characterData"){
+            tmp+= `<td><input class="v${count}" type="checkbox" disabled></td>`;
+          }else if(character.data.statusAlias && character.data.statusAlias[counter]){
             tmp+= `<td><input class="v${count}" type="checkbox" ${(character.data.counters[counter]!=0?"checked":"")}>${character.data.statusAlias[counter]?character.data.statusAlias[counter]:""}</td>`;
           }else{
             tmp+= `<td><input class="v${count}" type="checkbox" ${(character.data.counters[counter]!=0?"checked":"")}></td>`;
@@ -1723,24 +1759,81 @@ function refresh_parseRoundTimeData(refreshData, force = false){
           character.row
         );
       }
+      if(character.data.type != "characterData"){
+        if(character.data.createRound + character.data.timeRange < ddf.roomState.roundTimeData.round ||
+          (character.data.createRound + character.data.timeRange == ddf.roomState.roundTimeData.round &&
+           character.data.initiative >= ddf.roomState.roundTimeData.initiative)){
+          character.row.addClass("end");
+        }else{
+          character.row.removeClass("end");
+        }
+      }
     }
     $("#initiative table").colResizable({partialRefresh: true});
   }else{
+    ddf.roomState.roundTimeData = refreshData.roundTimeData;
     ddf.roomState.ini_characters = ddf.util.hashSort(ddf.roomState.ini_characters, (obj) => {return obj.data.initiative});
     for(key in ddf.roomState.ini_characters){
       var character = ddf.roomState.ini_characters[key];
       if(character != undefined){
-        character.row.children("td:eq(0)").text(character.data.initiative==refreshData.roundTimeData.initiative?"●":"");
+        if(character.data.type != "characterData"){
+          if(character.data.createRound + character.data.timeRange <= ddf.roomState.roundTimeData.round){
+            character.row.children("td:eq(0)").text(character.data.initiative==ddf.roomState.roundTimeData.initiative?"×":"");
+          }else{
+            character.row.children("td:eq(0)").text(character.data.initiative==ddf.roomState.roundTimeData.initiative?"●":"");
+          }
+        }else{
+          character.row.children("td:eq(0)").text(character.data.initiative==ddf.roomState.roundTimeData.initiative?"●":"");
+        }
         $("#initiative table tbody tr:eq(0)").before(
           character.row
         );
+        if(character.data.initiative < 0 && Math.round((character.data.initiative % 1)*10) >= -0.1){
+          character.row.children("td:eq(1)").children("input").val(Math.ceil(character.data.initiative));
+          character.row.children("td:eq(2)").children("input").val(Math.round(character.data.initiative*100 % 100));
+        }else if(character.data.initiative < 0){
+          character.row.children("td:eq(1)").children("input").val(Math.floor(character.data.initiative));
+          character.row.children("td:eq(2)").children("input").val(Math.round(character.data.initiative*100 % 100)+100);
+        }else if(Math.round((character.data.initiative % 1) * 10) >= 9){
+          character.row.children("td:eq(1)").children("input").val(Math.ceil(character.data.initiative));
+          character.row.children("td:eq(2)").children("input").val(Math.round(character.data.initiative*100 % 100 - 100));
+        }else{
+          character.row.children("td:eq(1)").children("input").val(Math.floor(character.data.initiative));
+          character.row.children("td:eq(2)").children("input").val(Math.round(character.data.initiative*100 % 100));
+        }
+        character.row.children("td:eq(3)").text(character.data.name);
+        count = 0;
+        for(counter of ddf.roomState.roundTimeData.counterNames){
+          character.data.counters == null && (character.data.counters = {});
+          character.data.statusAlias == null && (character.data.statusAlias = {});
+          character.data.counters[counter]==undefined && (character.data.counters[counter] = 0);
+          if(/^\*/.test(counter)){
+            if(character.data.type != "characterData"){
+            }else if(character.data.statusAlias && character.data.statusAlias[counter]){
+              character.row.children(`td:eq(${4 + count})`).html(`<input class="v${count}" type="checkbox" ${(character.data.counters[counter]!=0?"checked":"")}>${character.data.statusAlias[counter]?character.data.statusAlias[counter]:""}`);
+            }else{
+              character.row.children(`td:eq(${4 + count})`).html(`<input class="v${count}" type="checkbox" ${(character.data.counters[counter]!=0?"checked":"")}>`);
+            }
+          }else{
+            character.row.children(`td:eq(${4 + count})`).children("input").val(character.data.counters[counter]);
+          }
+          count++;
+        }
+        character.row.children("td:last").children("input").val(encode(character.data.info));
+      }
+      if(character.data.type != "characterData"){
+        if(character.data.createRound + character.data.timeRange < ddf.roomState.roundTimeData.round ||
+          (character.data.createRound + character.data.timeRange == ddf.roomState.roundTimeData.round &&
+           character.data.initiative >= ddf.roomState.roundTimeData.initiative)){
+          character.row.addClass("end");
+        }else{
+          character.row.removeClass("end");
+        }
       }
     }
   }
-  $("#round").text(refreshData.roundTimeData.round);
-  $("#now_ini").text(refreshData.roundTimeData.initiative);
-
-  ddf.roomState.roundTimeData = refreshData.roundTimeData;
+  $("#round").text(ddf.roomState.roundTimeData.round);
+  $("#now_ini").text(ddf.roomState.roundTimeData.initiative);
 }
 
 ddf.cmd.sendChatMessage = sendChatMessage;

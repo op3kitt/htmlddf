@@ -7,4 +7,5 @@ $(() => {
   require("./memo.js");
   require("./floorTile.js");
   require("./magicRange.js");
+  require("./initiative.js");
 });

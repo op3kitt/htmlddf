@@ -32,6 +32,12 @@ function getGraveyardCharacterData(){
         case "mapMask":
           type = "マップマスク";
           break;
+        case "Card":
+          type = "カード";
+          break;
+        case "CardZone":
+          type = "カード置き場";
+          break;
         case "characterData":
           type = "キャラクター";
           break;
@@ -46,6 +52,14 @@ function getGraveyardCharacterData(){
           break;
         case "MagicTimer":
           type = "魔法タイマー";
+          break;
+        case "mapMarker":
+          name = ""
+          type = "マップマーカー";
+          break;
+        case "floorTile":
+          name = ""
+          type = "フロアタイル";
           break;
         case "chit":
           name = ""
