@@ -1079,6 +1079,26 @@ label {
   
 }
 
+#window_alerm {
+  @include window(300px, 150px, 40%, 40%);
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+  
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+  }
+}
+
 #window_vote_alerm, #window_vote_select {
   @include window(200px, 200px, 40%, 40%);
   .bg {
@@ -1096,11 +1116,6 @@ label {
     @include full();
     top: 26px;
     padding: 0.3em;
-    
-    pre {
-      margin: 0;
-      background: #fff;
-    }
   }
 }
 

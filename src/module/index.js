@@ -415,15 +415,23 @@ ddf.refresh = function(){
  * @param {Boolean} [dummy=false] システムメッセージフラグ
  * @return {Promise}
  */
-ddf.sendChatMessage = function(channel, senderName, message, color, dummy = false){
+ddf.sendChatMessage = function(channel, senderName, message, color, dummy = false, sendto = "", sendtoName = ""){
   return ddf.sendMsg({
     room: ddf.userState.room,
-    params: {
+    params: sendto==""&&sendtoName=""?{
       uniqueId: dummy?'dummy':ddf.info.uniqueId+ddf.userState.own,
       message: message,
       senderName: senderName,
       color: color,
       channel: channel
+    }:{
+      uniqueId: dummy?'dummy':ddf.info.uniqueId+ddf.userState.own,
+      message: message,
+      senderName: senderName,
+      color: color,
+      channel: channel,
+      sendto: sendto,
+      sendtoName: sendtoName
     },
     own: ddf.info.uniqueId+ddf.userState.own,
     cmd: "sendChatMessage"

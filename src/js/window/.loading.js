@@ -35,6 +35,7 @@ $(() => {
   require("./help.js");
   require("./chatFont.js");
   require("./vote.js");
+  require("./alerm.js");
   require("./characterCutin.js");
   require("./uploadFile.js");
 });

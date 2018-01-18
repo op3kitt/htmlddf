@@ -1,0 +1,19 @@
+#window_alerm.draggable
+  .bg 
+    div 
+      span.title 目覚ましアラーム送信
+      .pull-right#alerm_close2 ×
+  .body.dragprev
+    .r
+      label 送信先：
+      select#alerm_name
+    .r
+      label 効果音：
+      input#alerm_file
+    .r
+      label 発動は：
+      input(type="number",min=0,max=86400,required)#alerm_second
+      | 秒後
+    .r.center
+      button#alerm_send 実行
+      button#alerm_close キャンセル

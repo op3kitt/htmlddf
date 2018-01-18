@@ -36,6 +36,10 @@ var click = {x:0,y:0};
 
 ddf.roomInfos = [];
 var pageBuffer, diceRollBuffer, context;
+var alermLoaded = false;
+var alermPlayed = false;
+var alermWait = false;
+var alermBuffer = null;
 
 function playSound(buffer) {
   if(ddf.roomState.playSound){
@@ -740,6 +744,41 @@ function refresh_parseChatMessageDataLog(refreshData){
             break;
         }
       }
+      $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
+    }else if(refreshData.refreshIndex > 0 && !!(matches = /^\[アラーム発生：(.*)\]:([^:]*)(:(.*)秒後)?$/.exec(item[1].message))){
+      if(matches[1] == "（全員）" || matches[1] == ddf.userState.name){
+        alermLoaded = false;
+        alermPlayed = false;
+        if(time = parseFloat(matches[4])>0){
+          alermWait = false;
+          setTimeout(()=>{
+            if(alermLoaded){
+              playSound(alermBuffer);
+              alermPlayed = true;
+            }else{
+              alermWait = true;
+            }
+          },time * 1000);
+        }else{
+          alermWait = true;
+        }
+        new Promise((success, error)=>{var request = new XMLHttpRequest();
+          request.open('GET', ddf.base_url + matches[2], true);
+          request.responseType = 'arraybuffer';
+          request.onload = success;
+          request.send();
+        }).then((r)=>{
+          context.decodeAudioData(r.target.response, function(buffer) {
+            alermBuffer = buffer;
+            alermLoaded = true;
+            if(alermWait){
+              playSound(alermBuffer);
+            }
+          });
+        });
+      }
+      $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${item[1].message}</p>`));
+      chatlog.push([item[1].channel, ddf.roomState.chatChannelNames[item[1].channel], item[0],"#"+item[1].color,item[1].senderName, item[1].message]);
       $(`#log div:eq(${item[1].channel})`).hasClass("active") || ddf.roomState.unread[item[1].channel]++;
     }else if(matches = /^(.*がファイルをアップロードしました)\s*ファイル名：([^\s]*)\s*URL:(.*)$/.exec(item[1].message)){
       $(`#log div:eq(${item[1].channel})`).append($(`<p style="color: #${item[1].color}">${ddf.userState.showTime?'<span class="time">'+dateFormat(new Date(item[0]*1000), "HH:MM")+"：</span>":""}${encode(item[1].senderName)}:${encode(matches[1])}　<a href="${matches[3]}" download="${matches[2]}">${encode(matches[2])}</a></p>`));
