@@ -33,6 +33,7 @@ $(() => {
   require("./chat.js");
 
   require("./help.js");
+  require("./diceBotTable.js");
   require("./chatFont.js");
   require("./vote.js");
   require("./alerm.js");

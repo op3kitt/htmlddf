@@ -1632,6 +1632,84 @@ label {
   }
 }
 
+#window_diceBotTable {
+  @include window(500px, 300px, 30%, 30%)
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+    .r:nth-child(2) {
+      height: 210px;
+      overflow: hidden;
+    }
+
+    .table_wrap {
+      height: 217px;
+      overflow: scroll;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      cell-spacing:0;
+      border-left: solid 1px $cborder;
+      border-top: solid 1px $cborder;
+
+      tr:first-child {
+        background: linear-gradient(to bottom, #fff, #ccc);
+        font-size: 12px;
+      }
+
+      th:nth-child(5) {
+        column-width: 6em;
+      }
+    }
+
+    td, th {
+      border-right: solid 1px $cborder;
+      border-bottom: solid 1px $cborder;
+      mex-inline-width: 6em;
+    }
+    
+    td {
+      text-align: center;
+      background: white;
+
+      p {
+        overflow: hidden;
+        margin: 0;
+        height: 1.5em;
+        width: 6em;
+      }
+    }
+
+    tr:nth-child(odd) td {
+      background: #f9f9f9; 
+    }
+
+    button ~ button {
+      margin-left: 3em;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+}
+
 #window_characterCutin {
   @include window(500px, 300px, 30%, 30%)
   .bg {

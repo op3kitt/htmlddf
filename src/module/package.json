@@ -1,6 +1,6 @@
 {
   "name": "ddf",
-  "version": "0.5.3",
+  "version": "0.5.6",
   "description": "DodontoFServer.rb API wrapper",
   "main": "index.js",
   "dependencies": {

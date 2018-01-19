@@ -413,12 +413,14 @@ ddf.refresh = function(){
  * @param {String} message 発言内容
  * @param {String} color 発言の色（RRGGBBのカラーコード）
  * @param {Boolean} [dummy=false] システムメッセージフラグ
+ * @param {String} sendto 秘話対象のID
+ * @param {String} sendtoName 秘話対象の名前
  * @return {Promise}
  */
 ddf.sendChatMessage = function(channel, senderName, message, color, dummy = false, sendto = "", sendtoName = ""){
   return ddf.sendMsg({
     room: ddf.userState.room,
-    params: sendto==""&&sendtoName=""?{
+    params: sendto==""&&sendtoName==""?{
       uniqueId: dummy?'dummy':ddf.info.uniqueId+ddf.userState.own,
       message: message,
       senderName: senderName,
