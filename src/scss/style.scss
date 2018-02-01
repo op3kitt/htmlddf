@@ -1667,6 +1667,10 @@ label {
       border-left: solid 1px $cborder;
       border-top: solid 1px $cborder;
 
+      td, th {
+        min-width: 2em;
+      }
+
       tr:first-child {
         background: linear-gradient(to bottom, #fff, #ccc);
         font-size: 12px;
@@ -1710,8 +1714,44 @@ label {
   }
 }
 
+#window_diceBotTable_edit {
+  @include window(700px, 395px, 30%, 30%)
+  .bg {
+    @include bg(0.8);
+
+    & > div {
+      background: $title_bg;
+      margin: 0;
+      font-weight: bold;
+      padding: 2px 4px;
+    }
+  }
+
+  .body {
+    @include full();
+    top: 26px;
+    padding: 0.3em;
+
+
+    #diceBotTable_edit_dice {
+      width: 5em;
+    }
+
+    #diceBotTable_edit_table {
+      margin-top: 8px;
+      width: 100%;
+      height: 18em;
+    }
+
+    .r {
+      padding: 8px;
+      width: 100%;
+    }
+  }
+}
+
 #window_characterCutin {
-  @include window(500px, 300px, 30%, 30%)
+  @include window(700px, 300px, 30%, 30%)
   .bg {
     @include bg(0.8);
 
@@ -2368,7 +2408,7 @@ label {
   }
 }
 #window_chat {
-  @include window(80%, 30%, 70%, 0);
+  @include window(900px, 300px, 70%, 0);
   display: block;
 
   .bg {
@@ -2430,7 +2470,7 @@ label {
 
     textarea {
       vertical-align: top;
-      width: 750px;
+      width: 700px;
       height: 70px;
     }
 

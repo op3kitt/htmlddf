@@ -247,7 +247,7 @@
                     <button id="btn_rangemg">攻撃範囲(メタリックガーディアン)</button>
                   </div>
                 </div>
-                <button id="btn_magictimer" disabled>魔法タイマー追加</button>
+                <button id="btn_magictimer">魔法タイマー追加</button>
                 <hr>
                 <button id="btn_createchit">チット作成</button>
                 <hr>
@@ -328,7 +328,7 @@
                   <button class="img" id="btn_help"><img src="img/icons/icon_help.png">
                     <div class="helptext">ダイスボットのヘルプを別ウィンドウで表示します。</div>
                   </button>
-                  <button class="img disabled" id="btn_diceBotTable"><img src="img/icons/page_white_gear.png">
+                  <button class="img" id="btn_diceBotTable"><img src="img/icons/page_white_gear.png">
                     <div class="helptext">ダイスボット表追加・変更・削除</div>
                   </button>
                   <button class="img disabled" id="btn_novel"><img src="img/icons/book_open.png">
@@ -343,10 +343,10 @@
                   <button class="img" id="btn_mute"><img src="img/icons/sound.png">
                     <div class="helptext">音再生あり</div>
                   </button>
-                  <button class="img disabled" id="btn_vote"><img src="img/icons/user_comment.png">
+                  <button class="img" id="btn_vote"><img src="img/icons/user_comment.png">
                     <div class="helptext">点呼／投票</div>
                   </button>
-                  <button class="img disabled" id="btn_alarm"><img src="img/icons/bell.png">
+                  <button class="img" id="btn_alerm"><img src="img/icons/bell.png">
                     <div class="helptext">目覚ましアラーム送信</div>
                   </button>
                   <button class="img disabled" id="btn_cutinList"><img src="img/icons/film.png">
@@ -355,7 +355,7 @@
                   <button class="img" id="btn_characterList"><img src="img/icons/user_edit.png">
                     <div class="helptext">立絵設定</div>
                   </button>
-                  <button class="img disabled" id="btn_easyUpload"><img src="img/icons/page_white_get.png">
+                  <button class="img" id="btn_easyUpload"><img src="img/icons/page_white_get.png">
                     <div class="helptext">簡易ファイルアップローダー</div>
                   </button>
                   <button class="img disabled" id="btn_talk"><img src="img/icons/emoticon_smile.png">
@@ -559,6 +559,22 @@
             </div>
             <div class="r">結果
               <div id="upload_result"></div>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_uploadFile">
+          <div class="bg">
+            <div><span class="title">簡易ファイルアップローダー</span>
+              <div class="pull-right" id="uploadFile_close">×</div>
+            </div>
+            <div class="body dragprev">
+              <div class="row left">
+                <p>ファイルをアップロードできます。<br>アップロードされたファイルのURLはチャットに発言され、<br>ダウンロードする事ができます。<br>（アップロードされたファイルは１時間で自動的に削除されます。）</p>
+              </div>
+              <div id="uploadFile_droparea"></div>
+              <div class="overwrap">
+                <input class="hide" type="file" accept=""><a href="#">ファイルを選択</a><br>　または　<br>ファイルをドラッグアンドドロップ
+              </div>
             </div>
           </div>
         </div>
@@ -852,6 +868,40 @@
             <div class="r center">
               <button id="magicRangeMG_send">追加</button>
               <button id="magicRangeMG_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_magicTimer">
+          <div class="bg"> 
+            <div> <span class="title">魔法タイマー作成</span>
+              <div class="pull-right" id="magicTimer_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <input type="hidden" id="magicTimer_imgId">
+              <label>名前：</label>
+              <input id="magicTimer_name">
+            </div>
+            <div class="r">
+              <label>持続時間：</label>
+              <input type="number" min="1" max="99" required id="magicTimer_timeRange">ラウンド
+            </div>
+            <div class="r">
+              <label>効果開始ラウンド：</label>
+              <input type="number" min="1" max="99" required id="magicTimer_createRound">
+            </div>
+            <div class="r">
+              <label>効果開始イニシアティブ：</label>
+              <input type="number" min="1" max="99" step="0.01" required id="magicTimer_initiative">
+            </div>
+            <div class="r">
+              <label>その他：</label>
+              <input id="magicTimer_info">
+            </div>
+            <div class="r center">
+              <button id="magicTimer_send">変更</button>
+              <button id="magicTimer_close">キャンセル</button>
             </div>
           </div>
         </div>
@@ -1276,6 +1326,140 @@
               <div class="overwrap">
                 <input class="hide" type="file" accept=""><a href="#">ファイルを選択</a><br>　または　<br>ファイルをドラッグアンドドロップ
               </div>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_vote">
+          <div class="bg"> 
+            <div><span class="title">点呼／投票画面</span>
+              <div class="pull-right" id="vote_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <label>対象人数：</label>
+              <input type="number" min="1" id="vote_requiredCount">/<span id="vote_number"></span>　　
+              <input type="radio" checked name="vote" id="vote_alerm">点呼
+              <input type="radio" name="vote" id="vote_select">投票
+            </div>
+            <div class="r" id="vote_isSelect">
+              <label>質問：</label>
+              <input id="vote_question">
+            </div>
+            <div class="r center">
+              <button id="vote_send">実行</button>
+              <button id="vote_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_vote_alerm">
+          <div class="bg"> 
+            <div><span class="title">点呼</span></div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">準備が出来たらOKを押してください</div>
+            <div class="r center">
+              <button id="vote_alerm_ok">OK</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_vote_select">
+          <div class="bg"> 
+            <div><span class="title">投票</span></div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <p id="vote_select_text"></p>
+            </div>
+            <div class="r center">
+              <button id="vote_select_agree">Yes</button>
+              <button id="vote_select_disagree">No</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_alerm">
+          <div class="bg"> 
+            <div> <span class="title">目覚ましアラーム送信</span>
+              <div class="pull-right" id="alerm_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <label>送信先：</label>
+              <select id="alerm_name"></select>
+            </div>
+            <div class="r">
+              <label>効果音：</label>
+              <input id="alerm_file">
+            </div>
+            <div class="r">
+              <label>発動は：</label>
+              <input type="number" min="0" max="86400" required id="alerm_second">秒後
+            </div>
+            <div class="r center">
+              <button id="alerm_send">実行</button>
+              <button id="alerm_close">キャンセル</button>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_diceBotTable">
+          <div class="bg"> 
+            <div><span class="title">ダイスボット用表管理</span>
+              <div class="pull-right" id="diceBotTable_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <button id="diceBotTable_create">新規作成</button>
+              <button class="pull-right" id="diceBotTable_close">閉じる</button>
+            </div>
+            <div class="r">
+              <div class="table_wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>変更</th>
+                      <th>コピー</th>
+                      <th>ゲームシステム</th>
+                      <th>コマンド名</th>
+                      <th>表タイトル</th>
+                      <th>削除</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="draggable" id="window_diceBotTable_edit">
+          <div class="bg"> 
+            <div><span id="diceBotTable_edit_title">ダイスボット表編集</span>
+              <div class="pull-right" id="diceBotTable_edit_close2">×</div>
+            </div>
+          </div>
+          <div class="body dragprev">
+            <div class="r">
+              <label>コマンド名：</label>
+              <input id="diceBotTable_edit_command">
+              <label>ダイス：</label>
+              <input id="diceBotTable_edit_dice">
+              <label>表タイトル：</label>
+              <input id="diceBotTable_edit_titletext">
+              <input type="hidden" id="diceBotTable_edit_originalCommand">
+              <input type="hidden" id="diceBotTable_edit_originalGameType">
+              <input type="hidden" id="diceBotTable_edit_copy">
+            </div>
+            <div class="r">
+              <select class="pull-right" id="diceBotTable_edit_gameType"></select>
+              <label class="pull-right">ゲームシステム</label>
+              <label>表内容：</label>
+              <textarea id="diceBotTable_edit_table"></textarea>
+            </div>
+            <div class="r">
+              <button id="diceBotTable_edit_send">作成</button>
+              <button id="diceBotTable_edit_close">キャンセル</button>
+              <button class="pull-right" id="diceBotTable_edit_sample">サンプル表示</button>
             </div>
           </div>
         </div>

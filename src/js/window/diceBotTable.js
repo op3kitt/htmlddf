@@ -1,12 +1,13 @@
 $("#btn_diceBotTable").on('click', (e) => {
   ddf.getBotTableInfos().then((r) => {
+    ddf.tableInfos = r.tableInfos;
     $("#window_diceBotTable table tbody").empty();
     for(item of r.tableInfos){
       tr  = `<tr>`;
       tr += `<td><button class="edit" command="${item.command}" gameType="${item.gameType}">変更</button></td>`;
       tr += `<td><button class="copy" command="${item.command}" gameType="${item.gameType}">コピー</button></td>`;
+      tr += `<td>${encode(ddf.util.getDiceBotName(item.gameType==""?"DiceBot":item.gameType))}</td>`;
       tr += `<td>${encode(item.command)}</td>`;
-      tr += `<td>${encode(item.gameType)}</td>`;
       tr += `<td>${encode(item.title)}</td>`;
       tr += `<td><button class="delete"  command="${item.command}" gameType="${item.gameType}">削除</button></td>`;
       tr += `</tr>`;
@@ -27,6 +28,22 @@ $(document).on('click', '#window_diceBotTable button.copy', (e) => {
 $(document).on('click', '#window_diceBotTable button.delete', (e) => {
   if(confirm($(e.target).attr("command")+"を削除します、よろしいですか？")){
     ddf.removeBotTable($(e.target).attr("command"));
+    $("#window_diceBotTable table tbody").empty();
+    ddf.getBotTableInfos().then((r) => {
+      ddf.tableInfos = r.tableInfos;
+      $("#window_diceBotTable table tbody").empty();
+      for(item of r.tableInfos){
+        tr  = `<tr>`;
+        tr += `<td><button class="edit" command="${item.command}" gameType="${item.gameType}">変更</button></td>`;
+        tr += `<td><button class="copy" command="${item.command}" gameType="${item.gameType}">コピー</button></td>`;
+        tr += `<td>${encode(ddf.util.getDiceBotName(item.gameType==""?"DiceBot":item.gameType))}</td>`;
+        tr += `<td>${encode(item.command)}</td>`;
+        tr += `<td>${encode(item.title)}</td>`;
+        tr += `<td><button class="delete"  command="${item.command}" gameType="${item.gameType}">削除</button></td>`;
+        tr += `</tr>`;
+        $("#window_diceBotTable table tbody").append($(tr));
+      }
+    });
   }
 });
 
@@ -38,141 +55,124 @@ $("#diceBotTable_close, #diceBotTable_close2").on('click', (e) => {
   $("#window_diceBotTable").hide();
 });
 
-function diceBotTable_show(effectId){
+function diceBotTable_show(gameType, command, copy){
 
-  ddf.getImageTagsAndImageList().then((r) => {
-    tagList = ["キャラクター画像"];
-    ddf.images = r;
-    for(item of ddf.images.imageList){
-      if(ddf.images.tagInfos[item]){
-        for(tag of ddf.images.tagInfos[item].tags){
-          if(tag == ""){continue;}
-          tagList.includes(tag) || tagList.push(tag);
-        }
-      }
-    }
-    tagList.push("（全て）");
+  tableInfo = ddf.tableInfos.find(((gameType, command) => {
+    return (v) => {return v.gameType == gameType && v.command == command};
+  })(gameType, command));
 
-    $("#diceBotTable_create_tagbox").empty();
-    for(item of tagList){
-      $("#diceBotTable_create_tagbox").append($(`<option>${encode(item)}</option>`));
-    }
-      $("#diceBotTable_create_tagbox").append($(`<option>${encode(item)}</option>`));
-    diceBotTable_create_setTag(tagList[0]);
-  });
-
-  effect = ddf.roomState.effects.find((v)=>{return v.effectId == effectId;});
-  if(effect){
-    $("#window_diceBotTable_create .title").text("立ち絵追加");
-    $("#diceBotTable_create_send").text("追加");
-  }else{
-    effect = {
-      effectId: "0",
-      name: "",
-      state: "",
-      leftIndex: 1,
-      source: "",
-      type: "standingGraphicInfos",
-      motion: "",
-      mirrored: false
+  if(!tableInfo){
+    tableInfo = {
+      command: "",
+      dice: "",
+      fileName: "",
+      gameType: "",
+      table: [],
+      title: ""
     };
-
-    $("#window_diceBotTable_create .title").text("立ち絵変更");
-    $("#diceBotTable_create_send").text("変更");
   }
 
-  $("#diceBotTable_create_effectId").val(effect.effectId);
-  $("#diceBotTable_create_name").val(effect.name);
-  $("#diceBotTable_create_state").val(effect.state);
-  $("#diceBotTable_create_leftIndex").val(effect.leftIndex);
-  $("#window_diceBotTable_create .slider").slider('value', effect.leftIndex);
-  $("#diceBotTable_create_motion").val(effect.motion);
+  $("#diceBotTable_edit_originalGameType").val(tableInfo.gameType);
+  $("#diceBotTable_edit_originalCommand").val(tableInfo.command);
+  $("#diceBotTable_edit_copy").val(copy);
+  $("#diceBotTable_edit_command").val(tableInfo.command);
+  $("#diceBotTable_edit_dice").val(tableInfo.dice);
+  $("#diceBotTable_edit_titletext").val(tableInfo.title);
+  $("#diceBotTable_edit_gameType").val(tableInfo.gameType==""?"DiceBot":tableInfo.gameType);
+  $("#diceBotTable_edit_table").val(tableInfo.table.map((v)=>{return v[0]+":"+v[1]}).join("\n"));
 
-  $("#diceBotTable_create_imageName").val(effect.source);
-  $("#diceBotTable_create_image").css("backgroundImage", `url(${ddf.base_url + effect.source})`);
-  $("#diceBotTable_create_mirrored").prop("checked", effect.mirrored);
-
-  $("#window_diceBotTable_create").show().css("zIndex", 151);
-  $(".draggable:not(#window_diceBotTable_create)").css("zIndex", 150);
+  $("#window_diceBotTable_edit").show().css("zIndex", 151);
+  $(".draggable:not(#window_diceBotTable_edit)").css("zIndex", 150);
 }
 
-$("#diceBotTable_create_close, #diceBotTable_create_close2").on('click', (e) => {
-  $("#window_diceBotTable_create").hide();
+$("#diceBotTable_edit_close, #diceBotTable_edit_close2").on('click', (e) => {
+  $("#window_diceBotTable_edit").hide();
 });
 
-
-$("#diceBotTable_create_tagbox").on('change', (e) => {
-  diceBotTable_create_setTag($("#diceBotTable_create_tagbox").val());
+$("#diceBotTable_edit_sample").on('click', (e) => {
+  $("#diceBotTable_edit_dice").val("2d6");
+  $("#diceBotTable_edit_titletext").val("表サンプル");
+  $("#diceBotTable_edit_table").val(
+`2:「コマンド名」をチャットに入力することで、\\n表のロールができるようになります。
+3:この例では「SAMPLE」と入力すれば\\n実行できるようになります。
+4:表のフォーマットは\\nまさにここに書いてある通り、
+5:（数値）:（メッセージ）
+6:になります。
+7:「コマンド」をチャットで発言すると\\n「ダイス」に記載したダイスを元にランダム選択されます。
+8:ダイス目に合致する値が表に無い場合は空文字になります。
+9:悩むより一度追加してみるのが早いでしょう。
+10:他の人も使える便利な表が出来たら\\n皆で共有してあげてくださいね！
+11:そろそろ\\n書く事無くなってきましたね…
+12:以上です。
+`);
 });
 
-function diceBotTable_create_setTag(tag){
-  $("#diceBotTable_create_imagearea").empty();
-  let password = $("#diceBotTable_create_password").val();
-  for(item of ddf.images.imageList){
-    if(ddf.images.tagInfos[item]){
-      if((tag == "（全て）" || ddf.images.tagInfos[item].tags.includes(tag)) && (ddf.images.tagInfos[item].password == "" || ddf.images.tagInfos[item].password == password)){
-        $("#diceBotTable_create_imagearea").append($(`<div><img src="${ddf.base_url + item}" /></div>`));
+$("#diceBotTable_edit_send").on('click', (e) => {
+  gameType = $("#diceBotTable_edit_gameType").val();
+  gameType == "DiceBot" && (gameType = "");
+  if($("#diceBotTable_edit_copy").val() == "false"){
+    ddf.changeBotTable(
+      $("#diceBotTable_edit_originalGameType").val(),
+      $("#diceBotTable_edit_originalCommand").val(),
+      gameType,
+      $("#diceBotTable_edit_titletext").val(),
+      $("#diceBotTable_edit_command").val(),
+      $("#diceBotTable_edit_dice").val(),
+      $("#diceBotTable_edit_table").val()
+    ).then((r) => {
+      if(r.resultText == "OK"){
+        ddf.sendChatMessage(0, "dummy\t", "###CutInCommand:getDiceBotInfos###{}", "00aa00", true);
+        $("#window_diceBotTable_edit").hide();
+        $("#window_diceBotTable table tbody").empty();
+        ddf.getBotTableInfos().then((r) => {
+          ddf.tableInfos = r.tableInfos;
+          $("#window_diceBotTable table tbody").empty();
+          for(item of r.tableInfos){
+            tr  = `<tr>`;
+            tr += `<td><button class="edit" command="${item.command}" gameType="${item.gameType}">変更</button></td>`;
+            tr += `<td><button class="copy" command="${item.command}" gameType="${item.gameType}">コピー</button></td>`;
+            tr += `<td>${encode(ddf.util.getDiceBotName(item.gameType==""?"DiceBot":item.gameType))}</td>`;
+            tr += `<td>${encode(item.command)}</td>`;
+            tr += `<td>${encode(item.title)}</td>`;
+            tr += `<td><button class="delete"  command="${item.command}" gameType="${item.gameType}">削除</button></td>`;
+            tr += `</tr>`;
+            $("#window_diceBotTable table tbody").append($(tr));
+          }
+        });
+      }else{
+        alert(r.resultText);
       }
-    }else if(tag == "（全て）"){
-      $("#diceBotTable_create_imagearea").append($(`<div><img src="${ddf.base_url + item}" /></div>`));
-    }
-  }
-}
-$(document).on('click', '#diceBotTable_create_imagearea div img', (e) => {
-  let img = $(e.currentTarget).attr("src");
-  $("#diceBotTable_create_imageName").val(img.replace(ddf.base_url, ""));
-  $("#diceBotTable_create_image").css("backgroundImage", `url(${img})`);
-});
-
-$("#diceBotTable_create_mirrored").on('click', (e) => {
-  if($("#diceBotTable_create_mirrored").prop("checked")){
-    $("#diceBotTable_create_image").addClass("mirrored");
-  }else{
-    $("#diceBotTable_create_image").removeClass("mirrored");
-  }
-});
-$("#diceBotTable_create_btnpassword").on('click', (e) => {
-  $("#diceBotTable_create_btnpassword").hide();
-  $("#diceBotTable_create_password").show().focus();
-});
-$("#diceBotTable_create_password").on('focusout', (e) => {
-  $("#diceBotTable_create_btnpassword").show();
-  $("#diceBotTable_create_password").hide();
-  diceBotTable_setTag($("#diceBotTable_create_tagbox").val());
-}).on('keydown', (e) => {
-  if(e.keyCode == 13){
-    $("#diceBotTable_create_password").blur();
-  }
-});
-
-$("#diceBotTable_create_send").on('click', (e) => {
-
-  effect = ddf.roomState.effects.find((v)=>{return v.effectId == $("#diceBotTable_create_effectId").val();});
-  if(effect){
-    effect.effectId = $("#diceBotTable_create_effectId").val();
-    effect.source = $("#diceBotTable_create_imageName").val();
-    effect.name = $("#diceBotTable_create_name").val();
-    effect.state = $("#diceBotTable_create_state").val();
-    effect.leftIndex = $("#diceBotTable_create_leftIndex").val();
-    effect.motiron = $("#diceBotTable_create_motion").val();
-    effect.mirrored = $("#diceBotTable_create_mirrored").prop("checked");
-
-    ddf.changeEffectCharacter(effect.effectId, effect.name, effect.state, effect.motion, effect.source, effect.mirroed, effect.leftIndex).then((r) => {
-      $("#window_diceBotTable_create").hide();
     });
   }else{
-    effect = {
-      type: "standingGraphicInfos",
-    };
-
-    effect.effectId = $("#diceBotTable_create_effectId").val();
-    effect.source = $("#diceBotTable_create_imageName").val();
-    effect.name = $("#diceBotTable_create_name").val();
-    effect.state = $("#diceBotTable_create_state").val();
-    effect.leftIndex = $("#diceBotTable_create_leftIndex").val();
-    effect.motiron = $("#diceBotTable_create_motion").val();
-    effect.mirrored = $("#diceBotTable_create_mirrored").prop("checked");
-
-    ddf.addEffectCharacter(effect.name, effect.state, effect.motion, effect.source, effect.mirroed, effect.leftIndex);
+    ddf.addBotTable(
+      gameType,
+      $("#diceBotTable_edit_titletext").val(),
+      $("#diceBotTable_edit_command").val(),
+      $("#diceBotTable_edit_dice").val(),
+      $("#diceBotTable_edit_table").val()
+    ).then((r) => {
+      if(r.resultText == "OK"){
+        ddf.sendChatMessage(0, "dummy\t", "###CutInCommand:getDiceBotInfos###{}", "00aa00", true);
+        $("#window_diceBotTable_edit").hide();
+        $("#window_diceBotTable table tbody").empty();
+        ddf.getBotTableInfos().then((r) => {
+          ddf.tableInfos = r.tableInfos;
+          $("#window_diceBotTable table tbody").empty();
+          for(item of r.tableInfos){
+            tr  = `<tr>`;
+            tr += `<td><button class="edit" command="${item.command}" gameType="${item.gameType}">変更</button></td>`;
+            tr += `<td><button class="copy" command="${item.command}" gameType="${item.gameType}">コピー</button></td>`;
+            tr += `<td>${encode(ddf.util.getDiceBotName(item.gameType==""?"DiceBot":item.gameType))}</td>`;
+            tr += `<td>${encode(item.command)}</td>`;
+            tr += `<td>${encode(item.title)}</td>`;
+            tr += `<td><button class="delete"  command="${item.command}" gameType="${item.gameType}">削除</button></td>`;
+            tr += `</tr>`;
+            $("#window_diceBotTable table tbody").append($(tr));
+          }
+        });
+      }else{
+        alert(r.resultText);
+      }
+    });
   }
 });

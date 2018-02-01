@@ -10,7 +10,7 @@
     .r
       .table_wrap
         table
-          tbody
+          thead
             tr
               th 変更
               th コピー
@@ -18,25 +18,29 @@
               th コマンド名
               th 表タイトル
               th 削除
+          tbody
 #window_diceBotTable_edit.draggable
   .bg 
     div
-      span#diceBotTable_edit_title チット作成
+      span#diceBotTable_edit_title ダイスボット表編集
       .pull-right#diceBotTable_edit_close2 ×
   .body.dragprev
     .r
       label コマンド名：
-      input#diceBotTable_edit_text
+      input#diceBotTable_edit_command
       label ダイス：
       input#diceBotTable_edit_dice
       label 表タイトル：
-      input#diceBotTable_edit_info
+      input#diceBotTable_edit_titletext
+      input(type="hidden")#diceBotTable_edit_originalCommand
+      input(type="hidden")#diceBotTable_edit_originalGameType
+      input(type="hidden")#diceBotTable_edit_copy
     .r
-      select#diceBotTable_edit_diceBot.pull-right
+      select#diceBotTable_edit_gameType.pull-right
       label.pull-right ゲームシステム
       label 表内容：
-      textarea
+      textarea#diceBotTable_edit_table
     .r
       button#diceBotTable_edit_send 作成
-      button#diceBotTable_close_send キャンセル
-      button#diceBotTable_sample_send サンプル
+      button#diceBotTable_edit_close キャンセル
+      button#diceBotTable_edit_sample.pull-right サンプル表示

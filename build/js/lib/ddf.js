@@ -110,7 +110,7 @@ function write0(r){return function(n){var t=n.reserve(1);n.buffer[t]=r}}for(var 
 },{}],36:[function(require,module,exports){
 module.exports={
   "name": "ddf",
-  "version": "0.5.3",
+  "version": "0.5.6",
   "description": "DodontoFServer.rb API wrapper",
   "main": "index.js",
   "dependencies": {
