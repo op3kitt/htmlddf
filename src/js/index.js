@@ -265,18 +265,7 @@ function getLoginInfo(){
     $("#mapChange_width").attr("max", ddf.info.mapMaxWidth);
     $("#mapChange_height").attr("max", ddf.info.mapMaxHeight);
     $("#loginMessage").html(ddf.info.loginMessage);
-    total = 0;
-    str = "";
-    for(item of ddf.info.loginUserCountList){
-      total += item[1];
-      str += "No."+item[0]+"："+item[1]+"人<br>";
-    }
-    $("#window_loginNumber .body").html(str);
-    $("#btn_loginNumber").text("現状："+ddf.info.loginUserCountList.length+"／上限："+ddf.info.limitLoginCount+"人");
-    for(item of ddf.info.diceBotInfos){
-      $("#playRoomGameType").append($('<option value="'+item.gameType+'">'+item.name+'</option>'));
-    }
-    
+
     if(store.get('userState')){
       ddf.userState = store.get('userState');
       ddf.userState.room = -1;
@@ -294,6 +283,19 @@ function getLoginInfo(){
       };
       saveUserState();
     }
+
+    total = 0;
+    str = "";
+    for(item of ddf.info.loginUserCountList){
+      total += item[1];
+      str += "No."+item[0]+"："+item[1]+"人<br>";
+    }
+    $("#window_loginNumber .body").html(str);
+    $("#btn_loginNumber").text("現状："+ddf.info.loginUserCountList.length+"／上限："+ddf.info.limitLoginCount+"人");
+    for(item of ddf.info.diceBotInfos){
+      $("#playRoomGameType").append($('<option value="'+item.gameType+'">'+item.name+'</option>'));
+    }
+    
     $("#login_name").val(ddf.userState.name);
 
     ddf.cmd.getPlayRoomInfo();
@@ -304,61 +306,71 @@ function getLoginInfo(){
 ddf.cmd.getPlayRoomInfo = getPlayRoomInfo;
 function getPlayRoomInfo(){
   promises = [];
-  for(i = 0;i * ddf.info.playRoomGetRangeMax < ddf.info.playRoomMaxNumber;i++){
-    promises.push(
-      ddf.getPlayRoomInfo(i * ddf.info.playRoomGetRangeMax, ddf.info.playRoomGetRangeMax * (i+1) - 1 > ddf.info.playRoomMaxNumber ? ddf.info.playRoomMaxNumber : ddf.info.playRoomGetRangeMax * (i+1) - 1)
-    );
-  }
-  callback = (r) => {
-    roominfo = r;
-    for(key in roominfo.playRoomStates){
-      room = roominfo.playRoomStates[key];
-      ddf.roomInfos[parseInt(room.index.trim())] = room;
-      
-      var row = "<tr>";
-      row += `<td>${room.index}</td>`
-      row += `<td>${encode(room.playRoomName)}</td>`
-      row += `<td>${encode(ddf.util.getDiceBotName(room.gameType))}</td>`
-      row += `<td>${room.loginUsers.length}</td>`
-      row += `<td>${room.passwordLockState?"有り":"--"}</td>`;
-      row += `<td>${room.canVisit?"可":"--"}</td>`;
-      row += `<td>${room.lastUpdateTime?room.lastUpdateTime:""}</td>`;
-      row += "<td></td></tr>";
-      tr = $(row);
-      button = $("<button>削除</button>");
-      if(room.lastUpdateTime){
-        button.on('click', ((roomNumber) => {
-          return (e) => {
-            e.stopPropagation && e.stopPropagation();
-            removePlayRoom(roomNumber)
-          };
-        })(parseInt(room.index.trim()) ));
-      }else{
-        button.prop("disabled", true);
-      }      
-      tr.children("td:last").append(button);
-      $("#playddf.roomInfos tbody").append(tr);
-      tr.on('dblclick', ((roomNumber) => {return (e) => {
-        checkRoomStatus(roomNumber);
-      }})(parseInt(room.index)));
-      tr.on('click', ((roomNumber) => {return (e) => {
-        $("#playRoomNo").val(roomNumber);
-      }})(parseInt(room.index)));
-      $("#playRoomInfos table tbody").append(tr);
-    }
-    $("#playddf.roomInfos table").trigger( 'update');
-    return r;
-  };
-
-  promises.reduce((current, next) =>  {
-    var p = current.then((v) =>  {
-      return next;
-    });
-    p.then(callback);
-    return p;
-  }, Promise.resolve());
   
+  if(matches = /(\?|&)room=(\d+)(&|$)/.exec(location.search)){
+    room = parseInt(matches[2]);
+    ddf.getPlayRoomInfo(room, room).then((r)=>{
+      ddf.roomInfos[room] = r.playRoomStates[0];
+      checkRoomStatus(room);
+    });
+  }else{
+    for(i = 0;i * ddf.info.playRoomGetRangeMax < ddf.info.playRoomMaxNumber;i++){
+      promises.push(
+        ddf.getPlayRoomInfo(i * ddf.info.playRoomGetRangeMax, ddf.info.playRoomGetRangeMax * (i+1) - 1 > ddf.info.playRoomMaxNumber ? ddf.info.playRoomMaxNumber : ddf.info.playRoomGetRangeMax * (i+1) - 1)
+      );
+    }
+
+    callback = (r) => {
+      roominfo = r;
+      for(key in roominfo.playRoomStates){
+        room = roominfo.playRoomStates[key];
+        ddf.roomInfos[parseInt(room.index.trim())] = room;
+        
+        var row = "<tr>";
+        row += `<td>${room.index}</td>`
+        row += `<td>${encode(room.playRoomName)}</td>`
+        row += `<td>${encode(ddf.util.getDiceBotName(room.gameType))}</td>`
+        row += `<td>${room.loginUsers.length}</td>`
+        row += `<td>${room.passwordLockState?"有り":"--"}</td>`;
+        row += `<td>${room.canVisit?"可":"--"}</td>`;
+        row += `<td>${room.lastUpdateTime?room.lastUpdateTime:""}</td>`;
+        row += "<td></td></tr>";
+        tr = $(row);
+        button = $("<button>削除</button>");
+        if(room.lastUpdateTime){
+          button.on('click', ((roomNumber) => {
+            return (e) => {
+              e.stopPropagation && e.stopPropagation();
+              removePlayRoom(roomNumber)
+            };
+          })(parseInt(room.index.trim()) ));
+        }else{
+          button.prop("disabled", true);
+        }      
+        tr.children("td:last").append(button);
+        $("#playddf.roomInfos tbody").append(tr);
+        tr.on('dblclick', ((roomNumber) => {return (e) => {
+          checkRoomStatus(roomNumber);
+        }})(parseInt(room.index)));
+        tr.on('click', ((roomNumber) => {return (e) => {
+          $("#playRoomNo").val(roomNumber);
+        }})(parseInt(room.index)));
+        $("#playRoomInfos table tbody").append(tr);
+      }
+      $("#playddf.roomInfos table").trigger('update');
+      return r;
+    };
+
+    promises.reduce((current, next) =>  {
+      var p = current.then((v) =>  {
+        return next;
+      });
+      p.then(callback);
+      return p;
+    }, Promise.resolve());
+    
     $("#loading").hide();
+  }
 }
 
 function createPlayRoom(){
@@ -1745,8 +1757,8 @@ function refresh_parseRoundTimeData(refreshData, force = false){
     for(key in ddf.roomState.ini_characters){
       var character = ddf.roomState.ini_characters[key];
       var tmp = `<tr id="${character.data.imgId}">`;
-      if(character.data.type != "characterData"){
-        if(character.data.createRound + character.data.timeRange <= ddf.roomState.roundTimeData.round){
+      if(character.data.type != "characterData" && character.data.createRound && character.data.timeRange){
+        if(parseInt(character.data.createRound) + parseInt(character.data.timeRange) <= ddf.roomState.roundTimeData.round){
           tmp+= `<td>${(character.data.initiative==ddf.roomState.roundTimeData.initiative?"×":"")}</td>`;
         }else{
           tmp+= `<td>${(character.data.initiative==ddf.roomState.roundTimeData.initiative?"●":"")}</td>`;
@@ -1798,10 +1810,10 @@ function refresh_parseRoundTimeData(refreshData, force = false){
           character.row
         );
       }
-      if(character.data.type != "characterData"){
-        if(character.data.createRound + character.data.timeRange < ddf.roomState.roundTimeData.round ||
-          (character.data.createRound + character.data.timeRange == ddf.roomState.roundTimeData.round &&
-           character.data.initiative >= ddf.roomState.roundTimeData.initiative)){
+      if(character.data.type != "characterData" && character.data.createRound && character.data.timeRange){
+        if(parseInt(character.data.createRound) + parseInt(character.data.timeRange) < ddf.roomState.roundTimeData.round ||
+          (parseInt(character.data.createRound) + parseInt(character.data.timeRange) == ddf.roomState.roundTimeData.round &&
+           parseFloat(character.data.initiative) >= ddf.roomState.roundTimeData.initiative)){
           character.row.addClass("end");
         }else{
           character.row.removeClass("end");
@@ -1815,8 +1827,8 @@ function refresh_parseRoundTimeData(refreshData, force = false){
     for(key in ddf.roomState.ini_characters){
       var character = ddf.roomState.ini_characters[key];
       if(character != undefined){
-        if(character.data.type != "characterData"){
-          if(character.data.createRound + character.data.timeRange <= ddf.roomState.roundTimeData.round){
+        if(character.data.type != "characterData" && character.data.createRound && character.data.timeRange){
+          if(parseInt(character.data.createRound) + parseInt(character.data.timeRange) <= ddf.roomState.roundTimeData.round){
             character.row.children("td:eq(0)").text(character.data.initiative==ddf.roomState.roundTimeData.initiative?"×":"");
           }else{
             character.row.children("td:eq(0)").text(character.data.initiative==ddf.roomState.roundTimeData.initiative?"●":"");
@@ -1861,9 +1873,9 @@ function refresh_parseRoundTimeData(refreshData, force = false){
         character.row.children("td:last").children("input").val(encode(character.data.info));
       }
       if(character.data.type != "characterData"){
-        if(character.data.createRound + character.data.timeRange < ddf.roomState.roundTimeData.round ||
-          (character.data.createRound + character.data.timeRange == ddf.roomState.roundTimeData.round &&
-           character.data.initiative >= ddf.roomState.roundTimeData.initiative)){
+        if(parseInt(character.data.createRound) + parseInt(character.data.timeRange) < ddf.roomState.roundTimeData.round ||
+          (parseInt(character.data.createRound) + parseInt(character.data.timeRange) == ddf.roomState.roundTimeData.round &&
+           parseFloat(character.data.initiative) >= ddf.roomState.roundTimeData.initiative)){
           character.row.addClass("end");
         }else{
           character.row.removeClass("end");

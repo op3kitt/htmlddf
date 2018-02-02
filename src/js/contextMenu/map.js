@@ -28,8 +28,8 @@ $.contextMenu({
       },
     },
     addMagicTimer: {name: "魔法タイマー追加",
-      disabled: true, 
       callback: function(itemKey, opt, rootMenu, originalEvent) {
+        ddf.cmd.magicTimer_show("");
       },
     },
     addMapMask: {name: "マップマスク追加",
