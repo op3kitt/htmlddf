@@ -2,6 +2,10 @@
   "name": "DodontoF_html5cli",
   "version": "0.1.4",
   "description": "DodontoF.rb client build package",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/op3kitt/htmlddf.git"
+  },
   "main": "gulpfile.js",
   "dependencies": {
     "ddf": "^0.5.6",
