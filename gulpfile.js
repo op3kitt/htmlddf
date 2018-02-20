@@ -76,7 +76,7 @@ gulp.task('browserify', watchify(function(watchify){
   })
 );
 
-gulp.task('build:ddf', ['doc:ddf'], function(){
+gulp.task('build:ddf', [], function(){
   exec('browserify -r ddf -g uglifyify --outfile build/js/lib/ddf.js', function(a,b,c){
     exec('echo var ddf = require("ddf");>> build/js/lib/ddf.js');
   });
@@ -90,6 +90,3 @@ gulp.task('watch', ['build:pug', 'build:scss', 'build:asset:local', 'build:ddf',
   gulp.watch(['local/**', 'src/vender/**'], ['build:asset:local']);
 });
 
-gulp.task('doc:ddf', function(){
-  exec('jsdoc -c .jsdoc.json');
-});

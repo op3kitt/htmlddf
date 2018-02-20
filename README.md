@@ -81,16 +81,16 @@ git clone https://github.com/op3kitt/htmlddf.git
 Node.jsの実行環境をインストールします。
 
 通信用ライブラリも同時にビルドする場合、
-node\_modules/ddf に src/module へのシンボリックリンクを作成してください。
+node\_modules/ddf に src/ddf へのシンボリックリンクを作成してください。
 
 ```Shell
-ln -s src/module node_modules/ddf
+ln -s src/ddf node_modules/ddf
 ```
 
 ※Windows環境では管理者権限にて以下のコマンドを実行してください。
 
 ```Batchfile
-MKLINK /D node_modules\ddf ,,\src\modules
+MKLINK /D node_modules\ddf ..\src\ddf
 ```
 
 依存するライブラリを以下のコマンドでインストールします。
