@@ -20,8 +20,7 @@
     "store": "^2.0.12",
     "vinyl-buffer": "^1.0.0",
     "watchify": "^3.9.0",
-    "del": "^3.0.0",
-    "store": "^2.0.12"
+    "del": "^3.0.0"
   },
   "devDependencies": {},
   "scripts": {
