@@ -6,7 +6,7 @@
 /build/*
 !/build/js/
 /build/js/*
-!/build/js/
+!/build/js/lib
 /build/js/lib/*
 /doc/
 !/local/
