@@ -1,5 +1,7 @@
 /*.zip
-/node_modules/*
+/node_modules/
+/build/
+/doc/
 !/local/
 /local/*
 !/local/.gitkeep
