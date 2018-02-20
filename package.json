@@ -2,27 +2,34 @@
   "name": "DodontoF_html5cli",
   "version": "0.1.4",
   "description": "DodontoF.rb client build package",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/op3kitt/htmlddf.git"
+  },
   "main": "gulpfile.js",
   "dependencies": {
     "ddf": "^0.5.7",
+    "msgpack-lite": "^0.1.26",
+    "store": "^2.0.12"
+  },
+  "devDependencies": {
     "browserify": "^14.4.0",
+    "del": "^3.0.0",
+    "fancy-log": "^1.3.2",
     "gulp": "^3.9.1",
     "gulp-cssnano": "^2.1.2",
+    "gulp-notify": "^3.2.0",
+    "gulp-plumber": "^1.1.0",
     "gulp-pug": "^3.3.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^3.1.0",
     "gulp-sourcemaps": "^2.6.1",
     "gulp-watchify": "^0.7.0",
-    "gulp-plumber": "^1.1.0",
+    "gulp-zip": "^4.1.0",
     "uglifyify": "^4.0.5",
-    "minami": "^1.2.3",
-    "msgpack-lite": "^0.1.26",
-    "store": "^2.0.12",
     "vinyl-buffer": "^1.0.0",
-    "watchify": "^3.9.0",
-    "del": "^3.0.0"
+    "watchify": "^3.9.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
