@@ -153,7 +153,7 @@ $("#chit_preview").draggable({
           left: (event.clientX - click.x + original.left) / zoom,
           top:  (event.clientY - click.y + original.top ) / zoom
       };
-      if(ddf.roomState.viewStateInfo.isSnapMovablePiece){
+      if(ddf.roomState.viewStateInfo.isSnapMovablePiece && !event.altKey){
         if(ddf.roomState.mapData.isAlternately && ddf.roomState.mapData.gridInterval % 2 == 1){
           if((Math.floor(ui.position.top / 50 / ddf.roomState.mapData.gridInterval) & 1)){
             ui.position = {

@@ -89,7 +89,7 @@ $(() => {
           left: (event.clientX - click.x + original.left) / zoom,
           top:  (event.clientY - click.y + original.top ) / zoom
       };
-      if(ddf.roomState.viewStateInfo.isSnapMovablePiece){
+      if(ddf.roomState.viewStateInfo.isSnapMovablePiece && !event.altKey){
         if(ddf.roomState.mapData.isAlternately && ddf.roomState.mapData.gridInterval % 2 == 1){
           if((Math.floor(ui.position.top / 50 / ddf.roomState.mapData.gridInterval) & 1)){
             ui.position = {
@@ -1590,7 +1590,7 @@ function refresh_parseCharacters(refreshData){
       $("#mapSurface").append(obj);
       break;
     case "floorTile":
-      obj = $(`<div class="floorTileFrame dragprev" id="${character.imgId}"></div>`);
+      obj = $(`<div class="floorTileFrame" id="${character.imgId}"></div>`);
       if(character.draggable){obj.addClass("draggableObj");}
       obj.append($(`<div class="inner"></div>`));
       ddf.characters[character.imgId] = {
