@@ -185,8 +185,8 @@ $(() => {
   });*/
   $("#btn_camera").on("click", (e) => {
   });
-  $("#btn_imagetagedit").on("click", (e) => {
-  });
+  /*$("#btn_imagetagedit").on("click", (e) => {
+  });*/
   /*$("#btn_imagedelete").on("click", (e) => {
   });*/
 

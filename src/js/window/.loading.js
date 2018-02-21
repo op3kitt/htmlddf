@@ -24,6 +24,7 @@ $(() => {
   require("./floorTile.js");
 
   require("./upload.js");
+  require("./changeImageTags.js");
   require("./imageDelete.js");
 
   require("./playRoomInfo.js");

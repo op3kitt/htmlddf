@@ -1,0 +1,31 @@
+#window_changeImageTags.draggable
+  .bg 
+    div 画像タグ名管理
+      .pull-right#changeImageTags_close2 ×
+  .body.dragprev
+    .r.clearfix
+      #changeImageTags_preview
+        input(type="hidden")#changeImageTags_imageName
+        #changeImageTags_image
+      #changeImageTags_imageSelect
+        .r
+          #changeImageTags_imagearea
+        .r
+          | 検索タグ
+          select#changeImageTags_tagbox
+          button#changeImageTags_btnpassword 隠し画像
+          input#changeImageTags_password
+    .r
+      | 付与するタグ（半角・全角スペースで区切り）
+      input#changeImageTags_tag(value="")
+      select#changeImageTags_tagbox2
+        option キャラクター画像
+        option フロアタイル画像
+        option マップ画像
+        option モンスター
+        option 立ち絵
+      button#changeImageTags_btnpassword2 パスワードなし
+      input#changeImageTags_password2
+    .r
+      button#changeImageTags_send 変更内容を保存
+      button#changeImageTags_close 閉じる
