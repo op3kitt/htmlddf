@@ -242,6 +242,71 @@ ddf.cmd.safeDragDestroy = () => {
   }catch(e){}
 }
 
+ddf.webSocket = {
+  readyState: WebSocket.CLOSE
+};
+isWriting = false;
+function openWebSocket(){
+  try{
+    ddf.webSocket = new WebSocket(config.webSocketUrl);
+    $("#chattext").on("keyup", (e) => {
+      if(ddf.webSocket.readyState == WebSocket.OPEN){
+        if(isWriting){
+          if($("#chattext").val() == ""){
+            ddf.webSocket.send(msgpack.encode({
+              "room": ddf.userState.room,
+              "own": ddf.info.uniqueId+ddf.userState.own,
+              "param": {
+                "name": ddf.userState.name,
+                "writingState": false
+              },
+              "cmd": "chatState"
+            }));
+            isWriting = false;
+          }
+        }else{
+          if($("#chattext").val() != ""){
+            ddf.webSocket.send(msgpack.encode({
+              "room": ddf.userState.room,
+              "own": ddf.info.uniqueId+ddf.userState.own,
+              "param": {
+                "name": ddf.userState.name,
+                "writingState": true
+              },
+              "cmd": "chatState"
+            }));
+            isWriting = true;
+          }
+        }
+      }
+    });
+  }catch(e){
+    console.log("WebSocketに接続できませんでした。");
+  }
+
+  ddf.webSocket.onopen = (e) => {
+    ddf.webSocket.send(msgpack.encode({
+      "room": ddf.userState.room,
+      "own": ddf.info.uniqueId+ddf.userState.own,
+      "param": {},
+      "cmd": "login"
+    }));
+  };
+
+  ddf.webSocket.onmessage = (e) => {
+    json = JSON.parse(e.data);
+    if(ddf.isDebug){console.log(json);}
+    parseRefreshData(json);
+  };
+
+  ddf.webSocket.onclose = (e) => {
+    parseRefreshData({writing: []});
+    //WebSocketが切れたら通常の更新を開始する
+    refresh();
+  };
+
+}
+
 ddf.cmd.setZoom = setZoom;
 function setZoom(amount, relative = true){
   if(relative){
@@ -437,6 +502,9 @@ function checkRoomStatus(roomNumber, isVisit = null, password = null){
           ddf.userState.room = roominfo.roomNumber;
           ddf.userState.name = $("#login_name").val();
           saveUserState();
+          if(config.webSocketUrl != ""){
+            openWebSocket();
+          }
           if(roominfo.isWelComeMessageOn){
             ddf.sendChatMessage(0, "どどんとふ\t", "「"+ddf.userState.name+"」がログインしました。（htmlddf "+version+"）", "00aa00", true);
           }
@@ -562,92 +630,103 @@ function setChatTab(index){
 }
 
 var error_count = 0;
-function refresh(){
-  ddf.refresh().then((r) => {
-    try{
-      if(typeof r != "object"){throw "data is empty";}
-      refreshData = r;
-      //console.log(refreshData);
-      refreshData.lastUpdateTimes && (ddf.userState.lastUpdateTimes = refreshData.lastUpdateTimes);
-      if(refreshData.viewStateInfo){
-        ddf.roomState.viewStateInfo = refreshData.viewStateInfo;
-      }
-      if(refreshData.gameType){
-        if($("#dicebot").children(`[value=${refreshData.gameType.replace('.', '\\.')}]`).length==1){
-          $("#dicebot").val($(refreshData.gameType));
-        }else{
-          $("#dicebot").append($(`<option value="${encode(refreshData.gameType)}">${encode(refreshData.gameType)}</option>`));
-          $("#dicebot").val(refreshData.gameType);
-        }
-      }
-      if(refreshData.mapData) {
-        ddf.cmd.refresh_parseMapData(refreshData);
-      }
-      if(refreshData.characters){
-        refresh_parseCharacters(refreshData);
-      }
-      if(refreshData.roundTimeData){
-        refresh_parseRoundTimeData(refreshData);
-      }
-      if(refreshData.gameType){
-        ddf.roomState.gameType = refreshData.gameType;
-      }
-      if(refreshData.viewStateInfo){
-        refresh_parseViewStateInfo(refreshData);
-      }
-      if(refreshData.effects){
-        refresh_parseEffects(refreshData);
-      }
-      if(refreshData.chatChannelNames && !refreshData.isFirstChatRefresh){
-        $(`#tab > p:gt(${refreshData.chatChannelNames.length - 1}),#log > div:gt(${refreshData.chatChannelNames.length - 1})`).remove();
-        ddf.roomState.unread.splice(refreshData.chatChannelNames.length);
-        for(i = 0;i < refreshData.chatChannelNames.length;i++){
-          if(ddf.roomState.chatChannelNames.length <= i){
-            ddf.roomState.unread.push(0);
-            var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
-            obj.on("click", ((index) => {
-              return (e) => {
-                if(!$(e.currentTarget).hasClass("active")){
-                  setChatTab(index)
-                }
-              }
-            })(i));
-            $("#tab").append(obj);
-            $("#log").append($("<div><p></p></div>"));
-          }else{
-            $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${encode(refreshData.chatChannelNames[i])}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
-          }
-        }
-        if($("#tab .active").length == 0){
-          setChatTab(0);
-        }
-        ddf.roomState.chatChannelNames = refreshData.chatChannelNames;
-      }
-      if(refreshData.chatMessageDataLog){
-        refresh_parseChatMessageDataLog(refreshData);
-      }
-      if(refreshData.record) {
-        ddf.cmd.refresh_parseRecordData(refreshData);
-      }
-      if(refreshData.gameType){
-        $("#dicebot").val(refreshData.gameType);
-      }
-      if(refreshData.playRoomName){
-        ddf.roomState.playRoomName = refreshData.playRoomName;
-      }
-      if(refreshData.loginUserInfo){
-        ddf.roomState.loginUserInfo = refreshData.loginUserInfo;
-        $("#btn_member").text(`ルームNo.${ddf.roomState.roomNumber}：${refreshData.loginUserInfo.length}名`);
-      }
-      r = refreshData = null;
-    }catch(e){
-      console.log(e);
-      error_count++;
-    }finally{
-      if(ddf.userState.room != -1 && error_count < 100){
-        setTimeout(refresh, ddf.info.refreshInterval * 1000);
+function parseRefreshData(refreshData){
+  try{
+    if(typeof refreshData != "object"){throw "data is empty";}
+    //console.log(refreshData);
+    refreshData.lastUpdateTimes && (ddf.userState.lastUpdateTimes = refreshData.lastUpdateTimes);
+    if(refreshData.viewStateInfo){
+      ddf.roomState.viewStateInfo = refreshData.viewStateInfo;
+    }
+    if(refreshData.writing){
+      if(refreshData.writing.length == 0){
+        $("#writingState").removeClass("active");
+        $("#writingState").text("");
+      }else{
+        $("#writingState").addClass("active");
+        $("#writingState").text(`入力中：${refreshData.writing.join(",")}`);
       }
     }
+    if(refreshData.viewStateInfo){
+      ddf.roomState.viewStateInfo = refreshData.viewStateInfo;
+    }
+    if(refreshData.gameType){
+      if($("#dicebot").children(`[value=${refreshData.gameType.replace('.', '\\.')}]`).length==1){
+        $("#dicebot").val($(refreshData.gameType));
+      }else{
+        $("#dicebot").append($(`<option value="${encode(refreshData.gameType)}">${encode(refreshData.gameType)}</option>`));
+        $("#dicebot").val(refreshData.gameType);
+      }
+    }
+    if(refreshData.mapData) {
+      ddf.cmd.refresh_parseMapData(refreshData);
+    }
+    if(refreshData.characters){
+      refresh_parseCharacters(refreshData);
+    }
+    if(refreshData.roundTimeData){
+      refresh_parseRoundTimeData(refreshData);
+    }
+    if(refreshData.gameType){
+      ddf.roomState.gameType = refreshData.gameType;
+      $("#dicebot").val(refreshData.gameType);
+    }
+    if(refreshData.effects){
+      refresh_parseEffects(refreshData);
+    }
+    if(refreshData.chatChannelNames && !refreshData.isFirstChatRefresh){
+      $(`#tab > p:gt(${refreshData.chatChannelNames.length - 1}),#log > div:gt(${refreshData.chatChannelNames.length - 1})`).remove();
+      ddf.roomState.unread.splice(refreshData.chatChannelNames.length);
+      for(i = 0;i < refreshData.chatChannelNames.length;i++){
+        if(ddf.roomState.chatChannelNames.length <= i){
+          ddf.roomState.unread.push(0);
+          var obj = $(`<p>${encode(tab)}/<span class="tab_label">0</span></p>`);
+          obj.on("click", ((index) => {
+            return (e) => {
+              if(!$(e.currentTarget).hasClass("active")){
+                setChatTab(index)
+              }
+            }
+          })(i));
+          $("#tab").append(obj);
+          $("#log").append($("<div><p></p></div>"));
+        }else{
+          $(`#tab:eq(${refreshData.chatChannelNames - 1})`).html(`${encode(refreshData.chatChannelNames[i])}/<span class="tab_label">${ddf.roomState.unread[i]}</span>`);
+        }
+      }
+      if($("#tab .active").length == 0){
+        setChatTab(0);
+      }
+      ddf.roomState.chatChannelNames = refreshData.chatChannelNames;
+    }
+    if(refreshData.chatMessageDataLog){
+      refresh_parseChatMessageDataLog(refreshData);
+    }
+    if(refreshData.record){
+      ddf.cmd.refresh_parseRecordData(refreshData);
+    }
+    if(refreshData.playRoomName){
+      ddf.roomState.playRoomName = refreshData.playRoomName;
+    }
+    if(refreshData.loginUserInfo){
+      ddf.roomState.loginUserInfo = refreshData.loginUserInfo;
+      $("#btn_member").text(`ルームNo.${ddf.roomState.roomNumber}：${refreshData.loginUserInfo.length}名`);
+    }
+    r = refreshData = null;
+  }catch(e){
+    console.log(e);
+    error_count++;
+  }finally{
+  //WebSocketで通信している時は初回以降は能動的にrefreshしない
+    if(ddf.webSocket.readyState != WebSocket.OPEN && ddf.userState.room != -1 && error_count < 100){
+      setTimeout(refresh, ddf.info.refreshInterval * 1000);
+    }
+  }
+}
+
+function refresh(){
+  ddf.refresh().then((r) => {
+    parseRefreshData(r);
   });
 }
 
