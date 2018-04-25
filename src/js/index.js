@@ -1,3 +1,5 @@
+ddf = require('ddf');
+
 ddf.cmd = {};
 chatlog = [];
 
@@ -559,9 +561,11 @@ function setChatTab(index){
   $(`#tab p:eq(${index}) span`).text(0);
 }
 
+var error_count = 0;
 function refresh(){
   ddf.refresh().then((r) => {
     try{
+      if(typeof r != "object"){throw "data is empty";}
       refreshData = r;
       //console.log(refreshData);
       refreshData.lastUpdateTimes && (ddf.userState.lastUpdateTimes = refreshData.lastUpdateTimes);
@@ -569,7 +573,7 @@ function refresh(){
         ddf.roomState.viewStateInfo = refreshData.viewStateInfo;
       }
       if(refreshData.gameType){
-        if($("#dicebot").children(`[value=${refreshData.gameType}]`).length==1){
+        if($("#dicebot").children(`[value=${refreshData.gameType.replace('.', '\\.')}]`).length==1){
           $("#dicebot").val($(refreshData.gameType));
         }else{
           $("#dicebot").append($(`<option value="${encode(refreshData.gameType)}">${encode(refreshData.gameType)}</option>`));
@@ -638,8 +642,9 @@ function refresh(){
       r = refreshData = null;
     }catch(e){
       console.log(e);
+      error_count++;
     }finally{
-      if(ddf.userState.room != -1){
+      if(ddf.userState.room != -1 && error_count < 100){
         setTimeout(refresh, ddf.info.refreshInterval * 1000);
       }
     }
@@ -1904,7 +1909,7 @@ function sendChatMessage(channel, senderName, state, gameType, message, color, i
     //DiceBotMessage
     ddf.userState.name = senderName;
     saveUserState();
-    return ddf.sendDiceBotChatMessage(channel, senderName, state, match[2]?match[2]:0, match[3], color, ddf.roomState.gameType, isNeedResult);
+    return ddf.sendDiceBotChatMessage(channel, senderName, state, match[2]?match[2]:0, match[3] + message.substr(match[0].length), color, ddf.roomState.gameType, isNeedResult);
   }else{
     //ChatMessage
     /*version = /^Ver\.\d+\.(\d+\.\d+\.?\d*)\(/.exec(ddf.info.version);
