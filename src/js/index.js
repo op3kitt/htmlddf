@@ -248,7 +248,7 @@ ddf.webSocket = {
 isWriting = false;
 function openWebSocket(){
   try{
-    ddf.webSocket = new WebSocket(config.webSocketUrl);
+    ddf.webSocket = new WebSocket(config.webSocketUrl, "DodontoF-WebSocket");
     $("#chattext").on("keyup", (e) => {
       if(ddf.webSocket.readyState == WebSocket.OPEN){
         if(isWriting){
@@ -256,7 +256,7 @@ function openWebSocket(){
             ddf.webSocket.send(msgpack.encode({
               "room": ddf.userState.room,
               "own": ddf.info.uniqueId+ddf.userState.own,
-              "param": {
+              "params": {
                 "name": ddf.userState.name,
                 "writingState": false
               },
@@ -269,7 +269,7 @@ function openWebSocket(){
             ddf.webSocket.send(msgpack.encode({
               "room": ddf.userState.room,
               "own": ddf.info.uniqueId+ddf.userState.own,
-              "param": {
+              "params": {
                 "name": ddf.userState.name,
                 "writingState": true
               },
@@ -1983,6 +1983,18 @@ function sendChatMessage(channel, senderName, state, gameType, message, color, i
     ).map((r) => {return new RegExp("^((\\d+)\\s+)?(S?"+r+"[^\\s]*)", "i");});
     ddf.patterns[ddf.roomState.gameType] = pattern;
   }
+  if(ddf.webSocket.readyState == WebSocket.OPEN){
+    ddf.webSocket.send(msgpack.encode({
+      "room": ddf.userState.room,
+      "own": ddf.info.uniqueId+ddf.userState.own,
+      "params": {
+        "name": ddf.userState.name,
+        "writingState": false
+      },
+      "cmd": "chatState"
+    }));
+  }
+  isWriting = false;
   var match;
   if(!!pattern.find((r) => {return !!(match = r.exec(toHalf(message)));})){
     //DiceBotMessage
